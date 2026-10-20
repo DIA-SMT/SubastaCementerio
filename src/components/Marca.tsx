@@ -17,8 +17,18 @@ const disponibles = Object.fromEntries(
   ]),
 ) as Record<keyof typeof LOGOS, boolean>;
 
-export function Marca({ logo, claro = false }: { logo: keyof typeof LOGOS; claro?: boolean }) {
-  const { archivo, nombre, marcador, alto } = LOGOS[logo];
+export function Marca({
+  logo,
+  claro = false,
+  alto: altoPedido,
+}: {
+  logo: keyof typeof LOGOS;
+  claro?: boolean;
+  /** Alto en píxeles, si el lugar pide otro distinto del habitual. */
+  alto?: number;
+}) {
+  const { archivo, nombre, marcador, alto: altoHabitual } = LOGOS[logo];
+  const alto = altoPedido ?? altoHabitual;
   if (disponibles[logo]) {
     return (
       // eslint-disable-next-line @next/next/no-img-element -- logo sin procesar, tal como lo entrega la Municipalidad
@@ -31,7 +41,7 @@ export function Marca({ logo, claro = false }: { logo: keyof typeof LOGOS; claro
       aria-label={nombre}
       title={`Falta public/marca/${archivo}`}
       style={{ height: alto }}
-      className={`inline-flex shrink-0 items-center rounded-md whitespace-nowrap border-2 border-dashed px-3 text-sm font-bold ${
+      className={`inline-flex shrink-0 items-center rounded-sm whitespace-nowrap border border-dashed px-3 text-sm font-semibold ${
         claro ? "border-white/70 text-white" : "border-gris text-gris"
       }`}
     >

@@ -10,7 +10,7 @@ export default function LayoutPublico({ children }: LayoutProps<"/">) {
       <Suspense fallback={null}>
         <FranjaEjemplo />
       </Suspense>
-      <main id="contenido" className="flex-1">
+      <main id="contenido" className="flex-1 pb-24 md:pb-32">
         {children}
       </main>
       <Pie />

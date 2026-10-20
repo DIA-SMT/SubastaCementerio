@@ -7,7 +7,7 @@ import { registrarse, type EstadoRegistro } from "./acciones";
 function MensajeError({ id, texto }: { id: string; texto?: string }) {
   if (!texto) return null;
   return (
-    <p id={id} className="mt-1.5 font-bold text-tinta">
+    <p id={id} className="mt-1.5 font-medium text-tinta">
       <span aria-hidden className="mr-1.5 inline-block h-2.5 w-2.5 rounded-full bg-rojo" />
       {texto}
     </p>
@@ -72,7 +72,7 @@ export function FormularioRegistro({ volver, email }: { volver: string; email: s
   return (
     <form ref={formulario} action={enviar} className="space-y-5" noValidate>
       <input type="hidden" name="volver" value={volver} />
-      <div className="rounded-xl bg-fondo px-4 py-3">
+      <div className="rounded-md bg-fondo px-4 py-3">
         <p className="text-texto">Correo confirmado</p>
         <p className="font-bold break-all text-tinta">{email}</p>
       </div>
@@ -82,8 +82,8 @@ export function FormularioRegistro({ volver, email }: { volver: string; email: s
       {campo("dni", "DNI", { inputMode: "numeric", autoComplete: "off" }, "Solo números, sin puntos.")}
       {campo("telefono", "Teléfono", { type: "tel", inputMode: "tel", autoComplete: "tel" }, "Con código de área, por ejemplo 381 555 1234.")}
 
-      <fieldset className="space-y-3 rounded-xl border-2 border-linea p-4">
-        <legend className="px-1 font-bold text-tinta">Antes de participar</legend>
+      <fieldset className="space-y-3 rounded-md border border-linea p-4">
+        <legend className="px-1 font-semibold text-tinta">Antes de participar</legend>
         <label className="flex items-start gap-3 text-lg">
           <input type="checkbox" {...casilla("bases")} />
           <span>
@@ -118,7 +118,7 @@ export function FormularioRegistro({ volver, email }: { volver: string; email: s
           id="error-general"
           role="alert"
           tabIndex={-1}
-          className="rounded-xl border-l-8 border-rojo bg-rojo-suave px-4 py-3 font-bold text-tinta"
+          className="rounded-md border-l-2 border-rojo bg-rojo-suave px-4 py-3 font-medium text-tinta"
         >
           {e.general}
         </p>
@@ -130,7 +130,7 @@ export function FormularioRegistro({ volver, email }: { volver: string; email: s
         </p>
       )}
 
-      <button type="submit" className="boton-primario w-full text-xl" disabled={enviando}>
+      <button type="submit" className="boton-primario w-full" disabled={enviando}>
         {enviando ? "Guardando…" : "Guardar mis datos"}
       </button>
     </form>

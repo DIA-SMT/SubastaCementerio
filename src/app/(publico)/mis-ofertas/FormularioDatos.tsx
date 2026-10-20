@@ -53,7 +53,7 @@ export function FormularioDatos({ telefono, avisos }: { telefono: string; avisos
             key={estado.vez}
             id={errorTelefono ? "telefono-error" : undefined}
             role="alert"
-            className="rounded-xl border-l-8 border-rojo bg-rojo-suave px-4 py-3 font-bold text-tinta"
+            className="rounded-md border-l-2 border-rojo bg-rojo-suave px-4 py-3 font-medium text-tinta"
           >
             {estado.error}
           </p>
@@ -65,7 +65,7 @@ export function FormularioDatos({ telefono, avisos }: { telefono: string; avisos
       {/* Región siempre presente: el aviso se vuelve a insertar (key) en cada guardado y se anuncia. */}
       <div role="status" className="mt-4 empty:mt-0">
         {estado.ok && (
-          <p key={estado.vez} className="rounded-xl border-l-8 border-verde bg-verde-suave px-4 py-3 font-bold text-tinta">
+          <p key={estado.vez} className="rounded-md border-l-2 border-verde bg-verde-suave px-4 py-3 font-medium text-tinta">
             Guardamos los cambios.
           </p>
         )}

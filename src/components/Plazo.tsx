@@ -54,48 +54,73 @@ export function Plazo({ estado }: { estado: EstadoSubasta }) {
   }
 }
 
-/**
- * Plazo destacado: cuenta regresiva en bloques (portada, catálogo y ficha).
- * Con `claro`, para usar sobre el degradé institucional.
- */
-export function PlazoDestacado({ estado, claro = false }: { estado: EstadoSubasta; claro?: boolean }) {
-  const ahora = estado.ahora.toISOString();
-  const secundario = claro ? "text-white" : "text-texto";
+/** Rótulo, objetivo de la cuenta regresiva (si hay) y detalle del plazo según la fase. */
+function datosPlazo(estado: EstadoSubasta) {
   switch (estado.fase) {
     case "por_confirmar":
-      return <p className={`text-xl font-bold ${claro ? "text-white" : "text-tinta"}`}>Las fechas de la etapa virtual están por confirmarse.</p>;
+      return { rotulo: "Fechas a confirmar", detalle: "Las fechas de la etapa virtual están por confirmarse." };
     case "antes":
-      return (
-        <div className="space-y-2">
-          <CuentaBloques
-            objetivo={estado.inicio.toISOString()}
-            ahoraServidor={ahora}
-            etiqueta="La etapa virtual empieza en"
-            alTerminar="La etapa virtual ya empezó."
-            claro={claro}
-          />
-          <p className={secundario}>Inicio: {fechaHoraLarga(estado.inicio)} (hora de Tucumán)</p>
-        </div>
-      );
+      return {
+        rotulo: "La subasta virtual comienza en",
+        objetivo: estado.inicio,
+        alTerminar: "La subasta virtual ya comenzó.",
+        detalle: `Inicio: ${fechaHoraLarga(estado.inicio)} (hora de Tucumán)`,
+      };
     case "abierta":
-      return (
-        <div className="space-y-2">
-          <CuentaBloques
-            objetivo={estado.cierre.toISOString()}
-            ahoraServidor={ahora}
-            etiqueta="La etapa virtual cierra en"
-            alTerminar="La etapa virtual cerró."
-            claro={claro}
-          />
-          <p className={secundario}>Cierre: {fechaHoraLarga(estado.cierre)} (hora de Tucumán)</p>
-        </div>
-      );
+      return {
+        rotulo: "La subasta virtual finaliza en",
+        objetivo: estado.cierre,
+        alTerminar: "La subasta virtual finalizó.",
+        detalle: `Cierre: ${fechaHoraLarga(estado.cierre)} (hora de Tucumán)`,
+      };
     case "cerrada":
-      return (
-        <div className="space-y-1">
-          <p className={`text-xl font-bold ${claro ? "text-white" : "text-tinta"}`}>La etapa virtual cerró.</p>
-          <p className={secundario}>{textoPresencial(estado)}</p>
-        </div>
-      );
+      return { rotulo: "La subasta virtual finalizó", detalle: textoPresencial(estado) };
   }
+}
+
+/** Franja horizontal con la cuenta regresiva, debajo del hero de la portada. */
+export function FranjaPlazo({ estado }: { estado: EstadoSubasta }) {
+  const d = datosPlazo(estado);
+  return (
+    <section aria-labelledby="titulo-plazo" className="border-y border-linea bg-white">
+      <div className="contenedor flex flex-col gap-6 py-8 md:flex-row md:items-center md:justify-between md:gap-10 md:py-10">
+        <div>
+          <h2 id="titulo-plazo" className="antetitulo">
+            {d.rotulo}
+          </h2>
+          <p className={`mt-2 ${d.objetivo ? "text-gris" : "max-w-2xl text-lg text-tinta"}`}>{d.detalle}</p>
+        </div>
+        {d.objetivo && (
+          <CuentaBloques
+            objetivo={d.objetivo.toISOString()}
+            ahoraServidor={estado.ahora.toISOString()}
+            etiqueta={d.rotulo}
+            alTerminar={d.alTerminar}
+          />
+        )}
+      </div>
+    </section>
+  );
+}
+
+/** Plazo compacto: catálogo y ficha de la obra. */
+export function PlazoCompacto({ estado }: { estado: EstadoSubasta }) {
+  const d = datosPlazo(estado);
+  return (
+    <div>
+      <p className="rotulo">{d.rotulo}</p>
+      {d.objetivo && (
+        <div className="mt-3">
+          <CuentaBloques
+            objetivo={d.objetivo.toISOString()}
+            ahoraServidor={estado.ahora.toISOString()}
+            etiqueta={d.rotulo}
+            alTerminar={d.alTerminar}
+            tamano="compacto"
+          />
+        </div>
+      )}
+      <p className={d.objetivo ? "mt-3 text-[0.88rem] text-gris" : "mt-2 text-tinta"}>{d.detalle}</p>
+    </div>
+  );
 }

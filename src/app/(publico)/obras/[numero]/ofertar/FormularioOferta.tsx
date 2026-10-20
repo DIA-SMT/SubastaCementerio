@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState, useEffect, useRef, useState } from "react";
+import { IconoCheck } from "@/components/Iconos";
 import { pesos, numeroConPuntos } from "@/lib/formato";
 import { MONTO_MAXIMO, montoDesdeTexto } from "@/lib/validacion";
 import { confirmarOferta, type ResultadoOferta } from "./acciones";
@@ -93,12 +94,20 @@ export function FormularioOferta(props: Props) {
 
   if (resultado.estado === "ok") {
     return (
-      <div className="rounded-2xl border-l-8 border-verde bg-verde-suave p-5 text-tinta">
-        <h2 ref={tituloOkRef} tabIndex={-1} aria-describedby="oferta-registrada" className="text-2xl">
+      <div className="text-tinta">
+        <span
+          aria-hidden
+          className="confirmacion flex h-14 w-14 items-center justify-center rounded-full bg-verde-suave text-[1.7rem] text-verde ring-1 ring-verde/25 ring-inset"
+        >
+          <IconoCheck />
+        </span>
+        <h2 ref={tituloOkRef} tabIndex={-1} aria-describedby="oferta-registrada" className="mt-5 text-seccion">
           Listo, registramos tu oferta
         </h2>
         <div id="oferta-registrada">
-          <p className="mt-2 text-3xl font-extrabold">{pesos(resultado.monto)}</p>
+          <p className="mt-4 font-display text-[2.6rem] leading-none font-semibold tracking-[-0.03em] tabular-nums">
+            {pesos(resultado.monto)}
+          </p>
           <p className="mt-1 text-lg">por la {props.descripcion}.</p>
           <p className="mt-3 text-lg">
             {props.avisos ? (
@@ -116,7 +125,7 @@ export function FormularioOferta(props: Props) {
             )}
           </p>
         </div>
-        <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+        <div className="mt-7 flex flex-col gap-3 border-t border-linea pt-6 sm:flex-row">
           <Link href={`/obras/${props.numero}`} className="boton-primario">
             Volver a la obra
           </Link>
@@ -137,33 +146,34 @@ export function FormularioOferta(props: Props) {
   if (paso === "confirmar" && monto != null) {
     const muyAlto = ofertaActual != null ? monto > ofertaActual * 3 : monto > minimo * 3;
     return (
-      <form action={enviar} className="space-y-5">
+      <form action={enviar} className="space-y-6">
         <input type="hidden" name="obraId" value={props.obraId} />
         <input type="hidden" name="monto" value={monto} />
+        <IndicadorPasos actual={2} />
         <div>
           <h2
             ref={tituloConfirmarRef}
             tabIndex={-1}
             aria-describedby="monto-a-confirmar"
-            className="text-2xl"
+            className="text-seccion"
           >
             Confirmá tu oferta
           </h2>
           <div id="monto-a-confirmar">
-            <p className="mt-3 text-5xl font-extrabold text-tinta">{pesos(monto)}</p>
-            <p className="mt-2 text-lg">por la {props.descripcion}.</p>
+            <p className="mt-3 font-display text-5xl font-semibold tracking-[-0.03em] text-tinta tabular-nums">{pesos(monto)}</p>
+            <p className="mt-3 text-lg text-texto">por la {props.descripcion}.</p>
           </div>
         </div>
         {muyAlto && (
-          <div role="alert" className="rounded-xl border-l-8 border-ambar bg-ambar-suave px-4 py-3 text-tinta">
-            <p className="font-bold">Revisá el monto</p>
+          <div role="alert" className="rounded-md border-l-2 border-ambar bg-ambar-suave px-4 py-3 text-tinta">
+            <p className="font-semibold">Revisá el monto</p>
             <p>
               Es más del triple {ofertaActual != null ? `de la oferta actual (${pesos(ofertaActual)})` : `del mínimo (${pesos(minimo)})`}.
               Fijate que no sobre ningún cero.
             </p>
           </div>
         )}
-        <p className="rounded-xl bg-fondo px-4 py-3 text-lg text-tinta">
+        <p className="rounded-md bg-superficie px-4 py-3.5 text-tinta">
           Una vez confirmada, la oferta queda registrada y no se puede editar ni borrar desde el sitio. Las
           condiciones de la subasta están en las{" "}
           <Link href="/bases-y-condiciones" className="enlace" target="_blank">
@@ -172,7 +182,10 @@ export function FormularioOferta(props: Props) {
           .
         </p>
         <div className="flex flex-col gap-3">
-          <button type="submit" className="boton-primario text-xl" disabled={enviando}>
+          <button type="submit" className="boton-primario" disabled={enviando}>
+            {enviando && (
+              <span aria-hidden className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+            )}
             {enviando ? "Registrando tu oferta…" : "Confirmar oferta"}
           </button>
           <button type="button" className="boton-secundario" onClick={() => setPaso("monto")} disabled={enviando}>
@@ -190,7 +203,7 @@ export function FormularioOferta(props: Props) {
 
   return (
     <form
-      className="space-y-5"
+      className="space-y-6"
       onSubmit={(e) => {
         e.preventDefault();
         if (monto == null) return rechazar("Escribí el monto de tu oferta.");
@@ -200,27 +213,26 @@ export function FormularioOferta(props: Props) {
         setPaso("confirmar");
       }}
     >
-      <div className="rounded-2xl bg-fondo p-4">
-        <p className="text-lg">
-          {ofertaActual != null ? (
-            <>
-              Oferta más alta: <strong className="text-tinta">{pesos(ofertaActual)}</strong>
-            </>
-          ) : (
-            "Todavía no hay ofertas para esta obra."
-          )}
-        </p>
-        <p className="text-lg">
-          Tu oferta tiene que ser de al menos <strong className="text-tinta">{pesos(minimo)}</strong>.
-        </p>
-      </div>
+      <IndicadorPasos actual={1} />
+      <dl className="grid grid-cols-2 divide-x divide-linea rounded-md bg-superficie py-4">
+        <div className="px-4">
+          <dt className="rotulo">Oferta más alta</dt>
+          <dd className="mt-1 font-display text-xl font-semibold tracking-[-0.02em] text-tinta tabular-nums">
+            {ofertaActual != null ? pesos(ofertaActual) : "Sin ofertas"}
+          </dd>
+        </div>
+        <div className="px-4">
+          <dt className="rotulo">Oferta mínima</dt>
+          <dd className="mt-1 font-display text-xl font-semibold tracking-[-0.02em] text-tinta tabular-nums">{pesos(minimo)}</dd>
+        </div>
+      </dl>
 
       <div>
         <label htmlFor="monto" className="etiqueta text-xl">
           ¿Cuánto ofrecés?
         </label>
         <div className="flex items-center gap-2">
-          <span className="text-3xl font-bold text-tinta" aria-hidden>
+          <span className="font-display text-3xl font-medium text-gris" aria-hidden>
             $
           </span>
           <input
@@ -229,7 +241,7 @@ export function FormularioOferta(props: Props) {
             name="monto"
             inputMode="numeric"
             autoComplete="off"
-            className="campo text-3xl font-bold"
+            className="campo min-h-16 font-display text-3xl font-semibold tracking-[-0.02em] tabular-nums"
             value={texto}
             onChange={(e) => {
               const n = montoDesdeTexto(e.target.value);
@@ -260,15 +272,30 @@ export function FormularioOferta(props: Props) {
           key={vezError}
           id="error-monto"
           role="alert"
-          className="rounded-xl border-l-8 border-rojo bg-rojo-suave px-4 py-3 font-bold text-tinta"
+          className="rounded-md border-l-2 border-rojo bg-rojo-suave px-4 py-3 font-medium text-tinta"
         >
           {error}
         </p>
       )}
 
-      <button type="submit" className="boton-primario w-full text-xl">
+      <button type="submit" className="boton-primario w-full">
         Continuar
       </button>
     </form>
+  );
+}
+
+/** Paso 1 (monto) y paso 2 (confirmación) del ofrecimiento. */
+function IndicadorPasos({ actual }: { actual: 1 | 2 }) {
+  return (
+    <div>
+      <p className="rotulo">
+        Paso {actual} de 2 · {actual === 1 ? "Monto" : "Confirmación"}
+      </p>
+      <div aria-hidden className="mt-2.5 grid grid-cols-2 gap-1.5">
+        <span className="h-0.5 rounded-full bg-azul" />
+        <span className={`h-0.5 rounded-full transition-colors duration-300 ${actual === 2 ? "bg-azul" : "bg-linea"}`} />
+      </div>
+    </div>
   );
 }

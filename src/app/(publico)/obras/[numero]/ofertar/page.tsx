@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import { Recuadro } from "@/components/Avisos";
 import { FotoObra } from "@/components/FotoObra";
+import { IconoAnterior } from "@/components/Iconos";
 import { usuarioActual } from "@/lib/auth";
 import { miPerfil } from "@/lib/datos/oferente";
 import { estadoSubasta, obtenerObra } from "@/lib/datos/publico";
@@ -16,9 +17,9 @@ export const metadata: Metadata = { title: "Ofertar", robots: { index: false } }
 
 export default function PaginaOfertar({ params }: PageProps<"/obras/[numero]/ofertar">) {
   return (
-    <div className="mx-auto max-w-xl px-4 py-6 md:py-10">
+    <div className="mx-auto box-content max-w-xl px-4 pt-6 sm:px-6 md:pt-12">
       <div className="superficie-tarjeta p-6 md:p-8">
-        <Suspense fallback={<div className="h-96 animate-pulse rounded-2xl bg-linea" aria-busy="true" />}>
+        <Suspense fallback={<div className="esqueleto h-96" aria-busy="true" />}>
           <Ofertar params={params} />
         </Suspense>
       </div>
@@ -68,18 +69,22 @@ async function Ofertar({ params }: Pick<PageProps<"/obras/[numero]/ofertar">, "p
   return (
     <>
       <p>
-        <Link href={`/obras/${obra.numero}`} className="enlace">
-          ← Volver a la obra
+        <Link
+          href={`/obras/${obra.numero}`}
+          className="group -mt-2 inline-flex min-h-11 items-center gap-2 text-[0.9rem] font-medium text-gris transition-colors duration-200 hover:text-tinta"
+        >
+          <IconoAnterior className="transition-transform duration-200 group-hover:-translate-x-0.5" />
+          Volver a la obra
         </Link>
       </p>
-      <div className="mt-4 flex items-center gap-4">
-        <div className="relative h-24 w-20 shrink-0 overflow-hidden rounded-xl bg-linea">
-          <FotoObra foto={obra.portada} tamanos="80px" />
+      <div className="mt-3 flex items-center gap-4 border-b border-linea pb-6">
+        <div className="relative h-24 w-[4.8rem] shrink-0 overflow-hidden rounded-[3px] bg-piedra">
+          <FotoObra foto={obra.portada} tamanos="90px" />
         </div>
-        <div>
-          <p className="font-bold text-gris">Obra N° {obra.numero}</p>
-          <h1 className="text-2xl">{tituloObra(obra.titulo)}</h1>
-          <p>de {obra.artistaNombre}</p>
+        <div className="min-w-0">
+          <p className="rotulo">Obra N° {obra.numero}</p>
+          <h1 className={`mt-1 text-subtitulo ${obra.titulo ? "" : "italic"}`}>{tituloObra(obra.titulo)}</h1>
+          <p className="text-gris">de {obra.artistaNombre}</p>
         </div>
       </div>
 

@@ -11,7 +11,7 @@ function enLinea(texto: string): ReactNode[] {
   for (const m of texto.matchAll(patron)) {
     if (m.index > ultimo) partes.push(texto.slice(ultimo, m.index));
     if (m[1]) {
-      partes.push(<strong key={m.index} className="font-bold text-tinta">{m[1]}</strong>);
+      partes.push(<strong key={m.index} className="font-semibold text-tinta">{m[1]}</strong>);
     } else {
       const href = m[3];
       partes.push(
@@ -44,7 +44,7 @@ export function Markdown({ texto }: { texto: string }) {
     if (titulo) {
       const Etiqueta = titulo[1].length === 2 ? "h2" : "h3";
       salida.push(
-        <Etiqueta key={`t${i}`} className={Etiqueta === "h2" ? "mt-8 text-2xl" : "mt-6 text-xl"}>
+        <Etiqueta key={`t${i}`} className={Etiqueta === "h2" ? "mt-12 text-[1.5rem] tracking-[-0.02em]" : "mt-8 text-subtitulo"}>
           {enLinea(titulo[2])}
         </Etiqueta>,
       );
@@ -54,30 +54,30 @@ export function Markdown({ texto }: { texto: string }) {
 
     if (lineas.every((l) => /^[-*]\s+/.test(l))) {
       salida.push(
-        <ul key={`l${i}`} className="mt-3 list-disc space-y-1.5 pl-6 marker:text-azul">
+        <ul key={`l${i}`} className="mt-4 list-disc space-y-2 pl-5 marker:text-gris-suave">
           {lineas.map((l, j) => <li key={j}>{enLinea(l.replace(/^[-*]\s+/, ""))}</li>)}
         </ul>,
       );
     } else if (lineas.every((l) => /^\d+\.\s+/.test(l))) {
       salida.push(
-        <ol key={`o${i}`} className="mt-3 list-decimal space-y-1.5 pl-6 marker:font-bold marker:text-azul-profundo">
+        <ol key={`o${i}`} className="mt-4 list-decimal space-y-2 pl-5 marker:font-semibold marker:text-azul">
           {lineas.map((l, j) => <li key={j}>{enLinea(l.replace(/^\d+\.\s+/, ""))}</li>)}
         </ol>,
       );
     } else if (lineas.every((l) => l.startsWith(">"))) {
       salida.push(
-        <blockquote key={`c${i}`} className="mt-4 rounded-xl border-l-8 border-ambar bg-ambar-suave px-4 py-3 text-tinta">
+        <blockquote key={`c${i}`} className="mt-6 rounded-r-md border-l-2 border-ambar bg-ambar-suave px-5 py-4 text-tinta">
           {enLinea(lineas.map((l) => l.replace(/^>\s?/, "")).join(" "))}
         </blockquote>,
       );
     } else {
       salida.push(
-        <p key={`p${i}`} className="mt-3">
+        <p key={`p${i}`} className="mt-4">
           {enLinea(lineas.join(" "))}
         </p>,
       );
     }
   });
 
-  return <div className="text-lg [&>*:first-child]:mt-0">{salida}</div>;
+  return <div className="text-lg leading-relaxed text-texto [&>*:first-child]:mt-0">{salida}</div>;
 }

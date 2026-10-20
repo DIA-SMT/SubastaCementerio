@@ -1,20 +1,40 @@
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, type CSSProperties } from "react";
 import { PastillaProvisorio } from "@/components/Avisos";
-import { Carrusel } from "@/components/Carrusel";
-import { FondoHero } from "@/components/FondoHero";
+import { FotoObra } from "@/components/FotoObra";
+import { IconoCampana, IconoFlecha, IconoGrilla, IconoMartillo, IconoObra } from "@/components/Iconos";
 import { Markdown } from "@/components/Markdown";
-import { PlazoDestacado } from "@/components/Plazo";
+import { FranjaPlazo } from "@/components/Plazo";
 import { TarjetaObra } from "@/components/TarjetaObra";
 import { TituloSeccion } from "@/components/TituloSeccion";
 import { estadoSubasta, listarObras, obtenerPagina } from "@/lib/datos/publico";
-import type { Foto } from "@/lib/datos/tipos";
+import { tituloObra } from "@/lib/formato";
 
 const PASOS = [
-  { titulo: "Elegí una obra", texto: "Recorré el catálogo o escaneá el código QR que está junto a cada obra." },
-  { titulo: "Ingresá con tu correo", texto: "Te mandamos un código de 6 números. La primera vez te pedimos tus datos." },
-  { titulo: "Ofertá", texto: "Escribí cuánto ofrecés, revisalo y confirmalo. Si te superan, te avisamos." },
+  {
+    titulo: "Explorá las obras",
+    texto: "Recorré el catálogo en línea o escaneá el código QR que acompaña a cada escultura.",
+    Icono: IconoGrilla,
+  },
+  {
+    titulo: "Seleccioná tu escultura favorita",
+    texto: "En su ficha ves las fotos, la historia de la obra, la oferta actual y el mínimo para superarla.",
+    Icono: IconoObra,
+  },
+  {
+    titulo: "Realizá tu oferta",
+    texto: "Ingresá con tu correo y el código de 6 números que te mandamos. Escribí el monto, revisalo y confirmalo.",
+    Icono: IconoMartillo,
+  },
+  {
+    titulo: "Seguí el resultado de la subasta",
+    texto: "Si alguien supera tu oferta, te avisamos por correo. En Mis ofertas ves cómo va cada una.",
+    Icono: IconoCampana,
+  },
 ];
+
+/** Retraso de la animación de entrada (ver .entrada en globals.css). */
+const retraso = (ms: number) => ({ "--retraso": `${ms}ms` }) as CSSProperties;
 
 export default function Inicio() {
   return (
@@ -23,52 +43,57 @@ export default function Inicio() {
         <Hero />
       </Suspense>
 
-      <div className="mx-auto max-w-6xl px-4">
-        <section className="pt-14" aria-labelledby="titulo-obras">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <TituloSeccion id="titulo-obras" antetitulo="Catálogo">
-              Las obras
-            </TituloSeccion>
-            <Link href="/obras" className="enlace">
-              Ver todas
-            </Link>
-          </div>
-          <div className="mt-6">
-            <Suspense fallback={<div className="h-[30rem] animate-pulse rounded-3xl bg-linea" />}>
-              <Muestra />
-            </Suspense>
-          </div>
-        </section>
-
-        <section className="pt-14" aria-labelledby="titulo-pasos">
-          <TituloSeccion id="titulo-pasos" antetitulo="Paso a paso">
-            Cómo participar
+      <section className="contenedor pt-20 md:pt-28" aria-labelledby="titulo-obras">
+        <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-5">
+          <TituloSeccion id="titulo-obras" antetitulo="Catálogo">
+            Las obras
           </TituloSeccion>
-          <ol className="mt-6 grid gap-4 md:grid-cols-3">
-            {PASOS.map((p, i) => (
-              <li key={p.titulo} className="superficie-tarjeta p-6">
-                <span
-                  aria-hidden
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-azul-oscuro via-azul to-celeste text-xl font-extrabold text-white shadow-suave"
-                >
-                  {i + 1}
-                </span>
-                <h3 className="mt-4 text-xl">{p.titulo}</h3>
-                <p className="mt-1 text-texto">{p.texto}</p>
+          <Link href="/obras" className="enlace-sutil group">
+            Ver el catálogo completo
+            <IconoFlecha className="transition-transform duration-200 group-hover:translate-x-0.5" />
+          </Link>
+        </div>
+        <Suspense fallback={<EsqueletoMuestra />}>
+          <Muestra />
+        </Suspense>
+      </section>
+
+      <section className="contenedor pt-24 md:pt-32" aria-labelledby="titulo-pasos">
+        <div className="grid gap-x-10 gap-y-12 lg:grid-cols-12">
+          <div className="lg:col-span-4">
+            <TituloSeccion id="titulo-pasos" antetitulo="Paso a paso">
+              Cómo participar
+            </TituloSeccion>
+            <p className="mt-5 max-w-sm text-gris">
+              No hace falta contraseña: ingresás con tu correo y un código que te mandamos.
+            </p>
+            <p className="mt-6">
+              <Link href="/como-participar" className="enlace-sutil group">
+                Leer la explicación completa
+                <IconoFlecha className="transition-transform duration-200 group-hover:translate-x-0.5" />
+              </Link>
+            </p>
+          </div>
+          <ol className="grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:col-span-8">
+            {PASOS.map(({ titulo, texto, Icono }, i) => (
+              <li key={titulo} className="revelar border-t border-tinta pt-5">
+                <div className="flex items-center justify-between">
+                  <span className="font-display text-[0.9rem] font-semibold tracking-[0.04em] text-azul tabular-nums">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <Icono className="text-[1.6rem] text-gris-suave" />
+                </div>
+                <h3 className="mt-7 text-subtitulo">{titulo}</h3>
+                <p className="mt-2 max-w-sm text-texto">{texto}</p>
               </li>
             ))}
           </ol>
-          <p className="mt-5">
-            <Link href="/como-participar" className="enlace">
-              Leer la explicación completa
-            </Link>
-          </p>
-        </section>
+        </div>
+      </section>
 
-        <Suspense fallback={null}>
-          <Propuesta />
-        </Suspense>
-      </div>
+      <Suspense fallback={null}>
+        <Iniciativa />
+      </Suspense>
     </>
   );
 }
@@ -83,102 +108,197 @@ function partir(contenido: string) {
 
 async function Hero() {
   const [estado, pagina, obras] = await Promise.all([estadoSubasta(), obtenerPagina("portada"), listarObras()]);
-  const fotos = obras.map((o) => o.portada).filter((f): f is Foto => !!f).slice(0, 6);
+  // La primera obra con foto ilustra la portada; sin fotos, queda el marcador neutro.
+  const destacada = obras.find((o) => o.portada) ?? null;
   const { bajada } = partir(pagina?.contenido ?? "");
 
   return (
     <>
-      <section className="relative isolate overflow-hidden text-white">
-        <FondoHero fotos={fotos} />
-        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 md:py-20 lg:grid-cols-[1.3fr_1fr] lg:items-center">
-          <div>
-            <p className="inline-flex items-center rounded-full bg-white/15 px-4 py-1.5 text-sm font-bold ring-1 ring-white/40 backdrop-blur md:text-base">
-              Noche de los Museos · Cementerio del Oeste
-            </p>
-            <h1 className="mt-5 max-w-2xl text-4xl leading-[1.05] text-white drop-shadow-[0_3px_18px_rgb(0_0_0/0.3)] md:text-6xl">
-              {pagina?.titulo}
-            </h1>
-            {bajada && <p className="mt-5 max-w-xl text-lg leading-snug font-bold text-white md:text-xl">{bajada}</p>}
-            {pagina?.provisorio && (
-              <p className="mt-4">
-                <PastillaProvisorio />
-              </p>
-            )}
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/obras"
-                className="boton bg-white text-azul-profundo shadow-[0_16px_34px_rgb(0_0_0/0.2)] hover:bg-fondo"
-              >
-                Ver las {obras.length} obras
-              </Link>
-              <Link href="/como-participar" className="boton bg-azul-profundo/80 text-white ring-2 ring-white/80 hover:bg-azul-oscuro">
-                Cómo participar
-              </Link>
-            </div>
+      {/* Celular: título, lámina y después el texto. Computadora: texto a la izquierda (centrado
+          en el alto de la lámina) y lámina a la derecha. */}
+      <section
+        aria-labelledby="titulo-portada"
+        className="contenedor grid gap-x-10 gap-y-9 pt-8 pb-14 md:pt-12 lg:grid-cols-12 lg:gap-y-0 lg:pt-10 lg:pb-20"
+      >
+        <div className="lg:col-span-6 lg:row-start-1 lg:self-end xl:col-span-5">
+          <p className="antetitulo entrada">Cultura · Patrimonio · Solidaridad</p>
+          <h1 id="titulo-portada" className="entrada mt-6 text-display" style={retraso(80)}>
+            El arte transforma nuestra historia
+          </h1>
+          <p
+            className="entrada mt-7 flex items-center gap-3 font-display text-[1.1rem] font-medium tracking-[-0.01em] text-tinta"
+            style={retraso(160)}
+          >
+            <span aria-hidden className="hidden h-px w-8 shrink-0 bg-tinta/50 sm:block" />
+            Subasta Solidaria · Cementerio del Oeste
+          </p>
+        </div>
+
+        {/* Lámina: 4:5, sin pasar del alto de la pantalla en computadora. */}
+        <figure className="w-full sm:max-w-[28rem] lg:col-span-6 lg:row-span-2 lg:max-w-none lg:row-start-1 lg:ml-auto lg:w-[min(100%,calc((100svh-14rem)*0.8))] xl:col-start-7">
+          <div
+            className="entrada-foto relative aspect-[4/5] max-h-[64svh] w-full overflow-hidden rounded-sm bg-piedra lg:max-h-none"
+            style={retraso(120)}
+          >
+            <FotoObra foto={destacada?.portada ?? null} tamanos="(min-width: 1024px) 600px, 100vw" prioridad />
           </div>
-          <div className="rounded-3xl bg-azul-oscuro/55 p-6 ring-1 ring-white/30 backdrop-blur-md">
-            <PlazoDestacado estado={estado} claro />
+          {destacada && (
+            <figcaption className="mt-4 border-t border-linea pt-3 text-[0.88rem]">
+              <Link href={`/obras/${destacada.numero}`} className="group flex items-start justify-between gap-4">
+                <span>
+                  <span className="text-gris tabular-nums">Obra N° {destacada.numero}</span>
+                  <span aria-hidden className="mx-2 text-gris-suave">
+                    ·
+                  </span>
+                  <span
+                    className={`font-semibold text-tinta underline decoration-transparent underline-offset-[0.3em] transition-colors duration-200 group-hover:decoration-current ${
+                      destacada.titulo ? "" : "italic"
+                    }`}
+                  >
+                    {tituloObra(destacada.titulo)}
+                  </span>
+                  <span className="text-gris">, {destacada.artistaNombre}</span>
+                </span>
+                <IconoFlecha className="mt-[0.2em] shrink-0 text-base text-tinta transition-transform duration-200 group-hover:translate-x-0.5" />
+              </Link>
+            </figcaption>
+          )}
+        </figure>
+
+        <div className="lg:col-span-6 lg:row-start-2 lg:self-start xl:col-span-5">
+          {bajada && (
+            <p className="entrada max-w-[34rem] text-texto lg:mt-5" style={retraso(220)}>
+              {bajada}
+            </p>
+          )}
+          {pagina?.provisorio && (
+            <p className="entrada mt-4" style={retraso(220)}>
+              <PastillaProvisorio />
+            </p>
+          )}
+          <div className="entrada mt-9 flex flex-wrap items-center gap-x-8 gap-y-5" style={retraso(280)}>
+            <Link href="/obras" className="boton-primario group">
+              Explorar las obras
+              <IconoFlecha className="transition-transform duration-200 group-hover:translate-x-0.5" />
+            </Link>
+            <Link href="#iniciativa" className="enlace-sutil">
+              Conocer la iniciativa
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Franja de datos debajo del hero, como en el Bus Turístico. */}
-      <div className="border-b border-linea bg-white">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-center gap-x-8 gap-y-1 px-4 py-5 text-center sm:flex-row">
-          <span className="text-texto">
-            {obras.length} cabezas escultóricas intervenidas por artistas locales
-          </span>
-          <strong className="text-azul-profundo">La plataforma no cobra ni procesa pagos</strong>
-        </div>
-      </div>
+      <FranjaPlazo estado={estado} />
     </>
   );
 }
 
 async function Muestra() {
   const [estado, obras] = await Promise.all([estadoSubasta(), listarObras()]);
+  if (obras.length === 0) {
+    return <p className="mt-10 border-t border-linea pt-6 text-gris">Todavía no hay obras publicadas.</p>;
+  }
   return (
-    <Carrusel etiqueta="Obras de la subasta">
-      {obras.slice(0, 10).map((o, i) => (
-        <div key={o.id} className="w-[78%] max-w-[18rem] shrink-0 snap-start sm:w-[18rem]">
-          <TarjetaObra obra={o} fase={estado.fase} prioridad={i < 2} tamanos="288px" />
-        </div>
-      ))}
-      <Link
-        href="/obras"
-        className="flex w-[60%] max-w-[14rem] shrink-0 snap-start flex-col items-center justify-center gap-3 rounded-3xl bg-white p-6 text-center font-bold text-azul-profundo shadow-suave ring-1 ring-linea/70 hover:shadow-elevada sm:w-[14rem]"
+    <>
+      {/* En el celular, una fila que se desliza; desde tablet, grilla. */}
+      <ul
+        aria-label="Primeras obras del catálogo"
+        className="-mx-4 mt-10 flex snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3 lg:gap-x-8"
       >
-        <span aria-hidden className="flex h-14 w-14 items-center justify-center rounded-full bg-fondo text-3xl">
-          →
-        </span>
-        Ver las {obras.length} obras
-      </Link>
-    </Carrusel>
+        {obras.slice(0, 6).map((o, i) => (
+          <li key={o.id} className="w-[78%] max-w-[22rem] shrink-0 snap-start sm:w-auto sm:max-w-none">
+            <TarjetaObra obra={o} fase={estado.fase} prioridad={i < 3} />
+          </li>
+        ))}
+      </ul>
+      <p className="mt-10 flex justify-center">
+        <Link href="/obras" className="boton-secundario group">
+          Ver las {obras.length} obras
+          <IconoFlecha className="transition-transform duration-200 group-hover:translate-x-0.5" />
+        </Link>
+      </p>
+    </>
   );
 }
 
-async function Propuesta() {
+async function Iniciativa() {
   const pagina = await obtenerPagina("portada");
-  const { resto } = partir(pagina?.contenido ?? "");
+  if (!pagina) return null;
+  const { resto } = partir(pagina.contenido);
   return (
-    <section className="pt-14" aria-labelledby="titulo-propuesta">
-      <div className="superficie-tarjeta grid gap-6 p-6 md:grid-cols-[1fr_1.4fr] md:p-10">
-        <div>
-          <TituloSeccion id="titulo-propuesta" antetitulo="La propuesta">
-            Sobre la subasta
+    <section
+      id="iniciativa"
+      aria-labelledby="titulo-iniciativa"
+      // Última sección: el margen negativo anula el espacio inferior del layout y la apoya en el pie.
+      className="mt-24 -mb-24 border-t border-linea bg-white md:mt-32 md:-mb-32"
+    >
+      <div className="contenedor grid gap-x-10 gap-y-10 py-20 md:py-28 lg:grid-cols-12">
+        <div className="lg:col-span-5">
+          <TituloSeccion id="titulo-iniciativa" antetitulo="La iniciativa">
+            {pagina.titulo}
           </TituloSeccion>
-          <p className="mt-5">
-            <Link href="/destino" className="enlace">
-              Destino de lo recaudado
-            </Link>
-          </p>
+          {pagina.provisorio && (
+            <p className="mt-5">
+              <PastillaProvisorio />
+            </p>
+          )}
         </div>
-        <div>{resto.trim() && <Markdown texto={resto} />}</div>
+        <div className="lg:col-span-6 lg:col-start-7">
+          {resto.trim() && <Markdown texto={resto} />}
+          <ul className="mt-10 divide-y divide-linea border-y border-linea">
+            {[
+              { href: "/destino", texto: "Destino de lo recaudado" },
+              { href: "/bases-y-condiciones", texto: "Bases y condiciones" },
+            ].map((e) => (
+              <li key={e.href}>
+                <Link
+                  href={e.href}
+                  className="group flex min-h-14 items-center justify-between gap-4 font-medium text-tinta transition-colors duration-200 hover:text-azul"
+                >
+                  {e.texto}
+                  <IconoFlecha className="text-gris-suave transition-[color,transform] duration-200 group-hover:translate-x-0.5 group-hover:text-azul" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-6 text-[0.9rem] text-gris">La plataforma no cobra ni procesa pagos.</p>
+        </div>
       </div>
     </section>
   );
 }
 
 function EsqueletoHero() {
-  return <div className="h-[32rem] animate-pulse bg-azul-oscuro" aria-busy="true" />;
+  return (
+    <div aria-busy="true" aria-label="Cargando la portada">
+      <div className="contenedor grid gap-x-10 gap-y-12 pt-8 pb-14 md:pt-12 lg:grid-cols-12 lg:items-center lg:pt-10 lg:pb-20">
+        <div className="space-y-5 lg:col-span-6 xl:col-span-5">
+          <div className="esqueleto h-4 w-56" />
+          <div className="esqueleto h-28 w-full max-w-md" />
+          <div className="esqueleto h-5 w-72" />
+          <div className="esqueleto h-24 w-full max-w-lg" />
+          <div className="esqueleto h-12 w-52" />
+        </div>
+        <div className="esqueleto aspect-[4/5] max-h-[72svh] w-full rounded-sm lg:col-span-6 lg:ml-auto lg:max-h-none lg:w-[min(100%,calc((100svh-14rem)*0.8))] xl:col-start-7" />
+      </div>
+      <div className="h-36 border-y border-linea bg-white" />
+    </div>
+  );
+}
+
+function EsqueletoMuestra() {
+  return (
+    <ul aria-busy="true" aria-label="Cargando obras" className="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3 lg:gap-8">
+      {Array.from({ length: 3 }, (_, i) => (
+        <li key={i} className={`overflow-hidden rounded-lg bg-white ring-1 ring-linea ${i === 2 ? "hidden lg:block" : ""}`}>
+          <div className="esqueleto aspect-[4/5] rounded-none" />
+          <div className="space-y-2.5 p-5">
+            <div className="esqueleto h-4 w-16" />
+            <div className="esqueleto h-5 w-3/4" />
+            <div className="esqueleto h-4 w-1/2" />
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
 }

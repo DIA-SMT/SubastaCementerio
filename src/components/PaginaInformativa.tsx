@@ -3,13 +3,13 @@ import { Suspense } from "react";
 import { obtenerPagina } from "@/lib/datos/publico";
 import type { SlugPagina } from "@/lib/datos/tipos";
 import { AvisoProvisorio } from "./Avisos";
-import { Cabecera } from "./Cabecera";
+import { Cabecera, Columna } from "./Cabecera";
 import { Markdown } from "./Markdown";
 
 /** Páginas con texto editable desde el panel (cómo participar, bases, destino, privacidad). */
 export function PaginaInformativa({ slug }: { slug: SlugPagina }) {
   return (
-    <Suspense fallback={<div className="fondo-institucional h-56" aria-busy="true" />}>
+    <Suspense fallback={<EsqueletoPagina />}>
       <Contenido slug={slug} />
     </Suspense>
   );
@@ -20,17 +20,29 @@ async function Contenido({ slug }: { slug: SlugPagina }) {
   if (!pagina) notFound();
   return (
     <>
-      <Cabecera antetitulo="Subasta solidaria" titulo={pagina.titulo} compacta />
-      <article className="relative z-10 mx-auto -mt-12 max-w-3xl px-4">
-        <div className="superficie-tarjeta p-6 md:p-10">
-          {pagina.provisorio && (
-            <div className="mb-6">
-              <AvisoProvisorio />
-            </div>
-          )}
+      <Cabecera antetitulo="Subasta Solidaria" titulo={pagina.titulo} />
+      <Columna>
+        {pagina.provisorio && (
+          <div className="mb-8">
+            <AvisoProvisorio />
+          </div>
+        )}
+        <article className="border-t border-tinta pt-8 md:pt-10">
           <Markdown texto={pagina.contenido} />
-        </div>
-      </article>
+        </article>
+      </Columna>
     </>
+  );
+}
+
+function EsqueletoPagina() {
+  return (
+    <Columna>
+      <div className="space-y-4 pt-10 md:pt-16" aria-busy="true">
+        <div className="esqueleto h-4 w-32" />
+        <div className="esqueleto h-14 w-2/3" />
+        <div className="esqueleto mt-10 h-64" />
+      </div>
+    </Columna>
   );
 }

@@ -1,19 +1,19 @@
 import type { Fase } from "@/lib/datos/tipos";
 
-const ESTADOS: Record<Fase, { texto: string; clases: string; punto: string }> = {
-  abierta: { texto: "Abierta", clases: "bg-verde-suave ring-verde/30", punto: "bg-verde" },
-  cerrada: { texto: "Cerrada", clases: "bg-superficie ring-linea", punto: "bg-gris" },
-  antes: { texto: "Próximamente", clases: "bg-ambar-suave ring-ambar/35", punto: "bg-ambar" },
-  por_confirmar: { texto: "Fechas a confirmar", clases: "bg-ambar-suave ring-ambar/35", punto: "bg-ambar" },
+const ESTADOS: Record<Fase, { texto: string; punto: string }> = {
+  abierta: { texto: "Abierta", punto: "bg-verde" },
+  cerrada: { texto: "Cerrada", punto: "bg-gris-suave" },
+  antes: { texto: "Próximamente", punto: "bg-ambar" },
+  por_confirmar: { texto: "Fechas a confirmar", punto: "bg-ambar" },
 };
 
-/** Estado de la obra. El color va de fondo; el texto siempre en tinta (contraste AA). */
-export function EstadoChip({ fase }: { fase: Fase }) {
+/** Estado de la subasta: punto de color y texto en tinta, sin caja (contraste AA). */
+export function EstadoChip({ fase, texto }: { fase: Fase; texto?: string }) {
   const e = ESTADOS[fase];
   return (
-    <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-bold text-tinta ring-1 ${e.clases}`}>
-      <span aria-hidden className={`h-2 w-2 rounded-full ${e.punto} ${fase === "abierta" ? "animate-pulse" : ""}`} />
-      {e.texto}
+    <span className="inline-flex items-center gap-2 text-[0.85rem] font-medium text-tinta">
+      <span aria-hidden className={`h-1.5 w-1.5 shrink-0 rounded-full ${e.punto}`} />
+      {texto ?? e.texto}
     </span>
   );
 }

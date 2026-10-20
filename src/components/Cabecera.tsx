@@ -1,43 +1,36 @@
 import type { ReactNode } from "react";
 
+const ANCHOS = {
+  angosto: "max-w-xl",
+  medio: "max-w-3xl",
+} as const;
+
 /**
- * Cabecera de las páginas interiores: banda con el degradé institucional, antetítulo y título
- * en blanco (texto grande), y opcionalmente un bloque a la derecha. El contenido de la página
- * puede montarse encima con `-mt-*` para que las tarjetas "floten" sobre la banda.
+ * Cabecera editorial de las páginas interiores, sobre el blanco cálido: antetítulo, título y
+ * bajada. Va alineada con la columna de contenido de la página (angosta para formularios,
+ * media para textos).
  */
 export function Cabecera({
   titulo,
   antetitulo,
   bajada,
-  lateral,
-  compacta = false,
+  ancho = "medio",
 }: {
   titulo: ReactNode;
   antetitulo?: ReactNode;
   bajada?: ReactNode;
-  lateral?: ReactNode;
-  compacta?: boolean;
+  ancho?: keyof typeof ANCHOS;
 }) {
   return (
-    <section className="fondo-institucional relative isolate overflow-hidden text-white">
-      {/* Brillo suave arriba a la derecha, como en las piezas institucionales. */}
-      <div
-        aria-hidden
-        className="absolute inset-0 -z-10"
-        style={{ background: "radial-gradient(120% 150% at 88% 8%, rgb(60 180 240 / 0.42), transparent 58%)" }}
-      />
-      <div
-        className={`mx-auto grid max-w-6xl gap-6 px-4 ${compacta ? "pt-10 pb-20" : "py-12 md:py-14"} ${
-          lateral ? "lg:grid-cols-[1.4fr_1fr] lg:items-end" : ""
-        }`}
-      >
-        <div>
-          {antetitulo && <p className="text-base font-bold tracking-[0.12em] text-white uppercase">{antetitulo}</p>}
-          <h1 className="mt-2 text-4xl text-white md:text-5xl">{titulo}</h1>
-          {bajada && <div className="mt-3 max-w-2xl text-xl text-white">{bajada}</div>}
-        </div>
-        {lateral && <div className="rounded-3xl bg-azul-oscuro/45 p-5 ring-1 ring-white/30 backdrop-blur-md">{lateral}</div>}
-      </div>
-    </section>
+    <header className={`mx-auto px-4 pt-10 pb-8 md:pt-16 md:pb-10 ${ANCHOS[ancho]} box-content sm:px-6`}>
+      {antetitulo && <p className="antetitulo">{antetitulo}</p>}
+      <h1 className="mt-3 text-titulo">{titulo}</h1>
+      {bajada && <div className="mt-4 text-lg text-texto">{bajada}</div>}
+    </header>
   );
+}
+
+/** Columna de contenido alineada con la Cabecera del mismo ancho. */
+export function Columna({ ancho = "medio", children }: { ancho?: keyof typeof ANCHOS; children: ReactNode }) {
+  return <div className={`mx-auto box-content px-4 sm:px-6 ${ANCHOS[ancho]}`}>{children}</div>;
 }

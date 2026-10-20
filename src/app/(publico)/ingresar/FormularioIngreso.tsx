@@ -3,7 +3,7 @@
 import { startTransition, useActionState, useEffect, useRef } from "react";
 import { confirmarCodigo, pedirCodigo, type EstadoIngreso } from "./acciones";
 
-const ESTILO_ERROR = "rounded-xl border-l-8 border-rojo bg-rojo-suave px-4 py-3 font-bold text-tinta";
+const ESTILO_ERROR = "rounded-md border-l-2 border-rojo bg-rojo-suave px-4 py-3 font-medium text-tinta";
 
 /** Une los id de aria-describedby que existen. */
 const describir = (...ids: (string | false | undefined)[]) => ids.filter(Boolean).join(" ") || undefined;
@@ -37,7 +37,7 @@ export function FormularioIngreso({ volver }: { volver: string }) {
         <input type="hidden" name="volver" value={volver} />
         <input type="hidden" name="envio" value={correo.envios ?? 1} />
         {/* Queda montado mientras dura este paso: cada reenvío cambia su contenido y se anuncia. */}
-        <div id="aviso-codigo" role="status" className="rounded-xl bg-fondo px-4 py-3 text-lg text-tinta">
+        <div id="aviso-codigo" role="status" className="rounded-md bg-fondo px-4 py-3 text-lg text-tinta">
           <span key={correo.envios}>
             {reenvio ? "Te mandamos otro código" : "Te mandamos un código de 6 números"} a{" "}
             <strong className="break-all">{correo.email}</strong>. {reenvio && "Usá el último que te llegó. "}
@@ -45,10 +45,10 @@ export function FormularioIngreso({ volver }: { volver: string }) {
           </span>
         </div>
         {correo.codigoLocal && (
-          <div role="note" className="rounded-xl border-l-8 border-ambar bg-ambar-suave px-4 py-3 text-tinta">
-            <p className="font-bold">Modo local: no se envían correos</p>
+          <div role="note" className="rounded-md border-l-2 border-ambar bg-ambar-suave px-4 py-3 text-tinta">
+            <p className="font-semibold">Modo local: no se envían correos</p>
             <p>
-              Tu código es <strong className="text-2xl tracking-widest">{correo.codigoLocal}</strong>
+              Tu código es <strong className="font-display text-2xl tracking-widest">{correo.codigoLocal}</strong>
             </p>
           </div>
         )}
@@ -66,7 +66,7 @@ export function FormularioIngreso({ volver }: { volver: string }) {
             required
             // Al pasar a este paso, el foco va al campo y el lector lee también el aviso.
             autoFocus
-            className="campo text-center text-3xl font-bold tracking-[0.4em]"
+            className="campo min-h-16 text-center font-display text-3xl font-semibold tracking-[0.4em] tabular-nums"
             aria-invalid={errorCodigo ? true : undefined}
             aria-describedby={describir(errorCodigo && "error-codigo", "aviso-codigo")}
           />
@@ -76,7 +76,7 @@ export function FormularioIngreso({ volver }: { volver: string }) {
             {errorCodigo}
           </p>
         )}
-        <button type="submit" className="boton-primario w-full text-xl" disabled={confirmando}>
+        <button type="submit" className="boton-primario w-full" disabled={confirmando}>
           {confirmando ? "Revisando…" : "Ingresar"}
         </button>
         <p className="text-center">¿No llegó? Podés pedir otro código:</p>
@@ -115,7 +115,7 @@ export function FormularioIngreso({ volver }: { volver: string }) {
           {correo.error}
         </p>
       )}
-      <button type="submit" className="boton-primario w-full text-xl" disabled={pidiendo}>
+      <button type="submit" className="boton-primario w-full" disabled={pidiendo}>
         {pidiendo ? "Enviando…" : "Enviarme el código"}
       </button>
     </form>
