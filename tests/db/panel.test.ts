@@ -560,30 +560,33 @@ describe("el equipo (admin)", () => {
       );
       return p;
     };
-    expect(await version()).toEqual({ version: 1, provisorio: true, actualizada_por: null });
+    // Las migraciones de textos ya pudieron subir la versión inicial: se cuenta desde ahí.
+    const inicial = await version();
+    expect(inicial).toMatchObject({ provisorio: true, actualizada_por: null });
+    const v = inicial.version;
 
     expect(
       await afectadas(db, EQUIPO, "update public.paginas set contenido = 'Bases aprobadas.' where slug = 'bases-y-condiciones'"),
     ).toBe(1);
-    expect(await version()).toEqual({ version: 2, provisorio: true, actualizada_por: ADMIN });
+    expect(await version()).toEqual({ version: v + 1, provisorio: true, actualizada_por: ADMIN });
 
     // Cambiar solo la marca de provisorio (o guardar el mismo texto) no sube la versión.
     await afectadas(db, EQUIPO, "update public.paginas set provisorio = false where slug = 'bases-y-condiciones'");
-    expect(await version()).toEqual({ version: 2, provisorio: false, actualizada_por: ADMIN });
+    expect(await version()).toEqual({ version: v + 1, provisorio: false, actualizada_por: ADMIN });
     await afectadas(
       db,
       EQUIPO,
       "update public.paginas set contenido = 'Bases aprobadas.' where slug = 'bases-y-condiciones'",
     );
-    expect((await version()).version).toBe(2);
+    expect((await version()).version).toBe(v + 1);
 
     await afectadas(db, EQUIPO, "update public.paginas set titulo = 'Bases' where slug = 'bases-y-condiciones'");
-    expect((await version()).version).toBe(3);
+    expect((await version()).version).toBe(v + 2);
 
     // Quien se registra a partir de ahora acepta la versión vigente.
     const uid = await nuevoOferente(db, "nueva@prueba.test", "20555666");
     const [ofe] = await directo(db, "select bases_version from public.oferentes where id = $1", [uid]);
-    expect(ofe).toEqual({ bases_version: 3 });
+    expect(ofe).toEqual({ bases_version: v + 2 });
 
     const [audit] = await directo(
       db,

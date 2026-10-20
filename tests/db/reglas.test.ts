@@ -263,6 +263,8 @@ describe("registro de oferentes", () => {
       "select dni, bases_version from public.oferentes where id = $1",
       [uno],
     );
-    expect(rows[0]).toEqual({ dni: "20111222", bases_version: 1 });
+    // Acepta la versión vigente de las bases (las migraciones de textos la pueden haber subido).
+    const [{ version }] = (await db.query<{ version: number }>("select version from public.paginas where slug = 'bases-y-condiciones'")).rows;
+    expect(rows[0]).toEqual({ dni: "20111222", bases_version: version });
   });
 });

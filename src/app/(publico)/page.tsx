@@ -121,9 +121,9 @@ async function Hero() {
         className="contenedor grid gap-x-10 gap-y-9 pt-8 pb-14 md:pt-12 lg:grid-cols-12 lg:gap-y-0 lg:pt-10 lg:pb-20"
       >
         <div className="lg:col-span-6 lg:row-start-1 lg:self-end xl:col-span-5">
-          <p className="antetitulo entrada">Cultura · Patrimonio · Solidaridad</p>
+          <p className="antetitulo entrada">Muestra y subasta solidaria</p>
           <h1 id="titulo-portada" className="entrada mt-6 text-display" style={retraso(80)}>
-            El arte transforma nuestra historia
+            {pagina?.titulo ?? "Memorias del futuro"}
           </h1>
           <p
             className="entrada mt-7 flex items-center gap-3 font-display text-[1.1rem] font-medium tracking-[-0.01em] text-tinta"
@@ -235,7 +235,7 @@ async function Iniciativa() {
       <div className="contenedor grid gap-x-10 gap-y-10 py-20 md:py-28 lg:grid-cols-12">
         <div className="lg:col-span-5">
           <TituloSeccion id="titulo-iniciativa" antetitulo="La iniciativa">
-            {pagina.titulo}
+            Sobre la muestra
           </TituloSeccion>
           {pagina.provisorio && (
             <p className="mt-5">

@@ -4,12 +4,11 @@
 
 update public.configuracion set
   inicio_virtual = now() - interval '2 days',
-  cierre_virtual = (
-    date_trunc('day', now() at time zone 'America/Argentina/Tucuman')
-    + interval '12 days 20 hours'
-  ) at time zone 'America/Argentina/Tucuman',
+  -- Cierre de ejemplo: 14/11 a las 20 h (dos semanas desde la Noche de los Museos). La apertura
+  -- queda en el pasado para que en local se pueda ofertar con los datos de ejemplo.
+  cierre_virtual = greatest('2026-11-14 20:00:00-03'::timestamptz, now() + interval '12 days'),
   fechas_confirmadas = true,
-  fecha_presencial = (now() + interval '19 days')::date,
+  fecha_presencial = greatest('2026-11-28'::date, (now() + interval '19 days')::date),
   detalle_presencial = 'Lugar y hora a confirmar (dato de ejemplo).',
   incremento_minimo = 5000,
   precio_salida = 10000,

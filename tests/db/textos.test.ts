@@ -124,3 +124,47 @@ describe("textos provisorios (20261019140400)", () => {
     expect(formulario).toContain('href="/bases-y-condiciones"');
   });
 });
+
+// 20261020120000_muestra.sql: nombre de la muestra, destino y fechas por defecto (provisorios).
+describe("textos de la muestra Memorias del futuro", () => {
+  it("una base nueva queda con el nombre de la muestra, el destino y las fechas por defecto sin confirmar", async () => {
+    const db = await baseDePrueba(false);
+    const paginas = (
+      await db.query<{ slug: string; titulo: string; contenido: string; provisorio: boolean }>(
+        "select slug, titulo, contenido, provisorio from public.paginas",
+      )
+    ).rows;
+    const por = Object.fromEntries(paginas.map((p) => [p.slug, p]));
+    expect(por.portada.titulo).toBe("Memorias del futuro");
+    expect(por.portada.contenido).toContain("Artistas en diálogo con el patrimonio");
+    expect(por.portada.contenido).toContain("Cottolengo Don Orione");
+    expect(por.destino.contenido).toContain("Cottolengo Don Orione");
+    expect(por.destino.contenido).not.toContain("todavía no está definido");
+    expect(por["bases-y-condiciones"].contenido).not.toContain("- Destino de lo recaudado.");
+    for (const p of paginas) expect(p.provisorio).toBe(true);
+
+    const [c] = (
+      await db.query<{ inicio: string; cierre: string; confirmadas: boolean }>(
+        `select to_char(inicio_virtual at time zone 'America/Argentina/Tucuman', 'YYYY-MM-DD HH24:MI') as inicio,
+                to_char(cierre_virtual at time zone 'America/Argentina/Tucuman', 'YYYY-MM-DD HH24:MI') as cierre,
+                fechas_confirmadas as confirmadas
+         from public.configuracion`,
+      )
+    ).rows;
+    expect(c).toEqual({ inicio: "2026-10-31 20:00", cierre: "2026-11-14 20:00", confirmadas: false });
+    await db.close();
+  });
+
+  it("no pisa la portada si el equipo ya la editó", async () => {
+    const db = await PGlite.create({ extensions: { pgcrypto } });
+    await db.exec(leer("supabase", "local", "shim.sql"));
+    const todas = listarMigraciones();
+    await aplicar(db, todas.filter((a) => a < "20261020120000_muestra.sql"), sinCambios);
+    await db.query("update public.paginas set contenido = 'Texto editado por el equipo.' where slug = 'portada'");
+    await aplicar(db, ["20261020120000_muestra.sql"], sinCambios);
+    const [p] = (await db.query<{ titulo: string; contenido: string }>("select titulo, contenido from public.paginas where slug = 'portada'")).rows;
+    expect(p.contenido).toBe("Texto editado por el equipo.");
+    expect(p.titulo).toBe("Subasta solidaria del Cementerio del Oeste");
+    await db.close();
+  });
+});

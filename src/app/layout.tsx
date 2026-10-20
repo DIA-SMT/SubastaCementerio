@@ -9,11 +9,11 @@ const inter = Inter({ subsets: ["latin"], display: "swap", variable: "--font-int
 
 export const metadata: Metadata = {
   title: {
-    default: "Subasta solidaria · Cementerio del Oeste",
+    default: "Memorias del futuro · Subasta solidaria · Cementerio del Oeste",
     template: "%s · Subasta solidaria",
   },
   description:
-    "Subasta solidaria de las 25 cabezas escultóricas intervenidas por artistas locales. Municipalidad de San Miguel de Tucumán, Dirección de Cementerios.",
+    "Memorias del futuro. Artistas en diálogo con el patrimonio: subasta solidaria de las 25 cabezas escultóricas intervenidas por artistas, a beneficio del Cottolengo Don Orione. Municipalidad de San Miguel de Tucumán, Dirección de Cementerios.",
 };
 
 export const viewport: Viewport = {
