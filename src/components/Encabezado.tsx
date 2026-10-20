@@ -7,24 +7,27 @@ const ENLACES = [
   { href: "/mis-ofertas", texto: "Mis ofertas" },
 ];
 
+/**
+ * Encabezado institucional (degradé a 112°, logo blanco y línea amarilla/celeste), fijo arriba
+ * como en el Bus Turístico. Los textos sobre el degradé van en tamaño grande (contraste AA).
+ */
 export function Encabezado() {
   return (
-    <header>
+    <header className="z-40 shadow-[0_8px_24px_rgb(12_28_46/0.12)] md:sticky md:top-0">
       <div className="fondo-institucional text-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-4 py-3 md:py-4">
-          {/* El nombre empieza con el texto del logo, para que se pueda nombrar por voz. */}
-          <Link href="/" className="inline-flex items-center gap-3 py-1" aria-label="Ciudad SMT, inicio de la subasta">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-2.5">
+          <Link href="/" className="flex items-center gap-3 py-1" aria-label="Ciudad SMT, inicio de la subasta">
             <Marca logo="smt-blanco" claro />
+            <span aria-hidden className="hidden h-8 w-px bg-white/40 sm:block" />
+            <span className="hidden text-lg leading-tight font-extrabold sm:block">Subasta solidaria</span>
           </Link>
-          {/* En pantallas anchas el menú va sobre el degradé, en texto grande (contraste AA).
-              El fondo del hover y del foco oscurece: un velo blanco bajaría el contraste. */}
           <nav aria-label="Principal" className="hidden md:block">
-            <ul className="flex gap-2">
+            <ul className="flex items-center gap-1">
               {ENLACES.map((e) => (
                 <li key={e.href}>
                   <Link
                     href={e.href}
-                    className="inline-flex min-h-12 items-center rounded-lg px-3 text-lg font-bold text-white hover:bg-azul-oscuro focus-visible:bg-azul-oscuro"
+                    className="inline-flex min-h-11 items-center rounded-full px-4 text-lg font-bold text-white hover:bg-azul-oscuro/70 focus-visible:bg-azul-oscuro"
                   >
                     {e.texto}
                   </Link>
@@ -32,6 +35,12 @@ export function Encabezado() {
               ))}
             </ul>
           </nav>
+          <Link
+            href="/obras"
+            className="inline-flex min-h-11 items-center rounded-full bg-white px-5 text-lg font-bold text-azul-profundo shadow-sm hover:bg-fondo md:hidden"
+          >
+            Ver obras
+          </Link>
         </div>
         {/* Línea de cierre: 22 % amarillo, el resto celeste. */}
         <div aria-hidden className="flex h-1.5">
@@ -41,7 +50,7 @@ export function Encabezado() {
       </div>
       {/* En el celular, el menú va en una barra blanca debajo del encabezado. Entra en una fila
           desde 360 px; más angosto (o con el texto agrandado) pasa a dos filas, sin desbordar. */}
-      <nav aria-label="Principal" className="border-b border-linea bg-white md:hidden">
+      <nav aria-label="Principal" className="border-b border-linea bg-white/95 backdrop-blur md:hidden">
         <ul className="mx-auto flex max-w-6xl flex-wrap justify-evenly px-1">
           {ENLACES.map((e) => (
             <li key={e.href}>

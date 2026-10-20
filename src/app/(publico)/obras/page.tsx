@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Plazo } from "@/components/Plazo";
+import { Cabecera } from "@/components/Cabecera";
+import { PlazoDestacado } from "@/components/Plazo";
 import { RefrescoPeriodico } from "@/components/RefrescoPeriodico";
 import { TarjetaObra } from "@/components/TarjetaObra";
-import { TituloSeccion } from "@/components/TituloSeccion";
 import { usuarioActual } from "@/lib/auth";
 import { estadoSubasta, listarObras } from "@/lib/datos/publico";
 
@@ -11,12 +11,9 @@ export const metadata: Metadata = { title: "Obras" };
 
 export default function Catalogo() {
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <TituloSeccion nivel={1}>Las obras</TituloSeccion>
-      <Suspense fallback={<EsqueletoCatalogo />}>
-        <Listado />
-      </Suspense>
-    </div>
+    <Suspense fallback={<EsqueletoCatalogo />}>
+      <Listado />
+    </Suspense>
   );
 }
 
@@ -25,20 +22,25 @@ async function Listado() {
   const [estado, obras] = await Promise.all([estadoSubasta(), listarObras(usuario?.id)]);
   return (
     <>
-      <div className="mt-4 rounded-2xl bg-fondo p-4">
-        <Plazo estado={estado} />
+      <Cabecera
+        antetitulo="Catálogo"
+        titulo="Las obras"
+        bajada={`${obras.length} cabezas escultóricas intervenidas por artistas locales. Tocá una para ver sus fotos, su historia y ofertar.`}
+        lateral={<PlazoDestacado estado={estado} claro />}
+      />
+      <div className="mx-auto max-w-6xl px-4 pt-10">
+        {obras.length === 0 ? (
+          <p className="superficie-tarjeta p-6 text-lg">Todavía no hay obras publicadas.</p>
+        ) : (
+          <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {obras.map((obra, i) => (
+              <li key={obra.id}>
+                <TarjetaObra obra={obra} fase={estado.fase} prioridad={i < 3} />
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
-      {obras.length === 0 ? (
-        <p className="mt-8 text-lg">Todavía no hay obras publicadas.</p>
-      ) : (
-        <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {obras.map((obra, i) => (
-            <li key={obra.id}>
-              <TarjetaObra obra={obra} fase={estado.fase} prioridad={i < 2} />
-            </li>
-          ))}
-        </ul>
-      )}
       {estado.fase === "abierta" && <RefrescoPeriodico segundos={30} />}
     </>
   );
@@ -46,10 +48,13 @@ async function Listado() {
 
 function EsqueletoCatalogo() {
   return (
-    <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label="Cargando obras">
-      {Array.from({ length: 6 }, (_, i) => (
-        <li key={i} className="aspect-[4/6] animate-pulse rounded-2xl bg-linea" />
-      ))}
-    </ul>
+    <>
+      <div className="fondo-institucional h-56" aria-busy="true" />
+      <ul className="mx-auto grid max-w-6xl gap-6 px-4 pt-10 sm:grid-cols-2 lg:grid-cols-3" aria-label="Cargando obras">
+        {Array.from({ length: 6 }, (_, i) => (
+          <li key={i} className="aspect-[4/6] animate-pulse rounded-3xl bg-linea" />
+        ))}
+      </ul>
+    </>
   );
 }

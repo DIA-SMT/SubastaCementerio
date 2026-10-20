@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { TituloSeccion } from "@/components/TituloSeccion";
+import { Cabecera } from "@/components/Cabecera";
 import { usuarioActual } from "@/lib/auth";
 import { miPerfil } from "@/lib/datos/oferente";
 import { rutaSegura } from "@/lib/validacion";
@@ -11,17 +11,21 @@ export const metadata: Metadata = { title: "Ingresar", robots: { index: false } 
 
 export default function PaginaIngresar({ searchParams }: PageProps<"/ingresar">) {
   return (
-    <div className="mx-auto max-w-xl px-4 py-8 md:py-12">
-      <TituloSeccion nivel={1}>Ingresá con tu correo</TituloSeccion>
-      <p className="mt-3 text-lg">
-        Para ofertar necesitamos confirmar que el correo es tuyo. No hace falta contraseña: te mandamos un código.
-      </p>
-      <div className="mt-6">
-        <Suspense fallback={<div className="h-40 animate-pulse rounded-2xl bg-linea" aria-busy="true" />}>
-          <Ingreso searchParams={searchParams} />
-        </Suspense>
+    <>
+      <Cabecera
+        antetitulo="Para ofertar"
+        titulo="Ingresá con tu correo"
+        bajada="Necesitamos confirmar que el correo es tuyo. No hace falta contraseña: te mandamos un código."
+        compacta
+      />
+      <div className="relative z-10 mx-auto -mt-12 max-w-xl px-4">
+        <div className="superficie-tarjeta p-6 md:p-8">
+          <Suspense fallback={<div className="h-40 animate-pulse rounded-2xl bg-linea" aria-busy="true" />}>
+            <Ingreso searchParams={searchParams} />
+          </Suspense>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

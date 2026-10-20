@@ -3,17 +3,15 @@ import { Suspense } from "react";
 import { obtenerPagina } from "@/lib/datos/publico";
 import type { SlugPagina } from "@/lib/datos/tipos";
 import { AvisoProvisorio } from "./Avisos";
+import { Cabecera } from "./Cabecera";
 import { Markdown } from "./Markdown";
-import { TituloSeccion } from "./TituloSeccion";
 
 /** Páginas con texto editable desde el panel (cómo participar, bases, destino, privacidad). */
 export function PaginaInformativa({ slug }: { slug: SlugPagina }) {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 md:py-12">
-      <Suspense fallback={<div className="h-80 animate-pulse rounded-2xl bg-linea" aria-busy="true" />}>
-        <Contenido slug={slug} />
-      </Suspense>
-    </div>
+    <Suspense fallback={<div className="fondo-institucional h-56" aria-busy="true" />}>
+      <Contenido slug={slug} />
+    </Suspense>
   );
 }
 
@@ -21,16 +19,18 @@ async function Contenido({ slug }: { slug: SlugPagina }) {
   const pagina = await obtenerPagina(slug);
   if (!pagina) notFound();
   return (
-    <article>
-      <TituloSeccion nivel={1}>{pagina.titulo}</TituloSeccion>
-      {pagina.provisorio && (
-        <div className="mt-5">
-          <AvisoProvisorio />
+    <>
+      <Cabecera antetitulo="Subasta solidaria" titulo={pagina.titulo} compacta />
+      <article className="relative z-10 mx-auto -mt-12 max-w-3xl px-4">
+        <div className="superficie-tarjeta p-6 md:p-10">
+          {pagina.provisorio && (
+            <div className="mb-6">
+              <AvisoProvisorio />
+            </div>
+          )}
+          <Markdown texto={pagina.contenido} />
         </div>
-      )}
-      <div className="mt-6">
-        <Markdown texto={pagina.contenido} />
-      </div>
-    </article>
+      </article>
+    </>
   );
 }

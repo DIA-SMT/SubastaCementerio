@@ -1,17 +1,37 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="800" height="1000">
   <defs>
-    <linearGradient id="f17" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="hsl(358 25% 94%)"/>
-      <stop offset="1" stop-color="hsl(358 20% 84%)"/>
+    <radialGradient id="fondoo17" cx="50%" cy="38%" r="75%">
+      <stop offset="0" stop-color="hsl(265 14% 88% / 1)"/>
+      <stop offset="0.7" stop-color="hsl(265 12% 74% / 1)"/>
+      <stop offset="1" stop-color="hsl(265 14% 58% / 1)"/>
+    </radialGradient>
+    <linearGradient id="pielo17" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="hsl(265 18% 86% / 1)"/>
+      <stop offset="1" stop-color="hsl(265 16% 66% / 1)"/>
     </linearGradient>
-    <clipPath id="c17"><ellipse cx="400" cy="420" rx="170" ry="215"/></clipPath>
+    <radialGradient id="luzo17" cx="38%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.35"/>
+      <stop offset="0.55" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0.32"/>
+    </radialGradient>
+    <linearGradient id="pedestalo17" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="hsl(265 6% 84% / 1)"/>
+      <stop offset="0.45" stop-color="hsl(265 6% 95% / 1)"/>
+      <stop offset="1" stop-color="hsl(265 6% 76% / 1)"/>
+    </linearGradient>
+    <clipPath id="clipo17"><path d="M400 150 C 520 150 590 250 590 380 C 590 470 560 540 520 585 C 505 602 498 625 498 650 L 498 700 L 302 700 L 302 650 C 302 625 295 602 280 585 C 240 540 210 470 210 380 C 210 250 280 150 400 150 Z"/></clipPath>
+    <filter id="bluro17" x="-20%" y="-200%" width="140%" height="500%"><feGaussianBlur stdDeviation="14"/></filter>
   </defs>
-  <rect width="800" height="1000" fill="url(#f17)"/>
-  <rect x="345" y="600" width="110" height="130" fill="hsl(178 12% 72%)"/>
-       <rect x="250" y="720" width="300" height="80" rx="8" fill="hsl(178 10% 62%)"/>
-       <rect x="200" y="800" width="400" height="60" rx="8" fill="hsl(178 10% 52%)"/>
-       <g clip-path="url(#c17)"><rect width="800" height="1000" fill="hsl(178 35% 80%)"/><circle cx="230" cy="220" r="28" fill="hsl(178 70% 45%)"/><circle cx="327" cy="281" r="42" fill="hsl(225 70% 55%)"/><circle cx="424" cy="342" r="56" fill="hsl(272 70% 65%)"/><circle cx="521" cy="403" r="70" fill="hsl(319 70% 45%)"/><circle cx="278" cy="464" r="28" fill="hsl(6 70% 55%)"/><circle cx="375" cy="525" r="42" fill="hsl(53 70% 65%)"/><circle cx="472" cy="586" r="56" fill="hsl(100 70% 45%)"/><circle cx="569" cy="247" r="70" fill="hsl(147 70% 55%)"/><circle cx="326" cy="308" r="28" fill="hsl(194 70% 65%)"/><circle cx="423" cy="369" r="42" fill="hsl(241 70% 45%)"/><circle cx="520" cy="430" r="56" fill="hsl(288 70% 55%)"/><circle cx="277" cy="491" r="70" fill="hsl(335 70% 65%)"/><circle cx="374" cy="552" r="28" fill="hsl(22 70% 45%)"/><circle cx="471" cy="613" r="42" fill="hsl(69 70% 55%)"/></g>
-  <rect x="0" y="890" width="800" height="110" fill="#10233d" opacity="0.88"/>
-  <text x="400" y="938" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#ffffff">IMAGEN DE EJEMPLO</text>
-  <text x="400" y="978" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="26" fill="#ffffff">Obra N° 17</text>
+  <rect width="800" height="1000" fill="url(#fondoo17)"/>
+  <ellipse cx="400" cy="905" rx="250" ry="26" fill="hsl(265 12% 20% / 0.28)" filter="url(#bluro17)"/>
+       <rect x="245" y="700" width="310" height="205" rx="4" fill="url(#pedestalo17)"/>
+       <rect x="230" y="690" width="340" height="22" rx="4" fill="hsl(265 8% 93% / 1)"/>
+       
+    <path d="M400 150 C 520 150 590 250 590 380 C 590 470 560 540 520 585 C 505 602 498 625 498 650 L 498 700 L 302 700 L 302 650 C 302 625 295 602 280 585 C 240 540 210 470 210 380 C 210 250 280 150 400 150 Z" fill="url(#pielo17)"/>
+    <g clip-path="url(#clipo17)"><rect x="210" y="200" width="80" height="130" rx="6" fill="hsl(55 38% 42% / 1)" opacity="0.55" transform="rotate(-6 400 450)"/><rect x="305" y="200" width="80" height="130" rx="6" fill="hsl(305 45% 58% / 1)" opacity="0.67" transform="rotate(6 400 450)"/><rect x="400" y="200" width="80" height="130" rx="6" fill="hsl(265 30% 30% / 1)" opacity="0.79" transform="rotate(-6 400 450)"/><rect x="495" y="200" width="80" height="130" rx="6" fill="hsl(55 38% 42% / 1)" opacity="0.55" transform="rotate(6 400 450)"/><rect x="210" y="350" width="80" height="130" rx="6" fill="hsl(305 45% 58% / 1)" opacity="0.67" transform="rotate(-6 400 450)"/><rect x="305" y="350" width="80" height="130" rx="6" fill="hsl(265 30% 30% / 1)" opacity="0.79" transform="rotate(6 400 450)"/><rect x="400" y="350" width="80" height="130" rx="6" fill="hsl(55 38% 42% / 1)" opacity="0.55" transform="rotate(-6 400 450)"/><rect x="495" y="350" width="80" height="130" rx="6" fill="hsl(305 45% 58% / 1)" opacity="0.67" transform="rotate(6 400 450)"/><rect x="210" y="500" width="80" height="130" rx="6" fill="hsl(265 30% 30% / 1)" opacity="0.79" transform="rotate(-6 400 450)"/><rect x="305" y="500" width="80" height="130" rx="6" fill="hsl(55 38% 42% / 1)" opacity="0.55" transform="rotate(6 400 450)"/><rect x="400" y="500" width="80" height="130" rx="6" fill="hsl(305 45% 58% / 1)" opacity="0.67" transform="rotate(-6 400 450)"/><rect x="495" y="500" width="80" height="130" rx="6" fill="hsl(265 30% 30% / 1)" opacity="0.79" transform="rotate(6 400 450)"/></g>
+    <path d="M400 150 C 520 150 590 250 590 380 C 590 470 560 540 520 585 C 505 602 498 625 498 650 L 498 700 L 302 700 L 302 650 C 302 625 295 602 280 585 C 240 540 210 470 210 380 C 210 250 280 150 400 150 Z" fill="url(#luzo17)"/>
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <rect x="598" y="28" width="174" height="42" rx="21" fill="#ffffff" fill-opacity="0.82"/>
+    <text x="685" y="56" text-anchor="middle" font-size="20" font-weight="700" fill="#33414f">Ejemplo · N° 17</text>
+  </g>
 </svg>

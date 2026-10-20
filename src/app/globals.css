@@ -21,8 +21,17 @@
   --color-verde-suave: color-mix(in srgb, var(--color-verde) 14%, white);
   --color-ambar-suave: color-mix(in srgb, var(--color-ambar) 16%, white);
   --color-rojo-suave: color-mix(in srgb, var(--color-rojo) 12%, white);
+  /* Superficie neutra para separar secciones sin bordes (derivada de líneas). */
+  --color-superficie: color-mix(in srgb, var(--color-linea) 45%, white);
+
+  --shadow-suave: 0 1px 2px rgb(16 35 61 / 0.04), 0 8px 24px -6px rgb(16 35 61 / 0.10);
+  --shadow-elevada: 0 2px 4px rgb(16 35 61 / 0.05), 0 18px 40px -10px rgb(16 35 61 / 0.18);
 
   --font-sans: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+
+  /* Con la raíz en 18 px, el contenedor principal queda en ~1170 px (como el Bus Turístico). */
+  --container-6xl: 65rem;
+  --container-7xl: 72rem;
 }
 
 /* Textos grandes: 18 px de base. */
@@ -32,19 +41,29 @@ html {
 }
 
 body {
-  background: #ffffff;
+  /* Fondo gris muy claro y tarjetas blancas encima (como el Bus Turístico). */
+  background: var(--color-superficie);
   color: var(--color-texto);
   font-family: var(--font-sans);
   font-weight: 400;
   line-height: 1.55;
 }
 
-h1,
-h2,
-h3 {
-  color: var(--color-tinta);
-  font-weight: 800;
-  line-height: 1.2;
+/* En la capa base: las utilidades (por ejemplo text-white en el hero) pueden pisarlos. */
+@layer base {
+  h1,
+  h2,
+  h3 {
+    color: var(--color-tinta);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
 }
 
 /* Fuera de las capas de Tailwind: ninguna utilidad puede quitar el contorno de foco. */
@@ -72,13 +91,14 @@ h3 {
 }
 
 @utility boton {
-  @apply inline-flex min-h-14 items-center justify-center gap-2 rounded-xl px-6 text-center text-lg font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+  @apply inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl px-7 text-center text-lg font-bold transition duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60;
 }
 @utility boton-primario {
-  @apply boton bg-azul text-white hover:bg-azul-profundo;
+  @apply boton bg-azul text-white shadow-[0_6px_16px_-6px_rgb(18_111_245/0.6)] hover:bg-azul-profundo;
 }
+/* Secundario: fondo celeste muy suave y texto en azul profundo (8:1), sin borde grueso. */
 @utility boton-secundario {
-  @apply boton border-2 border-azul bg-white text-azul-profundo hover:bg-fondo;
+  @apply boton bg-fondo text-azul-profundo ring-1 ring-azul/25 hover:bg-white hover:ring-azul/60;
 }
 /* Acciones delicadas (anular, borrar): el rojo va en el borde y el fondo suave, el texto en tinta. */
 @utility boton-peligro {
@@ -87,11 +107,19 @@ h3 {
 /* Borde gris (4,52:1 sobre blanco): el campo se distingue del fondo. En el foco el borde pasa
    a azul y se suma el contorno general de :focus-visible; con error, el borde va en rojo. */
 @utility campo {
-  @apply block min-h-14 w-full rounded-xl border-2 border-gris bg-white px-4 text-lg text-tinta placeholder:text-gris focus:border-azul aria-invalid:border-rojo;
+  @apply block min-h-14 w-full rounded-2xl border border-gris bg-white px-4 text-lg text-tinta shadow-[inset_0_1px_2px_rgb(16_35_61/0.06)] transition-colors placeholder:text-gris focus:border-azul aria-invalid:border-rojo;
 }
 @utility etiqueta {
   @apply mb-1.5 block font-bold text-tinta;
 }
 @utility enlace {
-  @apply font-bold text-azul-profundo underline underline-offset-4 hover:text-azul;
+  @apply font-bold text-azul-profundo underline decoration-azul/40 decoration-2 underline-offset-4 hover:decoration-azul;
+}
+/* Antetítulo: rótulo chico en mayúsculas sobre los títulos. */
+@utility antetitulo {
+  @apply text-sm font-bold tracking-[0.12em] text-azul-profundo uppercase;
+}
+/* Tarjeta clara sin borde marcado, para formularios y paneles. */
+@utility superficie-tarjeta {
+  @apply rounded-3xl bg-white shadow-suave ring-1 ring-linea/70;
 }

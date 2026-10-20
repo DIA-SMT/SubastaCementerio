@@ -1,14 +1,34 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="800" height="1000">
   <defs>
-    <linearGradient id="f2" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="hsl(95 25% 94%)"/>
-      <stop offset="1" stop-color="hsl(95 20% 84%)"/>
+    <radialGradient id="fondoo2d" cx="50%" cy="38%" r="75%">
+      <stop offset="0" stop-color="hsl(205 14% 88% / 1)"/>
+      <stop offset="0.7" stop-color="hsl(205 12% 74% / 1)"/>
+      <stop offset="1" stop-color="hsl(205 14% 58% / 1)"/>
+    </radialGradient>
+    <linearGradient id="pielo2d" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="hsl(205 18% 86% / 1)"/>
+      <stop offset="1" stop-color="hsl(205 16% 66% / 1)"/>
     </linearGradient>
-    <clipPath id="c2"><ellipse cx="400" cy="420" rx="170" ry="215"/></clipPath>
+    <radialGradient id="luzo2d" cx="38%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.35"/>
+      <stop offset="0.55" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0.32"/>
+    </radialGradient>
+    <linearGradient id="pedestalo2d" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="hsl(205 6% 84% / 1)"/>
+      <stop offset="0.45" stop-color="hsl(205 6% 95% / 1)"/>
+      <stop offset="1" stop-color="hsl(205 6% 76% / 1)"/>
+    </linearGradient>
+    <clipPath id="clipo2d"><path d="M400 150 C 520 150 590 250 590 380 C 590 470 560 540 520 585 C 505 602 498 625 498 650 L 498 700 L 302 700 L 302 650 C 302 625 295 602 280 585 C 240 540 210 470 210 380 C 210 250 280 150 400 150 Z"/></clipPath>
+    <filter id="bluro2d" x="-20%" y="-200%" width="140%" height="500%"><feGaussianBlur stdDeviation="14"/></filter>
   </defs>
-  <rect width="800" height="1000" fill="url(#f2)"/>
-  <g transform="translate(-400 -420) scale(2)"><g clip-path="url(#c2)"><rect width="800" height="1000" fill="hsl(275 35% 80%)"/><polygon points="230,200 300,640 250,640" fill="hsl(275 70% 45%)" opacity="0.85"/><polygon points="255,200 325,640 275,640" fill="hsl(322 70% 55%)" opacity="0.85"/><polygon points="280,200 350,640 300,640" fill="hsl(9 70% 65%)" opacity="0.85"/><polygon points="305,200 375,640 325,640" fill="hsl(56 70% 45%)" opacity="0.85"/><polygon points="330,200 400,640 350,640" fill="hsl(103 70% 55%)" opacity="0.85"/><polygon points="355,200 425,640 375,640" fill="hsl(150 70% 65%)" opacity="0.85"/><polygon points="380,200 450,640 400,640" fill="hsl(197 70% 45%)" opacity="0.85"/><polygon points="405,200 475,640 425,640" fill="hsl(244 70% 55%)" opacity="0.85"/><polygon points="430,200 500,640 450,640" fill="hsl(291 70% 65%)" opacity="0.85"/><polygon points="455,200 525,640 475,640" fill="hsl(338 70% 45%)" opacity="0.85"/><polygon points="480,200 550,640 500,640" fill="hsl(25 70% 55%)" opacity="0.85"/><polygon points="505,200 575,640 525,640" fill="hsl(72 70% 65%)" opacity="0.85"/><polygon points="530,200 600,640 550,640" fill="hsl(119 70% 45%)" opacity="0.85"/><polygon points="555,200 625,640 575,640" fill="hsl(166 70% 55%)" opacity="0.85"/></g></g>
-  <rect x="0" y="890" width="800" height="110" fill="#10233d" opacity="0.88"/>
-  <text x="400" y="938" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#ffffff">IMAGEN DE EJEMPLO</text>
-  <text x="400" y="978" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="26" fill="#ffffff">Detalle · Obra N° 2</text>
+  <rect width="800" height="1000" fill="url(#fondoo2d)"/>
+  <g transform="translate(-420 -380) scale(2.05)">
+    <path d="M400 150 C 520 150 590 250 590 380 C 590 470 560 540 520 585 C 505 602 498 625 498 650 L 498 700 L 302 700 L 302 650 C 302 625 295 602 280 585 C 240 540 210 470 210 380 C 210 250 280 150 400 150 Z" fill="url(#pielo2d)"/>
+    <g clip-path="url(#clipo2d)"><rect x="210" y="200" width="80" height="130" rx="6" fill="hsl(355 38% 42% / 1)" opacity="0.55" transform="rotate(-6 400 450)"/><rect x="305" y="200" width="80" height="130" rx="6" fill="hsl(245 45% 58% / 1)" opacity="0.67" transform="rotate(6 400 450)"/><rect x="400" y="200" width="80" height="130" rx="6" fill="hsl(205 30% 30% / 1)" opacity="0.79" transform="rotate(-6 400 450)"/><rect x="495" y="200" width="80" height="130" rx="6" fill="hsl(355 38% 42% / 1)" opacity="0.55" transform="rotate(6 400 450)"/><rect x="210" y="350" width="80" height="130" rx="6" fill="hsl(245 45% 58% / 1)" opacity="0.67" transform="rotate(-6 400 450)"/><rect x="305" y="350" width="80" height="130" rx="6" fill="hsl(205 30% 30% / 1)" opacity="0.79" transform="rotate(6 400 450)"/><rect x="400" y="350" width="80" height="130" rx="6" fill="hsl(355 38% 42% / 1)" opacity="0.55" transform="rotate(-6 400 450)"/><rect x="495" y="350" width="80" height="130" rx="6" fill="hsl(245 45% 58% / 1)" opacity="0.67" transform="rotate(6 400 450)"/><rect x="210" y="500" width="80" height="130" rx="6" fill="hsl(205 30% 30% / 1)" opacity="0.79" transform="rotate(-6 400 450)"/><rect x="305" y="500" width="80" height="130" rx="6" fill="hsl(355 38% 42% / 1)" opacity="0.55" transform="rotate(6 400 450)"/><rect x="400" y="500" width="80" height="130" rx="6" fill="hsl(245 45% 58% / 1)" opacity="0.67" transform="rotate(-6 400 450)"/><rect x="495" y="500" width="80" height="130" rx="6" fill="hsl(205 30% 30% / 1)" opacity="0.79" transform="rotate(6 400 450)"/></g>
+    <path d="M400 150 C 520 150 590 250 590 380 C 590 470 560 540 520 585 C 505 602 498 625 498 650 L 498 700 L 302 700 L 302 650 C 302 625 295 602 280 585 C 240 540 210 470 210 380 C 210 250 280 150 400 150 Z" fill="url(#luzo2d)"/></g>
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <rect x="598" y="28" width="174" height="42" rx="21" fill="#ffffff" fill-opacity="0.82"/>
+    <text x="685" y="56" text-anchor="middle" font-size="20" font-weight="700" fill="#33414f">Ejemplo · N° 2</text>
+  </g>
 </svg>

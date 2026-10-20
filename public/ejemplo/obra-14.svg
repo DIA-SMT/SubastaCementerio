@@ -1,17 +1,37 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="800" height="1000">
   <defs>
-    <linearGradient id="f14" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="hsl(305 25% 94%)"/>
-      <stop offset="1" stop-color="hsl(305 20% 84%)"/>
+    <radialGradient id="fondoo14" cx="50%" cy="38%" r="75%">
+      <stop offset="0" stop-color="hsl(350 14% 88% / 1)"/>
+      <stop offset="0.7" stop-color="hsl(350 12% 74% / 1)"/>
+      <stop offset="1" stop-color="hsl(350 14% 58% / 1)"/>
+    </radialGradient>
+    <linearGradient id="pielo14" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="hsl(350 18% 86% / 1)"/>
+      <stop offset="1" stop-color="hsl(350 16% 66% / 1)"/>
     </linearGradient>
-    <clipPath id="c14"><ellipse cx="400" cy="420" rx="170" ry="215"/></clipPath>
+    <radialGradient id="luzo14" cx="38%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.35"/>
+      <stop offset="0.55" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0.32"/>
+    </radialGradient>
+    <linearGradient id="pedestalo14" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="hsl(350 6% 84% / 1)"/>
+      <stop offset="0.45" stop-color="hsl(350 6% 95% / 1)"/>
+      <stop offset="1" stop-color="hsl(350 6% 76% / 1)"/>
+    </linearGradient>
+    <clipPath id="clipo14"><path d="M400 150 C 520 150 590 250 590 380 C 590 470 560 540 520 585 C 505 602 498 625 498 650 L 498 700 L 302 700 L 302 650 C 302 625 295 602 280 585 C 240 540 210 470 210 380 C 210 250 280 150 400 150 Z"/></clipPath>
+    <filter id="bluro14" x="-20%" y="-200%" width="140%" height="500%"><feGaussianBlur stdDeviation="14"/></filter>
   </defs>
-  <rect width="800" height="1000" fill="url(#f14)"/>
-  <rect x="345" y="600" width="110" height="130" fill="hsl(125 12% 72%)"/>
-       <rect x="250" y="720" width="300" height="80" rx="8" fill="hsl(125 10% 62%)"/>
-       <rect x="200" y="800" width="400" height="60" rx="8" fill="hsl(125 10% 52%)"/>
-       <g clip-path="url(#c14)"><rect width="800" height="1000" fill="hsl(125 35% 80%)"/><polygon points="230,200 300,640 250,640" fill="hsl(125 70% 45%)" opacity="0.85"/><polygon points="255,200 325,640 275,640" fill="hsl(172 70% 55%)" opacity="0.85"/><polygon points="280,200 350,640 300,640" fill="hsl(219 70% 65%)" opacity="0.85"/><polygon points="305,200 375,640 325,640" fill="hsl(266 70% 45%)" opacity="0.85"/><polygon points="330,200 400,640 350,640" fill="hsl(313 70% 55%)" opacity="0.85"/><polygon points="355,200 425,640 375,640" fill="hsl(0 70% 65%)" opacity="0.85"/><polygon points="380,200 450,640 400,640" fill="hsl(47 70% 45%)" opacity="0.85"/><polygon points="405,200 475,640 425,640" fill="hsl(94 70% 55%)" opacity="0.85"/><polygon points="430,200 500,640 450,640" fill="hsl(141 70% 65%)" opacity="0.85"/><polygon points="455,200 525,640 475,640" fill="hsl(188 70% 45%)" opacity="0.85"/><polygon points="480,200 550,640 500,640" fill="hsl(235 70% 55%)" opacity="0.85"/><polygon points="505,200 575,640 525,640" fill="hsl(282 70% 65%)" opacity="0.85"/><polygon points="530,200 600,640 550,640" fill="hsl(329 70% 45%)" opacity="0.85"/><polygon points="555,200 625,640 575,640" fill="hsl(16 70% 55%)" opacity="0.85"/></g>
-  <rect x="0" y="890" width="800" height="110" fill="#10233d" opacity="0.88"/>
-  <text x="400" y="938" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#ffffff">IMAGEN DE EJEMPLO</text>
-  <text x="400" y="978" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="26" fill="#ffffff">Obra N° 14</text>
+  <rect width="800" height="1000" fill="url(#fondoo14)"/>
+  <ellipse cx="400" cy="905" rx="250" ry="26" fill="hsl(350 12% 20% / 0.28)" filter="url(#bluro14)"/>
+       <rect x="245" y="700" width="310" height="205" rx="4" fill="url(#pedestalo14)"/>
+       <rect x="230" y="690" width="340" height="22" rx="4" fill="hsl(350 8% 93% / 1)"/>
+       
+    <path d="M400 150 C 520 150 590 250 590 380 C 590 470 560 540 520 585 C 505 602 498 625 498 650 L 498 700 L 302 700 L 302 650 C 302 625 295 602 280 585 C 240 540 210 470 210 380 C 210 250 280 150 400 150 Z" fill="url(#pielo14)"/>
+    <g clip-path="url(#clipo14)"><ellipse cx="400" cy="420" rx="300" ry="330" fill="none" stroke="hsl(140 38% 42% / 1)" stroke-width="9" opacity="0.75"/><ellipse cx="400" cy="420" rx="278" ry="306" fill="none" stroke="hsl(30 45% 58% / 1)" stroke-width="9" opacity="0.75"/><ellipse cx="400" cy="420" rx="256" ry="282" fill="none" stroke="hsl(350 30% 30% / 1)" stroke-width="9" opacity="0.75"/><ellipse cx="400" cy="420" rx="234" ry="258" fill="none" stroke="hsl(140 38% 42% / 1)" stroke-width="9" opacity="0.75"/><ellipse cx="400" cy="420" rx="212" ry="234" fill="none" stroke="hsl(30 45% 58% / 1)" stroke-width="9" opacity="0.75"/><ellipse cx="400" cy="420" rx="190" ry="210" fill="none" stroke="hsl(350 30% 30% / 1)" stroke-width="9" opacity="0.75"/><ellipse cx="400" cy="420" rx="168" ry="186" fill="none" stroke="hsl(140 38% 42% / 1)" stroke-width="9" opacity="0.75"/><ellipse cx="400" cy="420" rx="146" ry="162" fill="none" stroke="hsl(30 45% 58% / 1)" stroke-width="9" opacity="0.75"/><ellipse cx="400" cy="420" rx="124" ry="138" fill="none" stroke="hsl(350 30% 30% / 1)" stroke-width="9" opacity="0.75"/><ellipse cx="400" cy="420" rx="102" ry="114" fill="none" stroke="hsl(140 38% 42% / 1)" stroke-width="9" opacity="0.75"/><ellipse cx="400" cy="420" rx="80" ry="90" fill="none" stroke="hsl(30 45% 58% / 1)" stroke-width="9" opacity="0.75"/><ellipse cx="400" cy="420" rx="58" ry="66" fill="none" stroke="hsl(350 30% 30% / 1)" stroke-width="9" opacity="0.75"/></g>
+    <path d="M400 150 C 520 150 590 250 590 380 C 590 470 560 540 520 585 C 505 602 498 625 498 650 L 498 700 L 302 700 L 302 650 C 302 625 295 602 280 585 C 240 540 210 470 210 380 C 210 250 280 150 400 150 Z" fill="url(#luzo14)"/>
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <rect x="598" y="28" width="174" height="42" rx="21" fill="#ffffff" fill-opacity="0.82"/>
+    <text x="685" y="56" text-anchor="middle" font-size="20" font-weight="700" fill="#33414f">Ejemplo · N° 14</text>
+  </g>
 </svg>

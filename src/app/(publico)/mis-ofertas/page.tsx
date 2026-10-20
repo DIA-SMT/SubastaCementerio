@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { Recuadro } from "@/components/Avisos";
+import { Cabecera } from "@/components/Cabecera";
 import { TituloSeccion } from "@/components/TituloSeccion";
 import { usuarioActual } from "@/lib/auth";
 import { miPerfil, misOfertas } from "@/lib/datos/oferente";
@@ -16,11 +17,16 @@ export const metadata: Metadata = { title: "Mis ofertas", robots: { index: false
 
 export default function PaginaMisOfertas() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 md:py-12">
-      <Suspense fallback={<div className="h-96 animate-pulse rounded-2xl bg-linea" aria-busy="true" />}>
-        <MisOfertas />
-      </Suspense>
-    </div>
+    <>
+      <Cabecera antetitulo="Tu participación" titulo="Mis ofertas" compacta />
+      <div className="relative z-10 mx-auto -mt-12 max-w-3xl px-4">
+        <div className="superficie-tarjeta p-6 md:p-8">
+          <Suspense fallback={<div className="h-96 animate-pulse rounded-2xl bg-linea" aria-busy="true" />}>
+            <MisOfertas />
+          </Suspense>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -46,8 +52,7 @@ async function MisOfertas() {
 
   return (
     <>
-      <TituloSeccion nivel={1}>Mis ofertas</TituloSeccion>
-      <p className="mt-3 text-lg">
+      <p className="text-lg">
         Hola, {perfil.nombre}. En el sitio aparecés como <strong className="text-tinta">Oferente {perfil.aliasNumero}</strong>.
       </p>
 

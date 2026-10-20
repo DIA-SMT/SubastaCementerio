@@ -17,9 +17,11 @@ export const metadata: Metadata = { title: "Ofertar", robots: { index: false } }
 export default function PaginaOfertar({ params }: PageProps<"/obras/[numero]/ofertar">) {
   return (
     <div className="mx-auto max-w-xl px-4 py-6 md:py-10">
-      <Suspense fallback={<div className="h-96 animate-pulse rounded-2xl bg-linea" aria-busy="true" />}>
-        <Ofertar params={params} />
-      </Suspense>
+      <div className="superficie-tarjeta p-6 md:p-8">
+        <Suspense fallback={<div className="h-96 animate-pulse rounded-2xl bg-linea" aria-busy="true" />}>
+          <Ofertar params={params} />
+        </Suspense>
+      </div>
     </div>
   );
 }
