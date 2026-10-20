@@ -1,0 +1,6 @@
+# Finales de línea LF en el repositorio, también en Windows (core.autocrlf).
+# Las migraciones comparan textos guardados en la base: un \r de más cambia el resultado.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary

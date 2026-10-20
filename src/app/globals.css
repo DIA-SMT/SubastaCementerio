@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+/* Identidad institucional SMT: colores exactos del manual. */
+@theme {
+  --color-azul: #126ff5;
+  --color-azul-medio: #2589ea;
+  --color-azul-profundo: #28469f;
+  --color-azul-oscuro: #0d3fb0;
+  --color-celeste: #3cb4f0;
+  --color-amarillo: #f2d91c; /* solo acento, nunca texto */
+  --color-tinta: #10233d;
+  --color-texto: #33414f;
+  --color-gris: #6b7885;
+  --color-linea: #e3e8ef;
+  --color-verde: #10b981;
+  --color-ambar: #f59e0b;
+  --color-rojo: #ef4444;
+
+  /* Fondos suaves derivados de los colores de estado (el texto encima va en tinta). */
+  --color-fondo: color-mix(in srgb, var(--color-azul) 4%, white);
+  --color-verde-suave: color-mix(in srgb, var(--color-verde) 14%, white);
+  --color-ambar-suave: color-mix(in srgb, var(--color-ambar) 16%, white);
+  --color-rojo-suave: color-mix(in srgb, var(--color-rojo) 12%, white);
+
+  --font-sans: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Textos grandes: 18 px de base. */
+html {
+  font-size: 112.5%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: #ffffff;
+  color: var(--color-texto);
+  font-family: var(--font-sans);
+  font-weight: 400;
+  line-height: 1.55;
+}
+
+h1,
+h2,
+h3 {
+  color: var(--color-tinta);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+/* Fuera de las capas de Tailwind: ninguna utilidad puede quitar el contorno de foco. */
+:focus-visible {
+  outline: 3px solid var(--color-azul-profundo);
+  outline-offset: 3px;
+}
+
+/* El redondeo sí va en la capa base: un control con su propio rounded-* lo conserva al
+   recibir el foco; los enlaces de texto, que no tienen, toman 6 px. */
+@layer base {
+  :focus-visible {
+    border-radius: 6px;
+  }
+}
+
+.fondo-institucional {
+  background: linear-gradient(112deg, #0d3fb0 0%, #126ff5 55%, #2589ea 100%);
+}
+
+/* Sobre el degradé el contorno azul no se ve: en blanco da 3,59:1 o más en todo el tramo.
+   (Con 3 px de grosor y de separación queda dentro del encabezado, lejos de la franja celeste.) */
+.fondo-institucional :focus-visible {
+  outline-color: #ffffff;
+}
+
+@utility boton {
+  @apply inline-flex min-h-14 items-center justify-center gap-2 rounded-xl px-6 text-center text-lg font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+}
+@utility boton-primario {
+  @apply boton bg-azul text-white hover:bg-azul-profundo;
+}
+@utility boton-secundario {
+  @apply boton border-2 border-azul bg-white text-azul-profundo hover:bg-fondo;
+}
+/* Acciones delicadas (anular, borrar): el rojo va en el borde y el fondo suave, el texto en tinta. */
+@utility boton-peligro {
+  @apply boton border-2 border-rojo bg-rojo-suave text-tinta hover:bg-white;
+}
+/* Borde gris (4,52:1 sobre blanco): el campo se distingue del fondo. En el foco el borde pasa
+   a azul y se suma el contorno general de :focus-visible; con error, el borde va en rojo. */
+@utility campo {
+  @apply block min-h-14 w-full rounded-xl border-2 border-gris bg-white px-4 text-lg text-tinta placeholder:text-gris focus:border-azul aria-invalid:border-rojo;
+}
+@utility etiqueta {
+  @apply mb-1.5 block font-bold text-tinta;
+}
+@utility enlace {
+  @apply font-bold text-azul-profundo underline underline-offset-4 hover:text-azul;
+}

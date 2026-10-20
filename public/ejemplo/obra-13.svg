@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="800" height="1000">
+  <defs>
+    <linearGradient id="f13" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="hsl(168 25% 94%)"/>
+      <stop offset="1" stop-color="hsl(168 20% 84%)"/>
+    </linearGradient>
+    <clipPath id="c13"><ellipse cx="400" cy="420" rx="170" ry="215"/></clipPath>
+  </defs>
+  <rect width="800" height="1000" fill="url(#f13)"/>
+  <rect x="345" y="600" width="110" height="130" fill="hsl(348 12% 72%)"/>
+       <rect x="250" y="720" width="300" height="80" rx="8" fill="hsl(348 10% 62%)"/>
+       <rect x="200" y="800" width="400" height="60" rx="8" fill="hsl(348 10% 52%)"/>
+       <g clip-path="url(#c13)"><rect width="800" height="1000" fill="hsl(348 35% 80%)"/><circle cx="230" cy="220" r="28" fill="hsl(348 70% 45%)"/><circle cx="327" cy="281" r="42" fill="hsl(35 70% 55%)"/><circle cx="424" cy="342" r="56" fill="hsl(82 70% 65%)"/><circle cx="521" cy="403" r="70" fill="hsl(129 70% 45%)"/><circle cx="278" cy="464" r="28" fill="hsl(176 70% 55%)"/><circle cx="375" cy="525" r="42" fill="hsl(223 70% 65%)"/><circle cx="472" cy="586" r="56" fill="hsl(270 70% 45%)"/><circle cx="569" cy="247" r="70" fill="hsl(317 70% 55%)"/><circle cx="326" cy="308" r="28" fill="hsl(4 70% 65%)"/><circle cx="423" cy="369" r="42" fill="hsl(51 70% 45%)"/><circle cx="520" cy="430" r="56" fill="hsl(98 70% 55%)"/><circle cx="277" cy="491" r="70" fill="hsl(145 70% 65%)"/><circle cx="374" cy="552" r="28" fill="hsl(192 70% 45%)"/><circle cx="471" cy="613" r="42" fill="hsl(239 70% 55%)"/></g>
+  <rect x="0" y="890" width="800" height="110" fill="#10233d" opacity="0.88"/>
+  <text x="400" y="938" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#ffffff">IMAGEN DE EJEMPLO</text>
+  <text x="400" y="978" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="26" fill="#ffffff">Obra N° 13</text>
+</svg>

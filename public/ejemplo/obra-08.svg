@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="800" height="1000">
+  <defs>
+    <linearGradient id="f8" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="hsl(200 25% 94%)"/>
+      <stop offset="1" stop-color="hsl(200 20% 84%)"/>
+    </linearGradient>
+    <clipPath id="c8"><ellipse cx="400" cy="420" rx="170" ry="215"/></clipPath>
+  </defs>
+  <rect width="800" height="1000" fill="url(#f8)"/>
+  <rect x="345" y="600" width="110" height="130" fill="hsl(20 12% 72%)"/>
+       <rect x="250" y="720" width="300" height="80" rx="8" fill="hsl(20 10% 62%)"/>
+       <rect x="200" y="800" width="400" height="60" rx="8" fill="hsl(20 10% 52%)"/>
+       <g clip-path="url(#c8)"><rect width="800" height="1000" fill="hsl(20 35% 80%)"/><rect x="0" y="170" width="800" height="17" fill="hsl(20 70% 45%)"/><rect x="0" y="204" width="800" height="17" fill="hsl(67 70% 55%)"/><rect x="0" y="238" width="800" height="17" fill="hsl(114 70% 65%)"/><rect x="0" y="272" width="800" height="17" fill="hsl(161 70% 45%)"/><rect x="0" y="306" width="800" height="17" fill="hsl(208 70% 55%)"/><rect x="0" y="340" width="800" height="17" fill="hsl(255 70% 65%)"/><rect x="0" y="374" width="800" height="17" fill="hsl(302 70% 45%)"/><rect x="0" y="408" width="800" height="17" fill="hsl(349 70% 55%)"/><rect x="0" y="442" width="800" height="17" fill="hsl(36 70% 65%)"/><rect x="0" y="476" width="800" height="17" fill="hsl(83 70% 45%)"/><rect x="0" y="510" width="800" height="17" fill="hsl(130 70% 55%)"/><rect x="0" y="544" width="800" height="17" fill="hsl(177 70% 65%)"/><rect x="0" y="578" width="800" height="17" fill="hsl(224 70% 45%)"/><rect x="0" y="612" width="800" height="17" fill="hsl(271 70% 55%)"/></g>
+  <rect x="0" y="890" width="800" height="110" fill="#10233d" opacity="0.88"/>
+  <text x="400" y="938" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#ffffff">IMAGEN DE EJEMPLO</text>
+  <text x="400" y="978" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="26" fill="#ffffff">Obra N° 8</text>
+</svg>

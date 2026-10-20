@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="800" height="1000">
+  <defs>
+    <linearGradient id="f6" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="hsl(285 25% 94%)"/>
+      <stop offset="1" stop-color="hsl(285 20% 84%)"/>
+    </linearGradient>
+    <clipPath id="c6"><ellipse cx="400" cy="420" rx="170" ry="215"/></clipPath>
+  </defs>
+  <rect width="800" height="1000" fill="url(#f6)"/>
+  <rect x="345" y="600" width="110" height="130" fill="hsl(105 12% 72%)"/>
+       <rect x="250" y="720" width="300" height="80" rx="8" fill="hsl(105 10% 62%)"/>
+       <rect x="200" y="800" width="400" height="60" rx="8" fill="hsl(105 10% 52%)"/>
+       <g clip-path="url(#c6)"><rect width="800" height="1000" fill="hsl(105 35% 80%)"/><polygon points="230,200 300,640 250,640" fill="hsl(105 70% 45%)" opacity="0.85"/><polygon points="255,200 325,640 275,640" fill="hsl(152 70% 55%)" opacity="0.85"/><polygon points="280,200 350,640 300,640" fill="hsl(199 70% 65%)" opacity="0.85"/><polygon points="305,200 375,640 325,640" fill="hsl(246 70% 45%)" opacity="0.85"/><polygon points="330,200 400,640 350,640" fill="hsl(293 70% 55%)" opacity="0.85"/><polygon points="355,200 425,640 375,640" fill="hsl(340 70% 65%)" opacity="0.85"/><polygon points="380,200 450,640 400,640" fill="hsl(27 70% 45%)" opacity="0.85"/><polygon points="405,200 475,640 425,640" fill="hsl(74 70% 55%)" opacity="0.85"/><polygon points="430,200 500,640 450,640" fill="hsl(121 70% 65%)" opacity="0.85"/><polygon points="455,200 525,640 475,640" fill="hsl(168 70% 45%)" opacity="0.85"/><polygon points="480,200 550,640 500,640" fill="hsl(215 70% 55%)" opacity="0.85"/><polygon points="505,200 575,640 525,640" fill="hsl(262 70% 65%)" opacity="0.85"/><polygon points="530,200 600,640 550,640" fill="hsl(309 70% 45%)" opacity="0.85"/><polygon points="555,200 625,640 575,640" fill="hsl(356 70% 55%)" opacity="0.85"/></g>
+  <rect x="0" y="890" width="800" height="110" fill="#10233d" opacity="0.88"/>
+  <text x="400" y="938" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#ffffff">IMAGEN DE EJEMPLO</text>
+  <text x="400" y="978" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="26" fill="#ffffff">Obra N° 6</text>
+</svg>
