@@ -63,8 +63,8 @@ function Enlaces(props: PropsLista) {
 }
 
 /**
- * Barra fija: transparente sobre el blanco cálido al principio de la página; al desplazarse
- * toma fondo blanco, un filete y una sombra mínima. En el celular, el menú se despliega.
+ * Barra fija: velo marfil translúcido sobre la sala del fondo; al desplazarse se vuelve casi
+ * opaca, con un filete y una sombra mínima. En el celular, el menú se despliega.
  */
 export function BarraNavegacion({ marca, enlaces }: { marca: ReactNode; enlaces: Enlace[] }) {
   const [desplazado, setDesplazado] = useState(false);
@@ -96,8 +96,8 @@ export function BarraNavegacion({ marca, enlaces }: { marca: ReactNode; enlaces:
     <header
       className={`sticky top-0 z-40 border-b transition-[background-color,border-color,box-shadow] duration-300 ${
         conFondo
-          ? "border-linea bg-white/92 shadow-[0_10px_30px_-22px_rgb(23_25_28/0.35)] backdrop-blur-md"
-          : "border-transparent bg-papel"
+          ? "border-white/50 bg-papel/[0.82] shadow-[0_10px_30px_-22px_rgb(31_28_24/0.35)] backdrop-blur-xl"
+          : "border-white/40 bg-papel/[0.6] backdrop-blur-xl"
       }`}
     >
       <div className="contenedor flex h-16 items-center justify-between gap-4 md:h-[4.5rem]">

@@ -1,6 +1,6 @@
 import { estadoSubasta } from "@/lib/datos/publico";
 
-export { AvisoProvisorio, PastillaProvisorio, Recuadro } from "./Recuadros";
+export { Recuadro } from "./Recuadros";
 
 /** Franja que aparece en todo el sitio mientras se muestran datos de ejemplo. */
 export async function FranjaEjemplo() {

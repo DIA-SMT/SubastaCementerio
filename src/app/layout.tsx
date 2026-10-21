@@ -1,11 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Manrope } from "next/font/google";
+import { Cormorant_Garamond, Inter, Manrope } from "next/font/google";
 import "./globals.css";
 
-// Manrope para títulos y cifras; Inter para textos e interfaz. next/font las sirve desde el
+// Manrope para cifras y subtítulos; Inter para textos e interfaz. next/font las sirve desde el
 // propio sitio: el navegador no le pide nada a Google.
 const manrope = Manrope({ subsets: ["latin"], display: "swap", variable: "--font-manrope" });
 const inter = Inter({ subsets: ["latin"], display: "swap", variable: "--font-inter" });
+// Serif para los títulos del sitio público, en sintonía con la sala de museo del fondo.
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  style: ["normal", "italic"],
+  display: "swap",
+  variable: "--font-cormorant",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -17,12 +25,12 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#fafaf8",
+  themeColor: "#f7f3ec",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="es-AR" className={`${manrope.variable} ${inter.variable}`}>
+    <html lang="es-AR" className={`${manrope.variable} ${inter.variable} ${cormorant.variable}`}>
       <body className="flex min-h-dvh flex-col">
         <a
           href="#contenido"

@@ -82,13 +82,13 @@ function datosPlazo(estado: EstadoSubasta) {
 export function FranjaPlazo({ estado }: { estado: EstadoSubasta }) {
   const d = datosPlazo(estado);
   return (
-    <section aria-labelledby="titulo-plazo" className="border-y border-linea bg-white">
+    <section aria-labelledby="titulo-plazo" className="border-y border-white/50 bg-papel/[0.4] backdrop-blur-xl">
       <div className="contenedor flex flex-col gap-6 py-8 md:flex-row md:items-center md:justify-between md:gap-10 md:py-10">
         <div>
           <h2 id="titulo-plazo" className="antetitulo">
             {d.rotulo}
           </h2>
-          <p className={`mt-2 ${d.objetivo ? "text-gris" : "max-w-2xl text-lg text-tinta"}`}>{d.detalle}</p>
+          <p className={`mt-2 ${d.objetivo ? "text-texto" : "max-w-2xl text-lg text-tinta"}`}>{d.detalle}</p>
         </div>
         {d.objetivo && (
           <CuentaBloques

@@ -35,22 +35,3 @@ export function Recuadro({
     </div>
   );
 }
-
-/** Marca de texto provisorio, pendiente de aprobación. */
-export function AvisoProvisorio({ children }: { children?: ReactNode }) {
-  return (
-    <Recuadro tono="alerta" titulo="Texto provisorio" rol="note">
-      {children ?? "Este contenido está pendiente de aprobación y puede cambiar."}
-    </Recuadro>
-  );
-}
-
-/** Pastilla chica de "Texto provisorio" para encabezados. */
-export function PastillaProvisorio() {
-  return (
-    <span className="inline-flex items-center gap-2 rounded-full bg-ambar-suave px-3 py-1 text-[0.8rem] font-semibold text-tinta ring-1 ring-ambar/30 ring-inset">
-      <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-ambar" />
-      Texto provisorio
-    </span>
-  );
-}

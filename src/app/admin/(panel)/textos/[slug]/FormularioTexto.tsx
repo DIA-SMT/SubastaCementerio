@@ -4,7 +4,6 @@ import { useActionState, useDeferredValue, useEffect, useState } from "react";
 import { BotonEnviar } from "@/components/admin/BotonEnviar";
 import { Campo, MensajeAccion } from "@/components/admin/Panel";
 import { Markdown } from "@/components/Markdown";
-import { AvisoProvisorio } from "@/components/Recuadros";
 import { estadoInicial } from "@/lib/admin/acciones";
 import { numeroConPuntos } from "@/lib/formato";
 import { guardarTexto } from "./acciones";
@@ -174,12 +173,12 @@ export function FormularioTexto({
             />
             <div>
               <label htmlFor="provisorio" className="font-bold text-tinta">
-                Texto provisorio (muestra el aviso en el sitio)
+                Texto en revisión (uso interno)
               </label>
               <p id="provisorio-ayuda" className="mt-0.5 text-base text-gris">
-                {requiereAprobacion
-                  ? "Desmarcala solo cuando el texto esté aprobado."
-                  : "Desmarcala cuando el texto sea el definitivo."}
+                Esta marca solo se ve en el panel. {requiereAprobacion
+                  ? "Desmarcala cuando el texto esté aprobado."
+                  : "Desmarcala cuando el texto sea definitivo."}
               </p>
             </div>
           </div>
@@ -202,22 +201,12 @@ export function FormularioTexto({
               if ((ev.target as Element).closest("a")) ev.preventDefault();
             }}
           >
-            {esPortada && provisorio && (
-              <p className="mb-3 inline-block rounded-full bg-ambar-suave px-3 py-1 text-base font-bold text-tinta">
-                Texto provisorio
-              </p>
-            )}
             <p className="flex items-stretch gap-3 text-3xl font-extrabold leading-tight text-tinta">
               {!esPortada && (
                 <span aria-hidden className="w-1.5 shrink-0 rounded-full bg-linear-to-b from-azul to-celeste" />
               )}
               <span>{normalizarTitulo(titulo) || "Sin título"}</span>
             </p>
-            {!esPortada && provisorio && (
-              <div className="mt-5">
-                <AvisoProvisorio />
-              </div>
-            )}
             <div className="mt-6">
               {vistaPrevia.trim() ? (
                 <Markdown texto={vistaPrevia} />

@@ -1,22 +1,23 @@
 @import "tailwindcss";
 
 /*
- * Sistema visual de la subasta: una sala de exposición con respaldo institucional.
- * Fondo blanco cálido, tipografía editorial y fotografía como protagonista. El azul de la
- * Municipalidad se reserva para identidad, navegación y acciones principales.
+ * Sistema visual de la subasta: una sala de museo con respaldo institucional. Los neutros salen
+ * de la fotografía de fondo (marfil, piedra, dorado de los marcos y pizarra del arco del fondo).
+ * El azul de la Municipalidad se reserva para identidad, navegación y acciones principales.
  */
 @theme {
   /* Neutros */
-  --color-papel: #fafaf8; /* fondo general, blanco cálido */
-  --color-piedra: #efeee9; /* fondo de fotos y bloques neutros */
-  --color-superficie: #f4f3ef; /* recuadros dentro de una tarjeta */
-  --color-tinta: #17191c; /* negro editorial: títulos y montos */
-  --color-texto: #3b4048; /* texto corrido */
-  /* Texto secundario. El gris de la propuesta (#717780) da 4,3:1 sobre el blanco cálido:
-     para texto chico se usa este, apenas más oscuro (4,9:1). */
-  --color-gris: #686e77;
-  --color-gris-suave: #717780; /* íconos, separadores y bordes de campos (4,5:1 sobre blanco) */
-  --color-linea: #e6e8eb; /* bordes suaves */
+  --color-papel: #f7f3ec; /* fondo general: marfil de las paredes */
+  --color-piedra: #ebe4d7; /* fondo de fotos y bloques neutros: piedra del piso */
+  --color-superficie: #f1ece3; /* recuadros dentro de una tarjeta */
+  --color-tinta: #1f1c18; /* negro cálido: títulos y montos */
+  --color-texto: #3d3933; /* texto corrido */
+  --color-gris: #6a655c; /* texto secundario (5,2:1 sobre marfil) */
+  --color-gris-suave: #7d776c; /* íconos, separadores y bordes de campos (4,4:1 sobre blanco) */
+  --color-linea: #e2dacb; /* bordes suaves */
+  --color-dorado: #7f6131; /* marcos de la sala: antetítulos (5,3:1 sobre marfil) */
+  --color-dorado-suave: #b8955a; /* filetes decorativos, nunca texto */
+  --color-pizarra: #3e4954; /* pared del arco del fondo: bloques oscuros */
 
   /* Azul institucional */
   --color-azul: #1464c8; /* acciones principales y enlaces (5,7:1 sobre blanco) */
@@ -39,15 +40,16 @@
   --shadow-elevada: 0 2px 6px rgb(23 25 28 / 0.04), 0 18px 36px -18px rgb(23 25 28 / 0.22);
 
   /* Escala tipográfica (la raíz es de 18 px: 1 rem = 18 px). */
-  --text-display: clamp(2.3rem, 1.25rem + 3vw, 3.7rem);
-  --text-display--line-height: 1.03;
-  --text-display--letter-spacing: -0.035em;
-  --text-titulo: clamp(2rem, 1.35rem + 1.8vw, 3rem);
-  --text-titulo--line-height: 1.08;
-  --text-titulo--letter-spacing: -0.03em;
-  --text-seccion: clamp(1.55rem, 1.2rem + 1vw, 2.2rem);
-  --text-seccion--line-height: 1.14;
-  --text-seccion--letter-spacing: -0.025em;
+  /* Display, título y sección van en la serif (Cormorant): más grandes y sin apretar. */
+  --text-display: clamp(3.1rem, 1.6rem + 4.6vw, 6.2rem);
+  --text-display--line-height: 0.95;
+  --text-display--letter-spacing: -0.015em;
+  --text-titulo: clamp(2.5rem, 1.7rem + 2.4vw, 3.9rem);
+  --text-titulo--line-height: 1.02;
+  --text-titulo--letter-spacing: -0.01em;
+  --text-seccion: clamp(2rem, 1.5rem + 1.4vw, 2.9rem);
+  --text-seccion--line-height: 1.06;
+  --text-seccion--letter-spacing: -0.005em;
   --text-subtitulo: 1.25rem;
   --text-subtitulo--line-height: 1.3;
   --text-subtitulo--letter-spacing: -0.015em;
@@ -67,6 +69,7 @@
 @theme inline {
   --font-sans: var(--font-inter), "Segoe UI", system-ui, sans-serif;
   --font-display: var(--font-manrope), var(--font-inter), "Segoe UI", system-ui, sans-serif;
+  --font-serif: var(--font-cormorant), Georgia, "Times New Roman", serif;
 }
 
 /* Textos grandes: 18 px de base (público amplio, también personas mayores). */
@@ -113,6 +116,16 @@ body {
   ::selection {
     background: color-mix(in srgb, var(--color-azul) 18%, white);
     color: var(--color-tinta);
+  }
+}
+
+/* En el sitio público, los títulos grandes van en serif, como las cartelas de un museo.
+   (El panel conserva Manrope.) */
+@layer base {
+  .sitio :is(h1, h2) {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    letter-spacing: -0.005em;
   }
 }
 
@@ -256,7 +269,7 @@ body {
 }
 /* Antetítulo: rótulo chico en mayúsculas sobre los títulos. */
 @utility antetitulo {
-  @apply font-sans text-rotulo font-semibold text-azul uppercase;
+  @apply font-sans text-rotulo font-semibold text-dorado uppercase;
 }
 /* Rótulo neutro para datos (Oferta actual, Cierre, etc.). */
 @utility rotulo {

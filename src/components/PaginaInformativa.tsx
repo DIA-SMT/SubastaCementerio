@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { obtenerPagina } from "@/lib/datos/publico";
 import type { SlugPagina } from "@/lib/datos/tipos";
-import { AvisoProvisorio } from "./Avisos";
 import { Cabecera, Columna } from "./Cabecera";
 import { Markdown } from "./Markdown";
 
@@ -22,11 +21,6 @@ async function Contenido({ slug }: { slug: SlugPagina }) {
     <>
       <Cabecera antetitulo="Subasta Solidaria" titulo={pagina.titulo} />
       <Columna>
-        {pagina.provisorio && (
-          <div className="mb-8">
-            <AvisoProvisorio />
-          </div>
-        )}
         <article className="border-t border-tinta pt-8 md:pt-10">
           <Markdown texto={pagina.contenido} />
         </article>

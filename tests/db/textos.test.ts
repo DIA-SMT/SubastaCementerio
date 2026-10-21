@@ -119,7 +119,7 @@ describe("textos provisorios (20261019140400)", () => {
   );
 
   it("la confirmación de la oferta dice lo mismo que cómo participar", () => {
-    const formulario = leer("src", "app", "(publico)", "obras", "[numero]", "ofertar", "FormularioOferta.tsx");
+    const formulario = leer("src", "app", "(publico)", "(interior)", "obras", "[numero]", "ofertar", "FormularioOferta.tsx");
     expect(formulario.replace(/\s+/g, " ")).toContain(FRASE_OFERTA);
     expect(formulario).toContain('href="/bases-y-condiciones"');
   });
