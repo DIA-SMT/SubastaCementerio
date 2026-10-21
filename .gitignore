@@ -43,3 +43,6 @@ next-env.d.ts
 
 # base local (modo sin Supabase)
 /.local/
+
+# Archivos temporales de la CLI de Supabase
+supabase/.temp/

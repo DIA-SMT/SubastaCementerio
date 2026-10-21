@@ -75,7 +75,7 @@ async function Contenido({ params }: { params: PageProps<"/admin/oferentes/[id]"
 function Fila({ termino, children }: { termino: string; children: ReactNode }) {
   return (
     <>
-      <dt className="font-bold text-tinta">{termino}</dt>
+      <dt className="font-semibold text-tinta">{termino}</dt>
       <dd className="min-w-0">{children}</dd>
     </>
   );
@@ -129,7 +129,7 @@ function Bloqueo({ oferente: o }: { oferente: OferenteDetalle }) {
         {o.bloqueado ? (
           <Recuadro tono="error" titulo="Esta persona no puede hacer nuevas ofertas">
             <p>
-              <span className="font-bold">Motivo:</span> {o.bloqueoMotivo}
+              <span className="font-semibold">Motivo:</span> {o.bloqueoMotivo}
             </p>
           </Recuadro>
         ) : (
@@ -179,14 +179,14 @@ function TablaOfertas({ ofertas }: { ofertas: OfertaAdmin[] }) {
               {/* Sin text-gris: en la fila resaltada (bg-verde-suave) no alcanzaría el contraste AA. */}
               <span className="block text-base">{o.artistaNombre}</span>
             </td>
-            <td className={`text-right font-bold whitespace-nowrap text-tinta ${o.estado === "anulada" ? "line-through" : ""}`}>
+            <td className={`text-right font-semibold whitespace-nowrap text-tinta ${o.estado === "anulada" ? "line-through" : ""}`}>
               {pesos(o.monto)}
             </td>
             <td className="min-w-56">
               <EstadoDeOferta estado={o.estado} esLaMasAlta={o.esLaMasAlta} />
               {o.estado === "anulada" && (
                 <span className="mt-1 block text-base">
-                  <span className="font-bold text-tinta">Motivo:</span> {o.motivoAnulacion}
+                  <span className="font-semibold text-tinta">Motivo:</span> {o.motivoAnulacion}
                   <span className="block text-gris">
                     Anulada por {o.anuladaPorNombre ?? "el equipo"}
                     {o.anuladaAt && (

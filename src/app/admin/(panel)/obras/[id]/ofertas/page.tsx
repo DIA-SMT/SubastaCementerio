@@ -109,10 +109,10 @@ function Resumen({ obra }: { obra: ObraConOfertas }) {
     <Tarjeta>
       <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-3">
         <div className="sm:col-span-3 md:col-span-1">
-          <dt className="font-bold text-tinta">Oferta más alta vigente</dt>
+          <dt className="font-semibold text-tinta">Oferta más alta vigente</dt>
           {obra.mejor ? (
             <dd>
-              <span className="block text-3xl font-extrabold text-tinta">{pesos(obra.mejor.monto)}</span>
+              <span className="block text-3xl font-semibold text-tinta">{pesos(obra.mejor.monto)}</span>
               <span className="block">
                 Oferente {obra.mejor.alias} · {obra.mejor.nombre} {obra.mejor.apellido}
               </span>
@@ -127,18 +127,18 @@ function Resumen({ obra }: { obra: ObraConOfertas }) {
             </dd>
           ) : (
             <dd>
-              <span className="block text-xl font-bold text-tinta">Sin ofertas válidas</span>
+              <span className="block text-xl font-semibold text-tinta">Sin ofertas válidas</span>
               <span className="block text-gris">Precio de salida: {pesos(obra.precioSalida)}</span>
             </dd>
           )}
         </div>
         <div>
-          <dt className="font-bold text-tinta">Ofertas válidas</dt>
-          <dd className="text-3xl font-extrabold text-tinta">{obra.cantidadValidas}</dd>
+          <dt className="font-semibold text-tinta">Ofertas válidas</dt>
+          <dd className="text-3xl font-semibold text-tinta">{obra.cantidadValidas}</dd>
         </div>
         <div>
-          <dt className="font-bold text-tinta">Ofertas anuladas</dt>
-          <dd className="text-3xl font-extrabold text-tinta">{obra.cantidadAnuladas}</dd>
+          <dt className="font-semibold text-tinta">Ofertas anuladas</dt>
+          <dd className="text-3xl font-semibold text-tinta">{obra.cantidadAnuladas}</dd>
         </div>
       </dl>
       {!obra.publicada && (
@@ -196,7 +196,7 @@ function SeccionAnular({
     <section
       id="anular-oferta"
       aria-labelledby="titulo-anular"
-      className="scroll-mt-6 rounded-2xl border-2 border-rojo bg-white p-5"
+      className="scroll-mt-6 rounded-lg border-2 border-rojo bg-white p-5"
     >
       <h2 id="titulo-anular" className="text-xl">
         Anular la oferta de {pesos(oferta.monto)}
@@ -294,7 +294,7 @@ function TablaOfertas({ ofertas, base, anulando }: { ofertas: OfertaAdmin[]; bas
             <td className="min-w-48">
               <EnlaceCorreo email={o.email} />
             </td>
-            <td className={`text-right font-bold whitespace-nowrap text-tinta ${o.estado === "anulada" ? "line-through" : ""}`}>
+            <td className={`text-right font-semibold whitespace-nowrap text-tinta ${o.estado === "anulada" ? "line-through" : ""}`}>
               {pesos(o.monto)}
             </td>
             <td className="min-w-56">
@@ -302,7 +302,7 @@ function TablaOfertas({ ofertas, base, anulando }: { ofertas: OfertaAdmin[]; bas
               {o.estado === "anulada" && (
                 <div className="mt-2 text-base">
                   <p>
-                    <span className="font-bold text-tinta">Motivo:</span> {o.motivoAnulacion}
+                    <span className="font-semibold text-tinta">Motivo:</span> {o.motivoAnulacion}
                   </p>
                   <p className="text-gris">
                     Anulada por {o.anuladaPorNombre ?? "el equipo"}

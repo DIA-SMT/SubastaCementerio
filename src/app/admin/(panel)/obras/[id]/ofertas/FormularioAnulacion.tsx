@@ -48,7 +48,7 @@ export function FormularioAnulacion({ ofertaId }: { ofertaId: number }) {
           <span>Confirmo que quiero anular esta oferta. Sé que la anulación no se puede deshacer.</span>
         </label>
         {errores.confirmacion && (
-          <p id="confirmacion-error" className="mt-1.5 font-bold text-tinta">
+          <p id="confirmacion-error" className="mt-1.5 font-semibold text-tinta">
             <span aria-hidden className="mr-1.5 inline-block h-2.5 w-2.5 rounded-full bg-rojo" />
             {errores.confirmacion}
           </p>

@@ -74,7 +74,6 @@ async function Contenido({ params }: { params: PageProps<"/admin/textos/[slug]">
           version: pagina.version,
           marca: pagina.actualizadaAt.toISOString(),
         }}
-        esPortada={info.slug === "portada"}
         esBases={esBases}
         requiereAprobacion={info.aprobacion !== null}
       />
@@ -107,7 +106,7 @@ function AvisoVersiones({ version, aceptaciones }: { version: number; aceptacion
           <ul className="space-y-1">
             {aceptaciones.map((a) => (
               <li key={a.version} className="flex flex-wrap items-center gap-2">
-                <span className="font-bold">Versión {a.version}:</span>
+                <span className="font-semibold">Versión {a.version}:</span>
                 <span>{personas(a.cantidad)}</span>
                 {a.version === version && <Etiqueta tono="verde">Vigente</Etiqueta>}
               </li>

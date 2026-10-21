@@ -119,7 +119,7 @@ function FotoArtista({ artista }: { artista: ArtistaEnEdicion }) {
     <Tarjeta titulo="Foto del artista (opcional)" className="max-w-4xl">
       {artista.fotoRuta ? (
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start">
-          <div className="relative aspect-square w-40 shrink-0 overflow-hidden rounded-xl bg-linea">
+          <div className="relative aspect-square w-40 shrink-0 overflow-hidden rounded-md bg-linea">
             <FotoObra
               foto={{ ruta: artista.fotoRuta, alt: `Foto de ${artista.nombre}`, ancho: null, alto: null }}
               tamanos="160px"
@@ -134,7 +134,7 @@ function FotoArtista({ artista }: { artista: ArtistaEnEdicion }) {
               </summary>
               <form
                 action={quitarFotoArtistaAccion}
-                className="mt-3 max-w-md space-y-3 rounded-xl border-2 border-rojo bg-white p-4"
+                className="mt-3 max-w-md space-y-3 rounded-md border-2 border-rojo bg-white p-4"
               >
                 <input type="hidden" name="artista_id" value={artista.id} />
                 <p className="text-tinta">La foto se borra del almacenamiento. No se puede deshacer.</p>

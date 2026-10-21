@@ -90,4 +90,4 @@ export function EnlaceOferente({ id, alias, bloqueado = false }: { id: string; a
 
 /** Enlace con forma de botón chico, para usar dentro de tablas. */
 export const claseBotonChico =
-  "inline-flex min-h-11 items-center justify-center rounded-lg border-2 px-3 text-base font-bold whitespace-nowrap";
+  "inline-flex min-h-11 items-center justify-center rounded-lg border-2 px-3 text-base font-semibold whitespace-nowrap";

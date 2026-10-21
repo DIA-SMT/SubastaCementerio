@@ -30,7 +30,7 @@ export function FormularioIngresoPanel() {
         <input id="contrasena" name="contrasena" type="password" autoComplete="current-password" required className="campo" />
       </div>
       {estado.error && (
-        <p role="alert" className="rounded-xl border-l-8 border-rojo bg-rojo-suave px-4 py-3 font-bold text-tinta">
+        <p role="alert" className="rounded-md border-l-2 border-rojo bg-rojo-suave px-4 py-3 font-semibold text-tinta">
           {estado.error}
         </p>
       )}

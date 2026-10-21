@@ -155,9 +155,9 @@ async function Contenido() {
 
 function Indicador({ titulo, valor, detalle }: { titulo: string; valor: string; detalle?: string }) {
   return (
-    <div className="rounded-2xl border border-linea bg-white p-5">
+    <div className="rounded-lg border border-linea bg-white p-5">
       <p className="text-gris">{titulo}</p>
-      <p className="mt-1 text-3xl font-extrabold text-tinta">{valor}</p>
+      <p className="mt-1 text-3xl font-semibold text-tinta">{valor}</p>
       {detalle && <p className="mt-1 text-base text-gris">{detalle}</p>}
     </div>
   );
@@ -200,14 +200,14 @@ function Tabla({ listado }: { listado: ListadoFinal }) {
       <tbody>
         {listado.filas.map((f) => (
           <tr key={f.numero}>
-            <td className="text-right font-bold text-tinta">{f.numero}</td>
+            <td className="text-right font-semibold text-tinta">{f.numero}</td>
             <td className="min-w-48">
-              <span className={`font-bold text-tinta ${f.titulo?.trim() ? "" : "italic"}`}>{tituloObra(f.titulo)}</span>
+              <span className={`font-semibold text-tinta ${f.titulo?.trim() ? "" : "italic"}`}>{tituloObra(f.titulo)}</span>
               <span className="block text-gris">de {f.artista}</span>
             </td>
             <td className="text-right whitespace-nowrap">
               {f.precioBase != null ? (
-                <span className="font-bold text-tinta">{pesos(f.precioBase)}</span>
+                <span className="font-semibold text-tinta">{pesos(f.precioBase)}</span>
               ) : (
                 <>
                   <Etiqueta tono="gris">Sin ofertas</Etiqueta>
@@ -218,7 +218,7 @@ function Tabla({ listado }: { listado: ListadoFinal }) {
             <td className="min-w-40">
               {f.oferente ? (
                 <>
-                  <span className="font-bold text-tinta">
+                  <span className="font-semibold text-tinta">
                     {f.oferente.nombre} {f.oferente.apellido}
                   </span>
                   <span className="block text-gris">Oferente {f.oferente.alias}</span>
@@ -258,7 +258,7 @@ function Tabla({ listado }: { listado: ListadoFinal }) {
           <th scope="row" colSpan={2} className="text-left">
             Totales
           </th>
-          <td className="text-right font-bold whitespace-nowrap text-tinta">{pesos(listado.totales.montoAcumulado)}</td>
+          <td className="text-right font-semibold whitespace-nowrap text-tinta">{pesos(listado.totales.montoAcumulado)}</td>
           {/* Texto en "texto" y no en gris: sobre el fondo celeste suave el gris no llega al contraste AA. */}
           <td colSpan={5} className="text-texto">
             {numeroConPuntos(listado.totales.obrasConOfertas)} de {numeroConPuntos(listado.totales.obras)} obras con

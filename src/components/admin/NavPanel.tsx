@@ -2,52 +2,175 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useSyncExternalStore, type ComponentType, type SVGProps } from "react";
+import {
+  IconoAbajo,
+  IconoAjustes,
+  IconoAnterior,
+  IconoArtista,
+  IconoAuditoria,
+  IconoListado,
+  IconoMartillo,
+  IconoObra,
+  IconoPersonas,
+  IconoQr,
+  IconoSiguiente,
+  IconoTablero,
+  IconoTexto,
+} from "@/components/Iconos";
 
-export const SECCIONES_PANEL = [
-  { href: "/admin", texto: "Tablero" },
-  { href: "/admin/obras", texto: "Obras" },
-  { href: "/admin/artistas", texto: "Artistas" },
-  { href: "/admin/ofertas", texto: "Ofertas" },
-  { href: "/admin/oferentes", texto: "Oferentes" },
-  { href: "/admin/configuracion", texto: "Configuración" },
-  { href: "/admin/textos", texto: "Textos" },
-  { href: "/admin/exportar", texto: "Listado final" },
-  { href: "/admin/qr", texto: "Carteles QR" },
-  { href: "/admin/auditoria", texto: "Auditoría" },
-] as const;
+type Seccion = { href: string; texto: string; Icono: ComponentType<SVGProps<SVGSVGElement>> };
+
+export const SECCIONES_PANEL: readonly Seccion[] = [
+  { href: "/admin", texto: "Tablero", Icono: IconoTablero },
+  { href: "/admin/obras", texto: "Obras", Icono: IconoObra },
+  { href: "/admin/artistas", texto: "Artistas", Icono: IconoArtista },
+  { href: "/admin/ofertas", texto: "Ofertas", Icono: IconoMartillo },
+  { href: "/admin/oferentes", texto: "Oferentes", Icono: IconoPersonas },
+  { href: "/admin/configuracion", texto: "Configuración", Icono: IconoAjustes },
+  { href: "/admin/textos", texto: "Textos", Icono: IconoTexto },
+  { href: "/admin/exportar", texto: "Listado final", Icono: IconoListado },
+  { href: "/admin/qr", texto: "Carteles QR", Icono: IconoQr },
+  { href: "/admin/auditoria", texto: "Auditoría", Icono: IconoAuditoria },
+];
+
+const esActiva = (ruta: string | null, href: string) =>
+  ruta != null && (href === "/admin" ? ruta === "/admin" : ruta === href || ruta.startsWith(`${href}/`));
+
+// Preferencia de menú plegado: se recuerda en este navegador (si el almacenamiento falla, queda
+// desplegado). useSyncExternalStore evita leer localStorage durante el render del servidor.
+const CLAVE = "panel:menu-plegado";
+const oyentes = new Set<() => void>();
+const leerPlegado = () => {
+  try {
+    return localStorage.getItem(CLAVE) === "1";
+  } catch {
+    return false;
+  }
+};
+const guardarPlegado = (valor: boolean) => {
+  try {
+    localStorage.setItem(CLAVE, valor ? "1" : "0");
+  } catch {}
+  oyentes.forEach((f) => f());
+};
+const suscribir = (f: () => void) => {
+  oyentes.add(f);
+  window.addEventListener("storage", f);
+  return () => {
+    oyentes.delete(f);
+    window.removeEventListener("storage", f);
+  };
+};
 
 /** Menú del panel con la sección actual marcada. Va dentro de <Suspense> (lee la URL). */
 export function NavPanel() {
-  return <ListaPanel ruta={usePathname()} />;
+  return <MenuPanel ruta={usePathname()} />;
 }
 
 /** Mismo menú sin marcar la sección: se muestra mientras se resuelve la URL. */
 export function NavPanelBase() {
-  return <ListaPanel ruta={null} />;
+  return <MenuPanel ruta={null} />;
 }
 
-/** Menú del panel: columna en computadora, fila desplazable en el celular. */
-function ListaPanel({ ruta }: { ruta: string | null }) {
+/**
+ * Computadora: columna fija a la izquierda (no se desplaza con la página: un espaciador ocupa
+ * su lugar en el flujo y el menú va con position: fixed), que se pliega a una franja de íconos. Celular y tablet: un botón con la sección actual que despliega el menú.
+ */
+function MenuPanel({ ruta }: { ruta: string | null }) {
+  const plegado = useSyncExternalStore(suscribir, leerPlegado, () => false);
+  const [abierto, setAbierto] = useState(false);
+  const actual = SECCIONES_PANEL.find((s) => esActiva(ruta, s.href));
+
   return (
-    <nav aria-label="Panel" className="border-b border-linea bg-white xl:w-60 xl:shrink-0 xl:border-r xl:border-b-0">
-      <ul className="flex gap-1 overflow-x-auto px-2 py-2 xl:sticky xl:top-0 xl:flex-col xl:px-3 xl:py-6">
-        {SECCIONES_PANEL.map((s) => {
-          const activa = ruta != null && (s.href === "/admin" ? ruta === "/admin" : ruta === s.href || ruta.startsWith(`${s.href}/`));
-          return (
+    <>
+      {/* Celular y tablet */}
+      <nav aria-label="Panel" className="border-b border-linea lg:hidden">
+        <button
+          type="button"
+          onClick={() => setAbierto((a) => !a)}
+          aria-expanded={abierto}
+          aria-controls="menu-panel"
+          className="flex min-h-12 w-full items-center gap-3 px-4 text-left font-medium text-tinta"
+        >
+          {actual ? <actual.Icono className="text-lg text-azul" /> : null}
+          <span className="flex-1">{actual?.texto ?? "Menú del panel"}</span>
+          <span className="text-[0.85rem] text-gris">{abierto ? "Cerrar" : "Menú"}</span>
+          <IconoAbajo className={`text-lg text-gris transition-transform duration-200 ${abierto ? "rotate-180" : ""}`} />
+        </button>
+        {abierto && (
+          <ul id="menu-panel" className="grid grid-cols-2 gap-1 px-2 pb-3 sm:grid-cols-3">
+            {SECCIONES_PANEL.map((s) => (
+              <li key={s.href}>
+                <Enlace seccion={s} activa={esActiva(ruta, s.href)} alElegir={() => setAbierto(false)} />
+              </li>
+            ))}
+          </ul>
+        )}
+      </nav>
+
+      {/* Computadora */}
+      <div
+        aria-hidden
+        className={`hidden shrink-0 transition-[width] duration-300 ease-suave lg:block ${plegado ? "w-[4.25rem]" : "w-56"}`}
+      />
+      <nav
+        aria-label="Panel"
+        className={`fixed top-[4.5rem] bottom-0 z-30 hidden flex-col border-r border-linea bg-papel/[0.93] pt-3 pb-5 transition-[width] duration-300 ease-suave lg:flex ${
+          plegado ? "w-[4.25rem] px-2" : "w-56 px-3"
+        }`}
+      >
+        <div className={`mb-2 flex ${plegado ? "justify-center" : "justify-end"}`}>
+          <button
+            type="button"
+            onClick={() => guardarPlegado(!plegado)}
+            aria-label={plegado ? "Desplegar el menú" : "Plegar el menú"}
+            aria-expanded={!plegado}
+            title={plegado ? "Desplegar el menú" : "Plegar el menú"}
+            className="flex h-7 w-7 items-center justify-center rounded-full text-[0.95rem] text-gris-suave ring-1 ring-linea transition-colors duration-200 hover:bg-white hover:text-tinta"
+          >
+            {plegado ? <IconoSiguiente /> : <IconoAnterior />}
+          </button>
+        </div>
+        <ul className="flex flex-col gap-0.5">
+          {SECCIONES_PANEL.map((s) => (
             <li key={s.href}>
-              <Link
-                href={s.href}
-                aria-current={activa ? "page" : undefined}
-                className={`flex min-h-11 items-center rounded-lg px-3 font-bold whitespace-nowrap ${
-                  activa ? "bg-azul text-white" : "text-azul-profundo hover:bg-fondo"
-                }`}
-              >
-                {s.texto}
-              </Link>
+              <Enlace seccion={s} activa={esActiva(ruta, s.href)} plegado={plegado} />
             </li>
-          );
-        })}
-      </ul>
-    </nav>
+          ))}
+        </ul>
+      </nav>
+    </>
+  );
+}
+
+function Enlace({
+  seccion: { href, texto, Icono },
+  activa,
+  plegado = false,
+  alElegir,
+}: {
+  seccion: Seccion;
+  activa: boolean;
+  plegado?: boolean;
+  alElegir?: () => void;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={alElegir}
+      aria-current={activa ? "page" : undefined}
+      title={plegado ? texto : undefined}
+      className={`flex min-h-10 items-center gap-3 rounded-md px-3 text-[0.94rem] whitespace-nowrap transition-colors duration-200 ${
+        plegado ? "justify-center px-0" : ""
+      } ${
+        activa
+          ? "bg-white font-semibold text-tinta shadow-suave ring-1 ring-linea"
+          : "font-medium text-texto hover:bg-white/60 hover:text-tinta"
+      }`}
+    >
+      <Icono className={`shrink-0 text-lg ${activa ? "text-azul" : "text-gris-suave"}`} />
+      <span className={plegado ? "sr-only" : ""}>{texto}</span>
+    </Link>
   );
 }

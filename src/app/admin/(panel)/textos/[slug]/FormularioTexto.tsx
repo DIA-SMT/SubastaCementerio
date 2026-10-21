@@ -38,13 +38,11 @@ function describir(id: string, conAyuda: boolean, error?: string) {
 export function FormularioTexto({
   slug,
   guardado,
-  esPortada,
   esBases,
   requiereAprobacion,
 }: {
   slug: string;
   guardado: TextoGuardado;
-  esPortada: boolean;
   esBases: boolean;
   requiereAprobacion: boolean;
 }) {
@@ -103,7 +101,7 @@ export function FormularioTexto({
       <input type="hidden" name="marca" value={base.marca} />
 
       <div className="grid gap-6 xl:grid-cols-2 xl:items-start">
-        <div className="space-y-5 rounded-2xl border border-linea bg-white p-5">
+        <div className="space-y-5 rounded-lg border border-linea bg-white p-5">
           <Campo id="titulo" etiqueta="Título" error={e.titulo}>
             <input
               id="titulo"
@@ -138,8 +136,8 @@ export function FormularioTexto({
             />
           </Campo>
 
-          <details className="rounded-xl bg-fondo px-4 py-3" open>
-            <summary className="cursor-pointer font-bold text-tinta">Formato que se puede usar</summary>
+          <details className="rounded-md bg-fondo px-4 py-3" open>
+            <summary className="cursor-pointer font-semibold text-tinta">Formato que se puede usar</summary>
             <dl className="mt-3 grid gap-x-4 gap-y-2 text-base sm:grid-cols-[auto_1fr]">
               {FORMATOS.map((f) => (
                 <div key={f.codigo} className="contents">
@@ -172,7 +170,7 @@ export function FormularioTexto({
               className="mt-1 h-6 w-6 shrink-0 accent-azul"
             />
             <div>
-              <label htmlFor="provisorio" className="font-bold text-tinta">
+              <label htmlFor="provisorio" className="font-semibold text-tinta">
                 Texto en revisión (uso interno)
               </label>
               <p id="provisorio-ayuda" className="mt-0.5 text-base text-gris">
@@ -186,7 +184,7 @@ export function FormularioTexto({
 
         <section
           aria-labelledby="vista-previa"
-          className="rounded-2xl border border-linea bg-white p-5 xl:sticky xl:top-4 xl:max-h-[calc(100vh-2rem)] xl:overflow-y-auto"
+          className="rounded-lg border border-linea bg-white p-5 xl:sticky xl:top-4 xl:max-h-[calc(100vh-2rem)] xl:overflow-y-auto"
         >
           <h2 id="vista-previa" className="text-xl">
             Vista previa
@@ -195,17 +193,14 @@ export function FormularioTexto({
             Así se va a ver en el sitio. Se actualiza mientras escribís. Los enlaces no se abren desde acá.
           </p>
           <div
-            className="mt-4 rounded-xl border-2 border-dashed border-linea p-4 sm:p-6"
+            className="mt-4 rounded-md border-2 border-dashed border-linea p-4 sm:p-6"
             // Un clic en un enlace de la vista previa no tiene que sacar a la persona del editor.
             onClickCapture={(ev) => {
               if ((ev.target as Element).closest("a")) ev.preventDefault();
             }}
           >
-            <p className="flex items-stretch gap-3 text-3xl font-extrabold leading-tight text-tinta">
-              {!esPortada && (
-                <span aria-hidden className="w-1.5 shrink-0 rounded-full bg-linear-to-b from-azul to-celeste" />
-              )}
-              <span>{normalizarTitulo(titulo) || "Sin título"}</span>
+            <p className="font-serif text-[2.4rem] leading-tight font-medium text-tinta">
+              {normalizarTitulo(titulo) || "Sin título"}
             </p>
             <div className="mt-6">
               {vistaPrevia.trim() ? (
@@ -223,7 +218,7 @@ export function FormularioTexto({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
         <BotonEnviar className="w-full sm:w-auto">Guardar texto</BotonEnviar>
         {hayCambios ? (
-          <p className="font-bold text-tinta">
+          <p className="font-semibold text-tinta">
             <span aria-hidden className="mr-2 inline-block h-2.5 w-2.5 rounded-full bg-ambar" />
             Tenés cambios sin guardar.
             {esBases && cambiaTexto && ` Al guardar, las bases pasan a la versión ${guardado.version + 1}.`}

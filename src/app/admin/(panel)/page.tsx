@@ -92,26 +92,26 @@ async function EstadoEtapa() {
           <Plazo estado={estado} />
         </div>
         <dl className="grid content-start gap-x-6 gap-y-1 sm:grid-cols-[auto_1fr]">
-          <dt className="font-bold text-tinta">Inicio</dt>
+          <dt className="font-semibold text-tinta">Inicio</dt>
           <dd>
             {fechaHoraLarga(estado.inicio)}
             {!estado.fechasConfirmadas && " (sin confirmar)"}
           </dd>
-          <dt className="font-bold text-tinta">Cierre</dt>
+          <dt className="font-semibold text-tinta">Cierre</dt>
           <dd>
             {fechaHoraLarga(estado.cierre)}
             {!estado.fechasConfirmadas && " (sin confirmar)"}
           </dd>
-          <dt className="font-bold text-tinta">Subasta presencial</dt>
+          <dt className="font-semibold text-tinta">Subasta presencial</dt>
           <dd>
             {estado.fechaPresencial ? fechaLarga(estado.fechaPresencial) : "A confirmar"}
             {estado.fechaPresencial && estado.detallePresencial && (
               <span className="block text-texto">{estado.detallePresencial}</span>
             )}
           </dd>
-          <dt className="font-bold text-tinta">Incremento mínimo</dt>
+          <dt className="font-semibold text-tinta">Incremento mínimo</dt>
           <dd>{pesos(estado.incrementoMinimo)}</dd>
-          <dt className="font-bold text-tinta">Precio de salida</dt>
+          <dt className="font-semibold text-tinta">Precio de salida</dt>
           <dd>{pesos(estado.precioSalida)} (salvo las obras que tengan uno propio)</dd>
         </dl>
       </div>
@@ -185,7 +185,7 @@ async function Indicadores() {
           valor={
             <>
               {numeroConPuntos(i.obrasConOfertas)}{" "}
-              <span className="text-2xl font-bold text-texto">de {numeroConPuntos(i.obrasPublicadas)}</span>
+              <span className="text-2xl font-semibold text-texto">de {numeroConPuntos(i.obrasPublicadas)}</span>
             </>
           }
         >
@@ -224,15 +224,15 @@ function Indicador({
   // la explicación pasa a una segunda columna en pantallas medianas.
   return (
     <div
-      className={`rounded-2xl border border-linea bg-white p-5 ${
+      className={`rounded-lg border border-linea bg-white p-5 ${
         destacado ? "md:grid md:grid-cols-[auto_1fr] md:gap-x-10" : "flex flex-col"
       } ${className}`}
     >
-      <dt className="flex items-center gap-2 font-bold text-tinta">
-        <span aria-hidden className={`h-2.5 w-2.5 rounded-full ${destacado ? "bg-amarillo" : "bg-azul"}`} />
+      <dt className="flex items-center gap-2 font-semibold text-tinta">
+        <span aria-hidden className={`h-2.5 w-2.5 rounded-full ${destacado ? "bg-dorado-suave" : "bg-azul"}`} />
         {etiqueta}
       </dt>
-      <dd className={`mt-1 leading-tight font-extrabold text-tinta ${destacado ? "text-4xl sm:text-5xl" : "text-4xl"}`}>
+      <dd className={`mt-1 font-display leading-tight font-semibold tracking-[-0.02em] text-tinta tabular-nums ${destacado ? "text-4xl sm:text-5xl" : "text-4xl"}`}>
         {valor}
       </dd>
       {children && (
@@ -267,7 +267,7 @@ async function UltimasOfertas() {
         </Link>
       </div>
       {ofertas.length === 0 ? (
-        <p className="rounded-2xl border border-linea bg-white p-5">Todavía no hay ofertas.</p>
+        <p className="rounded-lg border border-linea bg-white p-5">Todavía no hay ofertas.</p>
       ) : (
         <TablaContenedor etiqueta="Últimas ofertas">
           <thead>
@@ -292,11 +292,11 @@ async function UltimasOfertas() {
                   <span className="block text-sm text-gris">{haceCuanto(o.creadaAt, estado.ahora)}</span>
                 </td>
                 <td>
-                  <span className="font-bold text-tinta">N° {o.numero}</span> · {tituloObra(o.titulo)}
+                  <span className="font-semibold text-tinta">N° {o.numero}</span> · {tituloObra(o.titulo)}
                   <span className="block text-sm text-gris">{o.artistaNombre}</span>
                 </td>
                 <td className="whitespace-nowrap">Oferente {o.alias}</td>
-                <td className="text-right font-bold whitespace-nowrap text-tinta tabular-nums">{pesos(o.monto)}</td>
+                <td className="text-right font-semibold whitespace-nowrap text-tinta tabular-nums">{pesos(o.monto)}</td>
                 <td>
                   <EstadoDeOferta estado={o.estado} esLaMasAlta={o.esLaMasAlta} />
                 </td>
@@ -417,9 +417,9 @@ async function AvisosCorreo() {
 
 function ConteoAviso({ etiqueta, valor, fondo }: { etiqueta: string; valor: number; fondo: string }) {
   return (
-    <div className={`rounded-xl px-4 py-3 text-tinta ${fondo}`}>
-      <dt className="font-bold">{etiqueta}</dt>
-      <dd className="text-3xl font-extrabold">{numeroConPuntos(valor)}</dd>
+    <div className={`rounded-md px-4 py-3 text-tinta ${fondo}`}>
+      <dt className="font-semibold">{etiqueta}</dt>
+      <dd className="text-3xl font-semibold">{numeroConPuntos(valor)}</dd>
     </div>
   );
 }

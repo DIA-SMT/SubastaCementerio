@@ -34,8 +34,8 @@ function describir(id: string, conAyuda: boolean, error?: string) {
 
 function Seccion({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
-    <fieldset className="rounded-2xl border border-linea bg-white p-5">
-      <legend className="float-left mb-4 w-full text-xl font-extrabold text-tinta">{titulo}</legend>
+    <fieldset className="rounded-lg border border-linea bg-white p-5">
+      <legend className="float-left mb-4 w-full text-xl font-semibold text-tinta">{titulo}</legend>
       <div className="clear-both space-y-5">{children}</div>
     </fieldset>
   );
@@ -64,7 +64,7 @@ function Casilla({
         className="mt-1 h-6 w-6 shrink-0 accent-azul"
       />
       <div>
-        <label htmlFor={id} className="font-bold text-tinta">
+        <label htmlFor={id} className="font-semibold text-tinta">
           {etiqueta}
         </label>
         <p id={`${id}-ayuda`} className="mt-0.5 text-base text-gris">
@@ -230,8 +230,8 @@ export function FormularioConfiguracion({ inicial, actuales }: { inicial: Valore
       </Seccion>
 
       {motivos.length > 0 && (
-        <div className="space-y-3 rounded-xl border-l-8 border-ambar bg-ambar-suave px-4 py-4 text-tinta">
-          <p className="text-xl font-extrabold">Confirmá el cambio</p>
+        <div className="space-y-3 rounded-md border-l-2 border-ambar bg-ambar-suave px-4 py-4 text-tinta">
+          <p className="text-xl font-semibold">Confirmá el cambio</p>
           <ul id="confirmar-detalle" className="list-disc space-y-2 pl-6">
             {motivos.map((m) => (
               <li key={m}>{m}</li>
@@ -247,7 +247,7 @@ export function FormularioConfiguracion({ inicial, actuales }: { inicial: Valore
               aria-describedby="confirmar-detalle"
               className="mt-1 h-6 w-6 shrink-0 accent-azul"
             />
-            <label htmlFor="confirmar" className="font-bold">
+            <label htmlFor="confirmar" className="font-semibold">
               Entiendo lo que implica y quiero guardar este cambio.
             </label>
           </div>

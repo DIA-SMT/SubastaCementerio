@@ -83,7 +83,7 @@ async function Contenido({ params, searchParams }: Pick<PageProps<"/admin/obras/
         </div>
         <p>
           Oferta actual:{" "}
-          <span className="font-bold text-tinta">
+          <span className="font-semibold text-tinta">
             {obra.ofertaActual != null ? pesos(obra.ofertaActual) : "sin ofertas"}
           </span>
           {obra.cantidadOfertasValidas > 0 && (
@@ -134,7 +134,7 @@ function Fotos({ obra, fotos }: { obra: ObraEnEdicion; fotos: FotoEnPanel[] }) {
 
       {fotos.length === 0 ? (
         <p
-          className={`mt-4 rounded-xl px-4 py-3 text-tinta ${obra.publicada ? "border-l-8 border-ambar bg-ambar-suave" : "bg-fondo"}`}
+          className={`mt-4 rounded-md px-4 py-3 text-tinta ${obra.publicada ? "border-l-2 border-ambar bg-ambar-suave" : "bg-fondo"}`}
         >
           Todavía no hay fotos.{" "}
           {obra.publicada
@@ -160,7 +160,7 @@ function Fotos({ obra, fotos }: { obra: ObraEnEdicion; fotos: FotoEnPanel[] }) {
 function FilaFoto({ foto, posicion, total }: { foto: FotoEnPanel; posicion: number; total: number }) {
   const nombre = `la foto ${posicion}`;
   return (
-    <li className="grid gap-4 rounded-xl border border-linea p-4 sm:grid-cols-[9rem_1fr]">
+    <li className="grid gap-4 rounded-md border border-linea p-4 sm:grid-cols-[9rem_1fr]">
       <div className="relative aspect-4/5 w-36 overflow-hidden rounded-lg bg-linea">
         <FotoObra
           foto={{ ruta: foto.ruta, alt: foto.textoAlternativo, ancho: foto.ancho, alto: foto.alto }}
@@ -170,7 +170,7 @@ function FilaFoto({ foto, posicion, total }: { foto: FotoEnPanel; posicion: numb
 
       <div className="min-w-0 space-y-4">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <p className="font-bold text-tinta">
+          <p className="font-semibold text-tinta">
             Foto {posicion} de {total}
           </p>
           {posicion === 1 && <Etiqueta tono="azul">Portada</Etiqueta>}
@@ -214,7 +214,7 @@ function FilaFoto({ foto, posicion, total }: { foto: FotoEnPanel; posicion: numb
                 Cancelar<span className="sr-only"> el borrado de {nombre}</span>
               </span>
             </summary>
-            <form action={borrarFotoAccion} className="mt-3 max-w-md space-y-3 rounded-xl border-2 border-rojo bg-white p-4">
+            <form action={borrarFotoAccion} className="mt-3 max-w-md space-y-3 rounded-md border-2 border-rojo bg-white p-4">
               <input type="hidden" name="foto_id" value={foto.id} />
               <p className="text-tinta">La foto se borra del sitio y del almacenamiento. No se puede deshacer.</p>
               <BotonEnviar variante="peligro" enviando="Borrando…">

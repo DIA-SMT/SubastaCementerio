@@ -10,7 +10,8 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "db:local:reiniciar": "node -e \"require('fs').rmSync('.local/pgdata',{recursive:true,force:true});console.log('Base local borrada: se vuelve a crear al iniciar npm run dev.')\"",
-    "ejemplos": "node scripts/generar-ejemplos.mjs"
+    "ejemplos": "node scripts/generar-ejemplos.mjs",
+    "db:migrar": "node --env-file=.env.local scripts/migrar.mjs"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.9.0",

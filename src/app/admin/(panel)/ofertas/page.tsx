@@ -118,7 +118,7 @@ async function Contenido({ searchParams }: { searchParams: PageProps<"/admin/ofe
                   {o.nombre} {o.apellido}
                 </td>
                 <td
-                  className={`text-right font-bold whitespace-nowrap text-tinta ${o.estado === "anulada" ? "line-through" : ""}`}
+                  className={`text-right font-semibold whitespace-nowrap text-tinta ${o.estado === "anulada" ? "line-through" : ""}`}
                 >
                   {pesos(o.monto)}
                 </td>
@@ -126,7 +126,7 @@ async function Contenido({ searchParams }: { searchParams: PageProps<"/admin/ofe
                   <EstadoDeOferta estado={o.estado} esLaMasAlta={o.esLaMasAlta} />
                   {o.estado === "anulada" && o.motivoAnulacion && (
                     <span className="mt-1 block text-base">
-                      <span className="font-bold text-tinta">Motivo:</span> {o.motivoAnulacion}
+                      <span className="font-semibold text-tinta">Motivo:</span> {o.motivoAnulacion}
                     </span>
                   )}
                 </td>

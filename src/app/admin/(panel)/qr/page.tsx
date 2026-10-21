@@ -83,11 +83,11 @@ async function Contenido() {
 function TarjetaQr({ obra, svg }: { obra: ObraCartel; svg: string }) {
   const titulo = tituloObra(obra.titulo);
   return (
-    <li className="flex flex-col rounded-2xl border border-linea bg-white p-5">
-      <p className="font-bold text-gris">Obra N° {obra.numero}</p>
+    <li className="flex flex-col rounded-lg border border-linea bg-white p-5">
+      <p className="font-semibold text-gris">Obra N° {obra.numero}</p>
       <h2 className={`mt-0.5 text-xl ${obra.titulo?.trim() ? "" : "italic"}`}>{titulo}</h2>
       <p>
-        de <span className="font-bold text-tinta">{obra.artista}</span>
+        de <span className="font-semibold text-tinta">{obra.artista}</span>
       </p>
       <div
         role="img"

@@ -94,6 +94,13 @@ en Vercel (Pro), la región de las funciones en **São Paulo (gru1)**
    npx supabase db push
    ```
 
+   Sin la CLI, con `DATABASE_URL` en `.env.local`, este comando aplica las que falten y las
+   registra en la misma tabla que usa la CLI (`--ver` solo las lista):
+
+   ```bash
+   npm run db:migrar
+   ```
+
 3. **No** cargues `supabase/seed.sql` ni `supabase/local/*`: son datos de ejemplo y el
    reemplazo de Supabase para el modo local.
 4. **Orden en cada actualización**: primero las migraciones nuevas, después el código. Sin las

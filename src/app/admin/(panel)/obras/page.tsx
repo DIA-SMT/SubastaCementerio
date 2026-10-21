@@ -48,7 +48,7 @@ async function Contenido({ searchParams }: Pick<PageProps<"/admin/obras">, "sear
       </dl>
 
       {publicadasSinFotos > 0 && (
-        <p className="rounded-xl border-l-8 border-ambar bg-ambar-suave px-4 py-3 text-tinta">
+        <p className="rounded-md border-l-2 border-ambar bg-ambar-suave px-4 py-3 text-tinta">
           {publicadasSinFotos === 1
             ? "Hay 1 obra publicada sin fotos: "
             : `Hay ${publicadasSinFotos} obras publicadas sin fotos: `}
@@ -57,7 +57,7 @@ async function Contenido({ searchParams }: Pick<PageProps<"/admin/obras">, "sear
       )}
 
       {obras.length === 0 ? (
-        <div className="rounded-2xl border border-linea bg-white p-6">
+        <div className="rounded-lg border border-linea bg-white p-6">
           <p className="text-lg">Todavía no hay obras cargadas.</p>
           <p className="mt-4">
             <Link href="/admin/obras/nueva" className="boton-primario">
@@ -98,10 +98,10 @@ async function Contenido({ searchParams }: Pick<PageProps<"/admin/obras">, "sear
 
 function Dato({ titulo, valor, alerta = false }: { titulo: string; valor: number; alerta?: boolean }) {
   return (
-    <div className={`rounded-2xl border px-5 py-4 ${alerta ? "border-ambar bg-ambar-suave" : "border-linea bg-white"}`}>
+    <div className={`rounded-lg border px-5 py-4 ${alerta ? "border-ambar bg-ambar-suave" : "border-linea bg-white"}`}>
       {/* El gris solo alcanza el contraste sobre blanco: sobre el ámbar suave, el texto va en tinta. */}
       <dt className={`text-base ${alerta ? "text-tinta" : "text-gris"}`}>{titulo}</dt>
-      <dd className="text-3xl font-extrabold text-tinta">{valor}</dd>
+      <dd className="text-3xl font-semibold text-tinta">{valor}</dd>
     </div>
   );
 }
@@ -122,8 +122,8 @@ function FilaObra({ obra }: { obra: ObraEnListado }) {
           )}
         </div>
       </td>
-      <td className="text-xl font-extrabold text-tinta">{obra.numero}</td>
-      <td className={`font-bold text-tinta ${obra.titulo ? "" : "italic"}`}>{tituloObra(obra.titulo)}</td>
+      <td className="text-xl font-semibold text-tinta">{obra.numero}</td>
+      <td className={`font-semibold text-tinta ${obra.titulo ? "" : "italic"}`}>{tituloObra(obra.titulo)}</td>
       <td>{obra.artistaNombre}</td>
       <td>
         <div className="flex flex-wrap gap-1.5">
@@ -134,7 +134,7 @@ function FilaObra({ obra }: { obra: ObraEnListado }) {
       </td>
       <td className="text-right whitespace-nowrap">
         {obra.ofertaActual != null ? (
-          <span className="font-bold text-tinta">{pesos(obra.ofertaActual)}</span>
+          <span className="font-semibold text-tinta">{pesos(obra.ofertaActual)}</span>
         ) : (
           <span className="text-gris">Sin ofertas</span>
         )}

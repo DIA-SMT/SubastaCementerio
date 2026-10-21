@@ -189,7 +189,7 @@ export function FormularioObra({
             className="mt-1 h-6 w-6 shrink-0 accent-azul"
             aria-describedby="publicada-ayuda"
           />
-          <span className="font-bold text-tinta">Publicada en el sitio</span>
+          <span className="font-semibold text-tinta">Publicada en el sitio</span>
         </label>
         <p id="publicada-ayuda" className="mt-1 ml-9 text-base text-gris">
           Solo las obras publicadas aparecen en el catálogo, reciben ofertas y figuran en el listado final para el
@@ -198,8 +198,8 @@ export function FormularioObra({
       </div>
 
       {e.confirmar_despublicar && (
-        <div className="space-y-3 rounded-xl border-l-8 border-ambar bg-ambar-suave px-4 py-4 text-tinta">
-          <p className="text-xl font-extrabold">Confirmá que querés despublicar la obra</p>
+        <div className="space-y-3 rounded-md border-l-2 border-ambar bg-ambar-suave px-4 py-4 text-tinta">
+          <p className="text-xl font-semibold">Confirmá que querés despublicar la obra</p>
           <p id="confirmar-despublicar-detalle">{e.confirmar_despublicar}</p>
           <input type="hidden" name="confirmacion_para" value={v?.confirmacion_para ?? ""} />
           <div className="flex items-start gap-3 rounded-lg bg-white p-3">
@@ -211,7 +211,7 @@ export function FormularioObra({
               aria-describedby="confirmar-despublicar-detalle"
               className="mt-1 h-6 w-6 shrink-0 accent-azul"
             />
-            <label htmlFor="confirmar_despublicar" className="font-bold">
+            <label htmlFor="confirmar_despublicar" className="font-semibold">
               Entiendo lo que implica y quiero despublicar la obra.
             </label>
           </div>

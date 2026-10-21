@@ -74,10 +74,17 @@
 
 /* Textos grandes: 18 px de base (público amplio, también personas mayores). */
 html {
+  /* 18 px en el celular (lectura cómoda para todo público); 16 px desde 1024 px de ancho,
+     donde 18 px agrandaba de más toda la interfaz. */
   font-size: 112.5%;
   -webkit-text-size-adjust: 100%;
   /* Los anclajes (#iniciativa) no quedan debajo del encabezado fijo. */
   scroll-padding-top: 5.5rem;
+}
+@media (min-width: 64rem) {
+  html {
+    font-size: 100%;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {

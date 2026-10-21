@@ -236,7 +236,7 @@ export function SubirFoto({
           type="file"
           accept="image/*"
           onChange={alElegir}
-          className="block w-full cursor-pointer rounded-xl border-2 border-dashed border-linea bg-fondo p-3 text-base text-tinta file:mr-4 file:min-h-12 file:cursor-pointer file:rounded-lg file:border-0 file:bg-azul file:px-4 file:font-bold file:text-white hover:file:bg-azul-profundo"
+          className="block w-full cursor-pointer rounded-md border-2 border-dashed border-linea bg-fondo p-3 text-base text-tinta file:mr-4 file:min-h-12 file:cursor-pointer file:rounded-lg file:border-0 file:bg-azul file:px-4 file:font-semibold file:text-white hover:file:bg-azul-profundo"
           aria-invalid={errorFoto ? true : undefined}
           aria-describedby={describir(idFoto, errorFoto)}
         />
@@ -255,7 +255,7 @@ export function SubirFoto({
           <img
             src={preparada.vista}
             alt="Vista previa de la foto elegida"
-            className="max-h-60 w-auto max-w-full rounded-xl border border-linea object-contain"
+            className="max-h-60 w-auto max-w-full rounded-md border border-linea object-contain"
           />
           <figcaption className="text-base text-gris">
             Lista para subir: {preparada.ancho} × {preparada.alto} px, {pesoLegible(preparada.blob.size)}

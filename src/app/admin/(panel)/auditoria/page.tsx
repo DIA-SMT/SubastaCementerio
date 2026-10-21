@@ -151,7 +151,7 @@ function Filtros({ lectura, tablas, acciones }: { lectura: LecturaFiltros; tabla
     <Form
       key={hrefPagina(valores, 1)}
       action="/admin/auditoria"
-      className="rounded-2xl border border-linea bg-white p-5"
+      className="rounded-lg border border-linea bg-white p-5"
       aria-label="Filtros"
     >
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -236,7 +236,7 @@ function Fila({ entrada: e, referencias }: { entrada: EntradaAuditoria; referenc
         </time>
       </td>
       <td>
-        <span className="font-bold text-tinta">{actor.nombre}</span>
+        <span className="font-semibold text-tinta">{actor.nombre}</span>
         {actor.rol && <span className="block text-sm text-gris">{actor.rol}</span>}
       </td>
       <td>
@@ -269,7 +269,7 @@ function QueCambio({ entrada: e, referencias }: { entrada: EntradaAuditoria; ref
 
   const items = cambios.map((c, i) => (
     <li key={`${c.campo}-${i}`} className="break-words">
-      <span className="font-bold text-tinta">{c.campo}:</span>{" "}
+      <span className="font-semibold text-tinta">{c.campo}:</span>{" "}
       {c.antes !== undefined && c.despues !== undefined ? (
         <>
           {c.antes} <span aria-hidden>→</span>

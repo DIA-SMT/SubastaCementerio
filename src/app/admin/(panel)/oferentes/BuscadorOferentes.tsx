@@ -152,8 +152,8 @@ function TablaOferentes({ oferentes }: { oferentes: OferenteEnListado[] }) {
             <td>
               <FechaHora fecha={o.creadoAt} />
             </td>
-            <td className="text-right font-bold text-tinta">{o.ofertasValidas}</td>
-            <td className="text-right font-bold text-tinta">
+            <td className="text-right font-semibold text-tinta">{o.ofertasValidas}</td>
+            <td className="text-right font-semibold text-tinta">
               {o.obrasMasAlta}
               <span className="sr-only"> {o.obrasMasAlta === 1 ? "obra" : "obras"}</span>
             </td>

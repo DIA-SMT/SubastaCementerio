@@ -51,7 +51,7 @@ async function Contenido() {
                       {info.nombre}
                     </Link>
                   ) : (
-                    <span className="font-bold text-tinta">{info.nombre}</span>
+                    <span className="font-semibold text-tinta">{info.nombre}</span>
                   )}
                   {p && p.titulo !== info.nombre && <p className="text-gris">{p.titulo}</p>}
                 </td>

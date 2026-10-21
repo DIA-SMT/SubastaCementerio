@@ -42,7 +42,7 @@ async function Contenido({ searchParams }: Pick<PageProps<"/admin/artistas">, "s
       </p>
 
       {artistas.length === 0 ? (
-        <div className="rounded-2xl border border-linea bg-white p-6">
+        <div className="rounded-lg border border-linea bg-white p-6">
           <p className="text-lg">Todavía no hay artistas cargados.</p>
           <p className="mt-4">
             <Link href="/admin/artistas/nuevo" className="boton-primario">
@@ -65,7 +65,7 @@ async function Contenido({ searchParams }: Pick<PageProps<"/admin/artistas">, "s
           <tbody>
             {artistas.map((a) => (
               <tr key={a.id}>
-                <td className="font-bold text-tinta">{a.nombre}</td>
+                <td className="font-semibold text-tinta">{a.nombre}</td>
                 <td className="text-right">{a.cantidadObras}</td>
                 <td>
                   <div className="flex flex-wrap gap-1.5">
