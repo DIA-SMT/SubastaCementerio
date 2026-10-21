@@ -207,8 +207,8 @@ async function Indicadores() {
             "Todavía no hay obras publicadas."
           ) : (
             <>
-              <span aria-hidden className="mb-2 block h-3 overflow-hidden rounded-full bg-azul/15">
-                <span className="block h-full rounded-full bg-azul" style={{ width: `${proporcion}%` }} />
+              <span aria-hidden className="mb-2 block h-3 overflow-hidden rounded-full bg-noche/10">
+                <span className="block h-full rounded-full bg-noche" style={{ width: `${proporcion}%` }} />
               </span>
               {i.obrasPublicadas === 1
                 ? "Obra publicada con al menos una oferta vigente."
@@ -238,12 +238,12 @@ function Indicador({
   // la explicación pasa a una segunda columna en pantallas medianas.
   return (
     <div
-      className={`rounded-lg border border-linea bg-white p-5 ${
-        destacado ? "md:grid md:grid-cols-[auto_1fr] md:gap-x-10" : "flex flex-col"
+      className={`rounded-lg border border-linea border-t-2 bg-white p-5 ${
+        destacado ? "border-t-oro md:grid md:grid-cols-[auto_1fr] md:gap-x-10" : "border-t-noche flex flex-col"
       } ${className}`}
     >
       <dt className="flex items-center gap-2 font-semibold text-tinta">
-        <span aria-hidden className={`h-2.5 w-2.5 rounded-full ${destacado ? "bg-dorado-suave" : "bg-azul"}`} />
+        <span aria-hidden className={`h-2.5 w-2.5 rounded-full ${destacado ? "bg-oro" : "bg-noche"}`} />
         {etiqueta}
       </dt>
       <dd className={`mt-1 font-display leading-tight font-semibold tracking-[-0.02em] text-tinta tabular-nums ${destacado ? "text-4xl sm:text-5xl" : "text-4xl"}`}>

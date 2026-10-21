@@ -16,7 +16,10 @@ export function TituloPanel({
   return (
     <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
       <div>
-        <p className="antetitulo">Panel</p>
+        <p className="antetitulo flex items-center gap-3">
+          <span aria-hidden className="h-px w-6 bg-oro" />
+          Panel
+        </p>
         <h1 className="mt-1.5 text-[clamp(1.9rem,1.5rem+1vw,2.5rem)] leading-[1.05]">{titulo}</h1>
         {bajada && <p className="mt-2 text-gris">{bajada}</p>}
       </div>

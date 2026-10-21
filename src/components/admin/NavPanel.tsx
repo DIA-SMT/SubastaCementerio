@@ -75,7 +75,8 @@ export function NavPanelBase() {
 
 /**
  * Computadora: columna fija a la izquierda (no se desplaza con la página: un espaciador ocupa
- * su lugar en el flujo y el menú va con position: fixed), que se pliega a una franja de íconos. Celular y tablet: un botón con la sección actual que despliega el menú.
+ * su lugar en el flujo y el menú va con position: fixed), en azul noche, que se pliega a una franja de íconos.
+ * Celular y tablet: un botón con la sección actual que despliega el menú.
  */
 function MenuPanel({ ruta }: { ruta: string | null }) {
   const plegado = useSyncExternalStore(suscribir, leerPlegado, () => false);
@@ -116,7 +117,7 @@ function MenuPanel({ ruta }: { ruta: string | null }) {
       />
       <nav
         aria-label="Panel"
-        className={`fixed top-[4.5rem] bottom-0 z-30 hidden flex-col border-r border-linea bg-papel/[0.93] pt-3 pb-5 transition-[width] duration-300 ease-suave lg:flex ${
+        className={`fondo-noche fixed top-[4.5rem] bottom-0 z-30 hidden flex-col pt-3 pb-5 transition-[width] duration-300 ease-suave lg:flex ${
           plegado ? "w-[4.25rem] px-2" : "w-56 px-3"
         }`}
       >
@@ -127,7 +128,7 @@ function MenuPanel({ ruta }: { ruta: string | null }) {
             aria-label={plegado ? "Desplegar el menú" : "Plegar el menú"}
             aria-expanded={!plegado}
             title={plegado ? "Desplegar el menú" : "Plegar el menú"}
-            className="flex h-7 w-7 items-center justify-center rounded-full text-[0.95rem] text-gris-suave ring-1 ring-linea transition-colors duration-200 hover:bg-white hover:text-tinta"
+            className="flex h-7 w-7 items-center justify-center rounded-full text-[0.95rem] text-marfil/70 ring-1 ring-marfil/25 transition-colors duration-200 hover:bg-white/10 hover:text-marfil"
           >
             {plegado ? <IconoSiguiente /> : <IconoAnterior />}
           </button>
@@ -135,7 +136,7 @@ function MenuPanel({ ruta }: { ruta: string | null }) {
         <ul className="flex flex-col gap-0.5">
           {SECCIONES_PANEL.map((s) => (
             <li key={s.href}>
-              <Enlace seccion={s} activa={esActiva(ruta, s.href)} plegado={plegado} />
+              <Enlace seccion={s} activa={esActiva(ruta, s.href)} plegado={plegado} oscuro />
             </li>
           ))}
         </ul>
@@ -148,28 +149,35 @@ function Enlace({
   seccion: { href, texto, Icono },
   activa,
   plegado = false,
+  oscuro = false,
   alElegir,
 }: {
   seccion: Seccion;
   activa: boolean;
   plegado?: boolean;
+  /** En la columna en azul noche (computadora). */
+  oscuro?: boolean;
   alElegir?: () => void;
 }) {
+  const estilo = oscuro
+    ? activa
+      ? "bg-white/10 font-semibold text-marfil before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-oro"
+      : "font-medium text-marfil/75 hover:bg-white/5 hover:text-marfil"
+    : activa
+      ? "bg-white font-semibold text-tinta shadow-suave ring-1 ring-linea"
+      : "font-medium text-texto hover:bg-white/60 hover:text-tinta";
+  const icono = oscuro ? (activa ? "text-oro" : "text-marfil/55") : activa ? "text-azul" : "text-gris-suave";
   return (
     <Link
       href={href}
       onClick={alElegir}
       aria-current={activa ? "page" : undefined}
       title={plegado ? texto : undefined}
-      className={`flex min-h-10 items-center gap-3 rounded-md px-3 text-[0.94rem] whitespace-nowrap transition-colors duration-200 ${
+      className={`relative flex min-h-10 items-center gap-3 rounded-md px-3 text-[0.94rem] whitespace-nowrap transition-colors duration-200 ${
         plegado ? "justify-center px-0" : ""
-      } ${
-        activa
-          ? "bg-white font-semibold text-tinta shadow-suave ring-1 ring-linea"
-          : "font-medium text-texto hover:bg-white/60 hover:text-tinta"
-      }`}
+      } ${estilo}`}
     >
-      <Icono className={`shrink-0 text-lg ${activa ? "text-azul" : "text-gris-suave"}`} />
+      <Icono className={`shrink-0 text-lg ${icono}`} />
       <span className={plegado ? "sr-only" : ""}>{texto}</span>
     </Link>
   );

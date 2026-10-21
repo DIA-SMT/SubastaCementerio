@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import { IconoObra } from "@/components/Iconos";
 import { PlazoCompacto } from "@/components/Plazo";
@@ -6,29 +7,41 @@ import { RefrescoPeriodico } from "@/components/RefrescoPeriodico";
 import { TarjetaObra } from "@/components/TarjetaObra";
 import { usuarioActual } from "@/lib/auth";
 import { estadoSubasta, listarObras } from "@/lib/datos/publico";
+import type { ObraResumen } from "@/lib/datos/tipos";
 
 export const metadata: Metadata = { title: "Obras" };
 
-export default function Catalogo() {
+/** Filtros del catálogo (?ver=...). Sin parámetro, o con uno desconocido, se ven todas. */
+const FILTROS = [
+  { clave: "todas", texto: "Todas", incluye: () => true },
+  { clave: "sin-ofertas", texto: "Sin ofertas", incluye: (o: ObraResumen) => o.ofertaActual == null },
+  { clave: "con-ofertas", texto: "Con ofertas", incluye: (o: ObraResumen) => o.ofertaActual != null },
+] as const;
+
+export default function Catalogo({ searchParams }: PageProps<"/obras">) {
   return (
     <Suspense fallback={<EsqueletoCatalogo />}>
-      <Listado />
+      <Listado searchParams={searchParams} />
     </Suspense>
   );
 }
 
-async function Listado() {
+async function Listado({ searchParams }: Pick<PageProps<"/obras">, "searchParams">) {
+  const { ver } = await searchParams;
+  const filtro = FILTROS.find((f) => f.clave === ver) ?? FILTROS[0];
   const usuario = await usuarioActual();
-  const [estado, obras] = await Promise.all([estadoSubasta(), listarObras(usuario?.id)]);
+  const [estado, todas] = await Promise.all([estadoSubasta(), listarObras(usuario?.id)]);
+  const obras = todas.filter(filtro.incluye);
   return (
     <>
       <header className="contenedor pt-10 pb-10 md:pt-16 md:pb-14">
         <div className="grid gap-x-10 gap-y-9 lg:grid-cols-12 lg:items-end">
           <div className="lg:col-span-7">
             <p className="antetitulo">Catálogo</p>
-            <h1 className="mt-3 text-titulo">Las obras</h1>
+            <span aria-hidden className="filete-oro mt-4" />
+            <h1 className="mt-5 text-titulo">Las obras</h1>
             <p className="mt-5 max-w-xl text-lg text-texto">
-              {obras.length} cabezas escultóricas intervenidas por artistas locales. Elegí una para ver sus fotos, su
+              {todas.length} cabezas escultóricas intervenidas por artistas locales. Elegí una para ver sus fotos, su
               historia y ofertar.
             </p>
           </div>
@@ -39,7 +52,7 @@ async function Listado() {
       </header>
 
       <div className="contenedor">
-        {obras.length === 0 ? (
+        {todas.length === 0 ? (
           <div className="flex flex-col items-center border-t border-tinta py-24 text-center">
             <IconoObra className="text-4xl text-gris-suave" />
             <h2 className="mt-5 text-subtitulo">Todavía no hay obras publicadas</h2>
@@ -47,12 +60,35 @@ async function Listado() {
           </div>
         ) : (
           <>
-            <p className="flex items-center justify-between gap-4 border-t border-tinta py-4 text-[0.88rem] text-gris">
-              <span>
-                {obras.length} {obras.length === 1 ? "obra" : "obras"}
+            <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t border-tinta py-4 text-[0.88rem] text-gris">
+              <nav aria-label="Filtrar obras">
+                <ul className="flex flex-wrap gap-2">
+                  {FILTROS.map((f) => (
+                    <li key={f.clave}>
+                      <Link
+                        href={f.clave === "todas" ? "/obras" : `/obras?ver=${f.clave}`}
+                        aria-current={f === filtro ? "page" : undefined}
+                        scroll={false}
+                        className="inline-flex min-h-10 items-center rounded-full px-4 font-medium text-texto ring-1 ring-linea transition-colors duration-200 ring-inset hover:text-tinta hover:ring-tinta aria-[current=page]:bg-noche aria-[current=page]:text-marfil aria-[current=page]:ring-noche"
+                      >
+                        {f.texto}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+              <span aria-live="polite">
+                {obras.length} {obras.length === 1 ? "obra" : "obras"} · por número de obra
               </span>
-              <span>Por número de obra</span>
-            </p>
+            </div>
+            {obras.length === 0 && (
+              <p className="py-16 text-center text-texto">
+                Ninguna obra coincide con este filtro.{" "}
+                <Link href="/obras" className="enlace">
+                  Ver todas las obras
+                </Link>
+              </p>
+            )}
             <ul className="mt-4 grid grid-cols-2 gap-x-3.5 gap-y-8 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-3 lg:gap-x-8 lg:gap-y-14">
               {obras.map((obra, i) => (
                 <li key={obra.id} className={i < 6 ? "" : "revelar"}>

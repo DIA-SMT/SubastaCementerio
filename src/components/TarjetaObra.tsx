@@ -51,6 +51,8 @@ export function TarjetaObra({
   return (
     <article className="tarjeta-obra @container group relative flex h-full flex-col overflow-hidden rounded-lg bg-white shadow-suave ring-1 ring-tinta/[0.05] transition-shadow duration-300 ease-suave hover:shadow-elevada">
       <div className="relative aspect-[4/5] overflow-hidden bg-piedra">
+        {/* Filete en oro que aparece al pasar el mouse, entre la foto y los datos. */}
+        <span aria-hidden className="absolute inset-x-0 bottom-0 z-10 h-0.5 origin-left scale-x-0 bg-oro transition-transform duration-300 ease-suave group-hover:scale-x-100" />
         <FotoObra
           foto={obra.portada}
           tamanos={tamanos}
@@ -61,12 +63,14 @@ export function TarjetaObra({
 
       <div className="flex flex-1 flex-col p-3.5 @min-[15rem]:p-5">
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-          <span className="text-[0.8rem] font-medium text-gris tabular-nums">N° {obra.numero}</span>
+          <span className="text-[0.72rem] font-semibold tracking-[0.12em] text-dorado uppercase tabular-nums">
+            Obra {String(obra.numero).padStart(2, "0")}
+          </span>
           <span className="hidden @min-[15rem]:inline-flex">
             <EstadoChip fase={fase} texto={estadoDeObra(obra, fase)} />
           </span>
         </div>
-        <h3 className="mt-1.5 text-[1rem] leading-snug tracking-[-0.015em] @min-[15rem]:text-subtitulo">
+        <h3 className="mt-1.5 font-serif text-[1.15rem] leading-snug font-medium tracking-[-0.005em] @min-[15rem]:text-[1.55rem] @min-[15rem]:leading-tight">
           <Link href={`/obras/${obra.numero}`} className="enlace-tarjeta after:absolute after:inset-0 after:z-0">
             <span className={obra.titulo ? "" : "italic"}>{tituloObra(obra.titulo)}</span>
           </Link>
@@ -95,19 +99,26 @@ export function TarjetaObra({
             {puedeOfertar ? (
               <Link
                 href={`/obras/${obra.numero}/ofertar`}
-                className="relative z-10 hidden shrink-0 items-center gap-1.5 rounded-md px-2 py-1.5 -mr-2 -mb-1.5 text-[0.9rem] font-semibold text-azul transition-colors duration-200 hover:bg-fondo hover:text-azul-profundo @min-[15rem]:inline-flex"
+                className="group/oferta relative z-10 hidden shrink-0 items-center gap-2.5 rounded-md py-1 text-[0.9rem] font-semibold text-tinta @min-[15rem]:inline-flex"
               >
-                Realizar oferta
+                Ofertar
                 <span className="sr-only"> por la obra N° {obra.numero}</span>
-                <IconoFlecha className="transition-transform duration-200 group-hover:translate-x-0.5" />
+                <span
+                  aria-hidden
+                  className="flex h-10 w-10 items-center justify-center rounded-md bg-noche text-marfil transition-colors duration-200 group-hover/oferta:bg-oro group-hover/oferta:text-noche"
+                >
+                  <IconoFlecha className="transition-transform duration-200 group-hover:translate-x-0.5" />
+                </span>
               </Link>
             ) : (
               <span
                 aria-hidden
-                className="hidden shrink-0 items-center gap-1.5 pb-1 text-[0.9rem] font-semibold text-tinta @min-[15rem]:inline-flex"
+                className="hidden shrink-0 items-center gap-2.5 py-1 text-[0.9rem] font-semibold text-tinta @min-[15rem]:inline-flex"
               >
                 Ver obra
-                <IconoFlecha className="transition-transform duration-200 group-hover:translate-x-0.5" />
+                <span className="flex h-10 w-10 items-center justify-center rounded-md ring-1 ring-linea transition-colors duration-200 ring-inset group-hover:ring-oro">
+                  <IconoFlecha className="transition-transform duration-200 group-hover:translate-x-0.5" />
+                </span>
               </span>
             )}
           </div>

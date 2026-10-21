@@ -117,6 +117,13 @@ Panel: `/admin/ingresar`, `/admin`, `/admin/obras`, `/admin/obras/[id]`,
     de minutos (lo controla un disparador), para que no cambie hacia atrás qué obras siguen
     abiertas. Tomado del portal de subastas del Poder Judicial de Tucumán; falta que la
     Dirección confirme si se aplica.
+21. Identidad de la muestra "Memorias del futuro": azul noche (#101e2e) para botones principales y
+    bloques oscuros, oro patrimonial (#a98350) solo para filetes, ornamentos y el botón sobre azul
+    noche (como texto, solo sobre azul noche). El azul municipal queda para la marca, los enlaces
+    y el foco. Los ornamentos (arco, rosetón, olivo, columna, separador) son componentes SVG en
+    src/components/Ornamentos.tsx. Las imágenes del paquete de recursos son ilustrativas
+    (generadas): solo se usan chicas, en los ingresos, con la leyenda "Imagen ilustrativa".
+    Las obras usan siempre sus fotografías reales.
 
 ## Respuestas pendientes (se usan valores por defecto hasta tenerlas)
 

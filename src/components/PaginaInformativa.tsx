@@ -1,25 +1,29 @@
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, type ReactNode } from "react";
 import { obtenerPagina } from "@/lib/datos/publico";
 import type { SlugPagina } from "@/lib/datos/tipos";
 import { Cabecera, Columna } from "./Cabecera";
 import { Markdown } from "./Markdown";
 
-/** Páginas con texto editable desde el panel (cómo participar, bases, destino, privacidad). */
-export function PaginaInformativa({ slug }: { slug: SlugPagina }) {
+/**
+ * Páginas con texto editable desde el panel (cómo participar, bases, destino, privacidad).
+ * `antes`: bloque fijo entre el título y el texto (por ejemplo, los pasos para participar).
+ */
+export function PaginaInformativa({ slug, antes }: { slug: SlugPagina; antes?: ReactNode }) {
   return (
     <Suspense fallback={<EsqueletoPagina />}>
-      <Contenido slug={slug} />
+      <Contenido slug={slug} antes={antes} />
     </Suspense>
   );
 }
 
-async function Contenido({ slug }: { slug: SlugPagina }) {
+async function Contenido({ slug, antes }: { slug: SlugPagina; antes?: ReactNode }) {
   const pagina = await obtenerPagina(slug);
   if (!pagina) notFound();
   return (
     <>
       <Cabecera antetitulo="Subasta Solidaria" titulo={pagina.titulo} />
+      {antes}
       <Columna>
         <article className="border-t border-tinta pt-8 md:pt-10">
           <Markdown texto={pagina.contenido} />

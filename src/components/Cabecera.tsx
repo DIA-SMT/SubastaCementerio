@@ -23,8 +23,13 @@ export function Cabecera({
 }) {
   return (
     <header className={`mx-auto px-4 pt-10 pb-8 md:pt-16 md:pb-10 ${ANCHOS[ancho]} box-content sm:px-6`}>
-      {antetitulo && <p className="antetitulo">{antetitulo}</p>}
-      <h1 className="mt-3 text-titulo">{titulo}</h1>
+      {antetitulo && (
+        <>
+          <p className="antetitulo">{antetitulo}</p>
+          <span aria-hidden className="filete-oro mt-4" />
+        </>
+      )}
+      <h1 className={antetitulo ? "mt-5 text-titulo" : "mt-3 text-titulo"}>{titulo}</h1>
       {bajada && <div className="mt-4 text-lg text-texto">{bajada}</div>}
     </header>
   );

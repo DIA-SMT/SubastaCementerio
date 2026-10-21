@@ -5,7 +5,7 @@ import { Marca } from "./Marca";
 const ENLACES = [
   { href: "/obras", texto: "Obras" },
   { href: "/como-participar", texto: "Cómo participar" },
-  { href: "/mis-ofertas", texto: "Mis ofertas" },
+  { href: "/mis-ofertas", texto: "Mis ofertas", destacado: true },
 ];
 
 /**

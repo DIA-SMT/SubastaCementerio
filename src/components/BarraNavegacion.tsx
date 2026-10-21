@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, useEffect, useRef, useState, type ReactNode } from "react";
-import { IconoCerrar, IconoMenu } from "./Iconos";
+import { IconoArtista, IconoCerrar, IconoMenu } from "./Iconos";
 
-type Enlace = { href: string; texto: string };
+/** `destacado`: en la barra va como botón en azul noche (la acción de la persona: sus ofertas). */
+type Enlace = { href: string; texto: string; destacado?: boolean };
 
 const esActivo = (ruta: string, href: string) => ruta === href || ruta.startsWith(`${href}/`);
 
@@ -17,7 +18,17 @@ function ListaEnlaces({ enlaces, variante, alElegir, ruta }: PropsLista & { ruta
     return (
       <ul className="flex h-full items-center gap-1 lg:gap-3">
         {enlaces.map((e) => (
-          <li key={e.href} className="h-full">
+          <li key={e.href} className="flex h-full items-center">
+            {e.destacado ? (
+              <Link
+                href={e.href}
+                aria-current={esActivo(ruta, e.href) ? "page" : undefined}
+                className="ml-2 inline-flex min-h-11 items-center gap-2 rounded-md bg-noche px-4 text-[0.94rem] font-semibold text-marfil transition-colors duration-200 hover:bg-noche-claro aria-[current=page]:ring-2 aria-[current=page]:ring-oro aria-[current=page]:ring-offset-2 aria-[current=page]:ring-offset-papel"
+              >
+                <IconoArtista className="text-[1.05rem]" />
+                {e.texto}
+              </Link>
+            ) : (
             <Link
               href={e.href}
               aria-current={esActivo(ruta, e.href) ? "page" : undefined}
@@ -25,6 +36,7 @@ function ListaEnlaces({ enlaces, variante, alElegir, ruta }: PropsLista & { ruta
             >
               {e.texto}
             </Link>
+            )}
           </li>
         ))}
       </ul>

@@ -86,7 +86,8 @@ async function Ficha({ params }: Pick<PageProps<"/obras/[numero]">, "params">) {
             <p className="antetitulo">Obra N° {obra.numero}</p>
             <EstadoChip fase={obra.fase} texto={obra.fase === "abierta" && obra.cierre > estado.cierre ? "Tiempo extra" : undefined} />
           </div>
-          <h1 className={`mt-3 text-titulo ${obra.titulo ? "" : "italic"}`}>{titulo}</h1>
+          <span aria-hidden className="filete-oro mt-4" />
+          <h1 className={`mt-4 text-titulo ${obra.titulo ? "" : "italic"}`}>{titulo}</h1>
           <p className="mt-3 text-lg text-texto">
             de <span className="font-semibold text-tinta">{obra.artistaNombre}</span>
           </p>

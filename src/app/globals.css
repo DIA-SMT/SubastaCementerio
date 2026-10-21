@@ -3,7 +3,9 @@
 /*
  * Sistema visual de la subasta: una sala de museo con respaldo institucional. Los neutros salen
  * de la fotografía de fondo (marfil, piedra, dorado de los marcos y pizarra del arco del fondo).
- * El azul de la Municipalidad se reserva para identidad, navegación y acciones principales.
+ * La muestra "Memorias del futuro" suma el azul noche y el oro patrimonial: bloques oscuros,
+ * botones principales, filetes y ornamentos. El azul de la Municipalidad queda para la marca,
+ * los enlaces y el foco.
  */
 @theme {
   /* Neutros */
@@ -18,6 +20,13 @@
   --color-dorado: #7f6131; /* marcos de la sala: antetítulos (5,3:1 sobre marfil) */
   --color-dorado-suave: #b8955a; /* filetes decorativos, nunca texto */
   --color-pizarra: #3e4954; /* pared del arco del fondo: bloques oscuros */
+
+  /* Memorias del futuro */
+  --color-noche: #101e2e; /* azul noche: botones principales y bloques oscuros (15:1 con marfil) */
+  --color-noche-claro: #1d3047; /* hover sobre azul noche */
+  --color-oro: #a98350; /* oro patrimonial: filetes, ornamentos y botón sobre noche; como texto, solo sobre noche (4,9:1) */
+  --color-oro-claro: #d9c08f; /* texto chico sobre azul noche (9:1) */
+  --color-marfil: #f7f4ed; /* texto sobre azul noche */
 
   /* Azul institucional */
   --color-azul: #1464c8; /* acciones principales y enlaces (5,7:1 sobre blanco) */
@@ -160,6 +169,27 @@ body {
   outline: none;
 }
 
+/* Bloque de la muestra en azul noche: grano suave y arcos en oro casi transparentes. El texto
+   encima va en marfil; el foco, en blanco. */
+.fondo-noche {
+  background-color: var(--color-noche);
+  /* El velo en azul noche atenúa los arcos: se adivinan, no compiten con el texto. */
+  background-image:
+    url("/assets/memorias/fondos/grano-suave.svg"),
+    linear-gradient(rgb(16 30 46 / 0.55), rgb(16 30 46 / 0.55)),
+    url("/assets/memorias/fondos/patron-arcos.svg");
+  background-repeat: repeat, no-repeat, repeat;
+  background-size: auto, 100% 100%, auto;
+  background-position: 0 0, 0 0, 0 100%;
+  color: var(--color-marfil);
+}
+.fondo-noche :is(h1, h2, h3) {
+  color: var(--color-marfil);
+}
+.fondo-noche :focus-visible {
+  outline-color: #ffffff;
+}
+
 /* Bloque institucional en azul profundo (sello del logo, encabezado del panel). */
 .fondo-institucional {
   background: var(--color-azul-profundo);
@@ -249,7 +279,15 @@ body {
   @apply inline-flex min-h-12 items-center justify-center gap-2.5 rounded-md px-6 text-center text-base font-semibold tracking-[-0.005em] transition-[background-color,color,box-shadow,transform] duration-200 ease-suave active:scale-[0.985] disabled:cursor-not-allowed disabled:opacity-60;
 }
 @utility boton-primario {
-  @apply boton bg-azul text-white hover:bg-azul-profundo;
+  @apply boton bg-noche text-marfil hover:bg-noche-claro;
+}
+/* Sobre azul noche: botón en oro con texto en azul noche (4,9:1). */
+@utility boton-oro {
+  @apply boton bg-oro text-noche hover:bg-oro-claro;
+}
+/* Sobre azul noche: borde fino marfil. */
+@utility boton-noche-secundario {
+  @apply boton text-marfil ring-1 ring-marfil/45 ring-inset hover:bg-white/10 hover:ring-marfil;
 }
 /* Secundario: blanco con borde fino; en el hover el borde pasa a tinta. */
 @utility boton-secundario {
@@ -274,9 +312,13 @@ body {
 @utility enlace-sutil {
   @apply inline-flex items-center gap-2 font-semibold text-tinta underline decoration-transparent decoration-1 underline-offset-[0.3em] transition-[color,text-decoration-color] duration-200 hover:text-azul hover:decoration-current;
 }
-/* Antetítulo: rótulo chico en mayúsculas sobre los títulos. */
+/* Antetítulo: rótulo chico en mayúsculas sobre los títulos (sobre azul noche va en oro claro). */
 @utility antetitulo {
-  @apply font-sans text-rotulo font-semibold text-dorado uppercase;
+  @apply font-sans text-rotulo font-semibold text-dorado uppercase in-[.fondo-noche]:text-oro-claro;
+}
+/* Filete corto en oro bajo los antetítulos. */
+@utility filete-oro {
+  @apply block h-px w-14 bg-oro;
 }
 /* Rótulo neutro para datos (Oferta actual, Cierre, etc.). */
 @utility rotulo {
