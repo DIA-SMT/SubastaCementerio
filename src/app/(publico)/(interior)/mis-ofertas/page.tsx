@@ -116,7 +116,7 @@ async function MisOfertas() {
                   <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
                     {gano ? (
                       <Estado tono="verde">
-                        {estado.fase === "cerrada" ? "Quedaste con la oferta más alta" : "Tenés la oferta más alta"}
+                        {o.fase === "cerrada" ? "Quedaste con la oferta más alta" : "Tenés la oferta más alta"}
                       </Estado>
                     ) : anulada ? (
                       <Estado tono="gris">
@@ -128,7 +128,7 @@ async function MisOfertas() {
                       </Estado>
                     )}
                     <Link href={`/obras/${o.numero}`} className="enlace-sutil group text-[0.94rem]">
-                      {gano || estado.fase !== "abierta" ? "Ver la obra" : anulada ? "Ofertar de nuevo" : "Volver a ofertar"}
+                      {gano || o.fase !== "abierta" ? "Ver la obra" : anulada ? "Ofertar de nuevo" : "Volver a ofertar"}
                       <IconoFlecha className="transition-transform duration-200 group-hover:translate-x-0.5" />
                     </Link>
                   </div>

@@ -108,12 +108,21 @@ Panel: `/admin/ingresar`, `/admin`, `/admin/obras`, `/admin/obras/[id]`,
     confirmación extra que explica el efecto (el listado vuelve a PRELIMINAR, deja de verse
     "Pasa a subasta presencial…") y cuántas ofertas quedan después del nuevo cierre. Esas
     ofertas no se anulan.
+20. Extensión del cierre por obra (apagada por defecto, se activa en Configuración): una oferta
+    en los últimos N minutos (3 por defecto, de 1 a 30) corre el cierre de esa obra hasta N
+    minutos después de la oferta. El cierre de cada obra no se guarda: se calcula a partir de
+    su última oferta registrada (también las anuladas después, porque la extensión ya ocurrió).
+    La etapa queda abierta hasta que cierra la última obra; el listado FINAL sale recién ahí.
+    Pasada la hora de cierre general, la extensión no se puede activar, desactivar ni cambiar
+    de minutos (lo controla un disparador), para que no cambie hacia atrás qué obras siguen
+    abiertas. Tomado del portal de subastas del Poder Judicial de Tucumán; falta que la
+    Dirección confirme si se aplica.
 
 ## Respuestas pendientes (se usan valores por defecto hasta tenerlas)
 
 - Incremento mínimo: monto fijo en pesos (por defecto).
 - Precio de salida: uno general con posibilidad de fijarlo por obra (por defecto).
-- Cierre único para todas las obras (por defecto).
+- Cierre único para todas las obras (por defecto), con extensión por obra opcional (decisión 20).
 - Casilla y dominio de correo, dominio del sitio, cuentas y planes de Vercel y Supabase.
 - Ingreso con Cidituc (no incluido por ahora).
 - Logos institucionales: se usan los de la skill institucional `pdf-institucional-smt`, sin

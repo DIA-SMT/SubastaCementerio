@@ -15,6 +15,8 @@ export type ValoresConfiguracion = {
   incremento_minimo: string;
   precio_salida: string;
   modo_ejemplo: "si" | "no";
+  extension_activa: "si" | "no";
+  extension_minutos: string;
 };
 
 /** Textos ya formateados en el servidor (hora de Tucumán y pesos). */
@@ -24,6 +26,7 @@ export type TextosActuales = {
   incremento: string;
   precioSalida: string;
   obrasConPrecioPropio: number;
+  extensionMinutos: string;
 };
 
 /** aria-describedby y aria-invalid de un control con ayuda y error (ids de Campo). */
@@ -46,11 +49,13 @@ function Casilla({
   etiqueta,
   ayuda,
   marcada,
+  error,
 }: {
   id: string;
   etiqueta: ReactNode;
   ayuda: ReactNode;
   marcada: boolean;
+  error?: string;
 }) {
   return (
     <div className="flex items-start gap-3">
@@ -60,7 +65,8 @@ function Casilla({
         type="checkbox"
         value="si"
         defaultChecked={marcada}
-        aria-describedby={`${id}-ayuda`}
+        aria-describedby={[`${id}-ayuda`, error ? `${id}-error` : null].filter(Boolean).join(" ")}
+        aria-invalid={error ? true : undefined}
         className="mt-1 h-6 w-6 shrink-0 accent-azul"
       />
       <div>
@@ -70,6 +76,12 @@ function Casilla({
         <p id={`${id}-ayuda`} className="mt-0.5 text-base text-gris">
           {ayuda}
         </p>
+        {error && (
+          <p id={`${id}-error`} className="mt-1.5 font-semibold text-tinta">
+            <span aria-hidden className="mr-1.5 inline-block h-2.5 w-2.5 rounded-full bg-rojo" />
+            {error}
+          </p>
+        )}
       </div>
     </div>
   );
@@ -139,6 +151,42 @@ export function FormularioConfiguracion({ inicial, actuales }: { inicial: Valore
             </>
           }
         />
+      </Seccion>
+
+      <Seccion titulo="Extensión del cierre">
+        <Casilla
+          id="extension_activa"
+          etiqueta="Extender el cierre de una obra si recibe una oferta de último momento"
+          marcada={v.extension_activa === "si"}
+          error={e.extension_activa}
+          ayuda={
+            <>
+              Una oferta registrada en los últimos minutos antes del cierre de una obra corre el cierre de esa obra hasta
+              esa misma cantidad de minutos después de la oferta. Cada obra puede cerrar a una hora distinta. Dejala
+              apagada hasta que la Dirección la apruebe; pasada la hora de cierre general ya no se puede cambiar.
+            </>
+          }
+        />
+        <div className="md:w-1/2 md:pr-2.5">
+          <Campo
+            id="extension_minutos"
+            etiqueta="Minutos de extensión"
+            ayuda={`De 1 a 30. Guardado: ${actuales.extensionMinutos}.`}
+            error={e.extension_minutos}
+          >
+            <input
+              id="extension_minutos"
+              name="extension_minutos"
+              type="text"
+              inputMode="numeric"
+              autoComplete="off"
+              required
+              defaultValue={v.extension_minutos}
+              className="campo"
+              {...describir("extension_minutos", true, e.extension_minutos)}
+            />
+          </Campo>
+        </div>
       </Seccion>
 
       <Seccion titulo="Subasta presencial">

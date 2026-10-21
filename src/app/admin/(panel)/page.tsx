@@ -102,6 +102,20 @@ async function EstadoEtapa() {
             {fechaHoraLarga(estado.cierre)}
             {!estado.fechasConfirmadas && " (sin confirmar)"}
           </dd>
+          <dt className="font-semibold text-tinta">Extensión del cierre</dt>
+          <dd>
+            {estado.extension
+              ? `Activa: una oferta en los últimos ${estado.extension.minutos} minutos extiende el cierre de esa obra`
+              : "Apagada"}
+          </dd>
+          {estado.cierreFinal > estado.cierre && (
+            <>
+              <dt className="font-semibold text-tinta">Última obra en cerrar</dt>
+              <dd>
+                {fechaHoraLarga(estado.cierreFinal)}, por ofertas de último momento
+              </dd>
+            </>
+          )}
           <dt className="font-semibold text-tinta">Subasta presencial</dt>
           <dd>
             {estado.fechaPresencial ? fechaLarga(estado.fechaPresencial) : "A confirmar"}

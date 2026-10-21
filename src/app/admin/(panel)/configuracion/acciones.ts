@@ -13,6 +13,8 @@ import { fechaHoraLarga, fechaLarga, pesos } from "@/lib/formato";
 
 const MONTO_MAXIMO = 1_000_000_000;
 const LARGO_DETALLE = 300;
+/** Mismo rango que la restricción extension_minutos_rango. */
+const MINUTOS_EXTENSION = { min: 1, max: 30 };
 
 /** Pesos enteros: "5000", "5.000", "$ 5.000". Rechaza centavos ("5000,50") y separadores mal puestos. */
 function validarMonto(texto: string, nombre: string): { monto: number } | { error: string } {
@@ -99,6 +101,8 @@ export async function guardarConfiguracion(_previo: EstadoAccion, datos: FormDat
     incremento_minimo: texto("incremento_minimo"),
     precio_salida: texto("precio_salida"),
     modo_ejemplo: casilla("modo_ejemplo"),
+    extension_activa: casilla("extension_activa"),
+    extension_minutos: texto("extension_minutos"),
   };
   const errores: Record<string, string> = {};
 
@@ -130,6 +134,11 @@ export async function guardarConfiguracion(_previo: EstadoAccion, datos: FormDat
   const precio = validarMonto(valores.precio_salida, "el precio de salida");
   if ("error" in precio) errores.precio_salida = precio.error;
 
+  const minutos = /^\d{1,2}$/.test(valores.extension_minutos) ? Number(valores.extension_minutos) : NaN;
+  if (!(minutos >= MINUTOS_EXTENSION.min && minutos <= MINUTOS_EXTENSION.max)) {
+    errores.extension_minutos = `Escribí una cantidad de minutos entre ${MINUTOS_EXTENSION.min} y ${MINUTOS_EXTENSION.max}.`;
+  }
+
   if (Object.keys(errores).length > 0 || !inicio || !cierre || "error" in incremento || "error" in precio) {
     return { error: "Revisá los datos marcados. No guardamos ningún cambio.", errores, valores };
   }
@@ -154,6 +163,8 @@ export async function guardarConfiguracion(_previo: EstadoAccion, datos: FormDat
         incrementoMinimo: incremento.monto,
         precioSalida: precio.monto,
         modoEjemplo: valores.modo_ejemplo === "si",
+        extensionActiva: valores.extension_activa === "si",
+        extensionMinutos: minutos,
       },
       confirmados,
     );
@@ -167,6 +178,17 @@ export async function guardarConfiguracion(_previo: EstadoAccion, datos: FormDat
         error: "Este cambio afecta la subasta. Leé el aviso, marcá la confirmación y volvé a guardar.",
         errores: { confirmacion: resultado.motivos.map(textoMotivo).join("\n") },
         valores: { ...valores, confirmacion_para: `${clave}#${resultado.motivos.map((m) => m.tipo).join(",")}` },
+      };
+    }
+    if (resultado.codigo === "extension_cerrada") {
+      return {
+        error: "Revisá los datos marcados. No guardamos ningún cambio.",
+        errores: {
+          extension_activa:
+            "Ya pasó la hora de cierre general: la extensión no se puede activar, desactivar ni cambiar de minutos, " +
+            "porque cambiaría hacia atrás qué obras siguen abiertas.",
+        },
+        valores,
       };
     }
     return { error: "Tu usuario no tiene permiso para cambiar la configuración.", valores };

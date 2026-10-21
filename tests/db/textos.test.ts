@@ -168,3 +168,33 @@ describe("textos de la muestra Memorias del futuro", () => {
     await db.close();
   });
 });
+
+// 20261021120000_extension_cierre.sql: texto provisorio sobre la extensión del cierre.
+describe("bases: extensión del cierre", () => {
+  it("una base nueva explica la extensión como provisoria y a definir", async () => {
+    const db = await baseDePrueba(false);
+    const [b] = (
+      await db.query<{ contenido: string; provisorio: boolean }>(
+        "select contenido, provisorio from public.paginas where slug = 'bases-y-condiciones'",
+      )
+    ).rows;
+    expect(b.provisorio).toBe(true);
+    expect(b.contenido).toContain("- Si se aplica la extensión del cierre por ofertas de último momento.");
+    expect(b.contenido).toContain("**Extensión del cierre (provisorio, a confirmar):**");
+    await db.close();
+  });
+
+  it("no pisa las bases si el equipo ya las editó", async () => {
+    const db = await PGlite.create({ extensions: { pgcrypto } });
+    await db.exec(leer("supabase", "local", "shim.sql"));
+    const todas = listarMigraciones();
+    await aplicar(db, todas.filter((a) => a < "20261021120000_extension_cierre.sql"), sinCambios);
+    await db.query("update public.paginas set contenido = 'Bases editadas por el equipo.' where slug = 'bases-y-condiciones'");
+    await aplicar(db, ["20261021120000_extension_cierre.sql"], sinCambios);
+    const [p] = (
+      await db.query<{ contenido: string }>("select contenido from public.paginas where slug = 'bases-y-condiciones'")
+    ).rows;
+    expect(p.contenido).toBe("Bases editadas por el equipo.");
+    await db.close();
+  });
+});

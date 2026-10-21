@@ -37,6 +37,17 @@ export function fechaHoraLarga(fecha: Date) {
   return `${dia} a las ${hora}`;
 }
 
+/** "20:03:12": para los cierres extendidos, que no caen en minutos redondos. */
+export function horaConSegundos(fecha: Date) {
+  return new Intl.DateTimeFormat("es-AR", {
+    timeZone: ZONA,
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).format(fecha);
+}
+
 /** "sábado 7 de noviembre" a partir de AAAA-MM-DD (sin corrimiento de zona). */
 export function fechaLarga(isoDia: string) {
   const [a, m, d] = isoDia.split("-").map(Number);

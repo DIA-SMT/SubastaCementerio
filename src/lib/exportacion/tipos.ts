@@ -35,7 +35,7 @@ export type MetaListado = {
   generado: Date;
   /** true mientras la etapa virtual no cerró: los precios base pueden cambiar. */
   preliminar: boolean;
-  /** Cierre configurado de la etapa virtual. */
+  /** Cierre de la etapa virtual: el de la última obra en cerrar (con la extensión, puede ser posterior al general). */
   cierre: Date;
   modoEjemplo: boolean;
   /** Obras cargadas pero no publicadas, que quedan afuera del listado aunque tengan ofertas. */

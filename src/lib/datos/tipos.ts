@@ -2,7 +2,14 @@ export type Fase = "por_confirmar" | "antes" | "abierta" | "cerrada";
 
 export type EstadoSubasta = {
   inicio: Date;
+  /** Cierre general de la etapa virtual. */
   cierre: Date;
+  /** Hora en que cierra la última obra: igual a `cierre`, salvo que una oferta la haya extendido. */
+  cierreFinal: Date;
+  /** Pasó el cierre general, pero alguna obra sigue abierta por una oferta de último momento. */
+  enExtension: boolean;
+  /** Extensión del cierre por obra, si está habilitada. */
+  extension: { minutos: number } | null;
   fechasConfirmadas: boolean;
   /** AAAA-MM-DD */
   fechaPresencial: string | null;
@@ -31,6 +38,10 @@ export type ObraResumen = {
   minimoSiguiente: number;
   portada: Foto | null;
   esEjemplo: boolean;
+  /** Cierre de esta obra: el general, o más tarde si una oferta de último momento lo extendió. */
+  cierre: Date;
+  /** Fase de esta obra (puede seguir abierta pasado el cierre general). */
+  fase: Fase;
 };
 
 export type ObraDetalle = ObraResumen & {
@@ -84,4 +95,6 @@ export type MiOferta = {
   ofertaActual: number | null;
   /** false si el equipo despublicó la obra: ya no está en la subasta. */
   publicada: boolean;
+  /** Fase de la obra (puede seguir abierta pasado el cierre general). */
+  fase: Fase;
 };

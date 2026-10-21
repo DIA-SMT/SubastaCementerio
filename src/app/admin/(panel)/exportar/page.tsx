@@ -54,12 +54,14 @@ async function Contenido() {
         <Recuadro tono="alerta" rol="note" titulo="PRELIMINAR: la etapa virtual todavía no cerró; los precios base pueden cambiar.">
           Los archivos que descargues ahora llevan la marca PRELIMINAR.{" "}
           {estado.fechasConfirmadas
-            ? `El listado definitivo se genera después del cierre (${fechaHoraLarga(estado.cierre)}, hora de Tucumán).`
+            ? `El listado definitivo se genera después del cierre (${fechaHoraLarga(estado.cierre)}, hora de Tucumán${
+                estado.extension ? ", o más tarde si una oferta de último momento extiende el cierre de alguna obra" : ""
+              }).`
             : "El listado definitivo se genera después del cierre de la etapa virtual, cuyas fechas todavía están por confirmarse."}
         </Recuadro>
       ) : (
         <Recuadro tono="exito" rol="note" titulo="FINAL: la etapa virtual cerró.">
-          Cerró el {fechaHoraLarga(estado.cierre)} (hora de Tucumán). Estos son los precios base para la subasta
+          Cerró el {fechaHoraLarga(estado.cierreFinal)} (hora de Tucumán). Estos son los precios base para la subasta
           presencial.
         </Recuadro>
       )}

@@ -3,6 +3,7 @@ import { cache } from "react";
 import { conBase, consultar, type Contexto } from "@/lib/db";
 import type {
   EstadoSubasta,
+  Fase,
   Foto,
   ObraDetalle,
   ObraResumen,
@@ -38,6 +39,8 @@ function aResumen(f: FilaObra): ObraResumen {
         }
       : null,
     esEjemplo: Boolean(f.es_ejemplo),
+    cierre: new Date(f.cierre as string),
+    fase: f.fase as Fase,
   };
 }
 
@@ -46,12 +49,16 @@ export const estadoSubasta = cache(async (): Promise<EstadoSubasta> => {
     { rol: "anon" },
     `select inicio_virtual, cierre_virtual, fechas_confirmadas,
             to_char(fecha_presencial, 'YYYY-MM-DD') as fecha_presencial, detalle_presencial,
-            incremento_minimo, precio_salida, modo_ejemplo, fase, ahora
+            incremento_minimo, precio_salida, modo_ejemplo, fase, ahora,
+            cierre_final, en_extension, extension_activa, extension_minutos
      from public.v_estado_subasta`,
   );
   return {
     inicio: new Date(f.inicio_virtual as string),
     cierre: new Date(f.cierre_virtual as string),
+    cierreFinal: new Date(f.cierre_final as string),
+    enExtension: Boolean(f.en_extension),
+    extension: f.extension_activa ? { minutos: Number(f.extension_minutos) } : null,
     fechasConfirmadas: Boolean(f.fechas_confirmadas),
     fechaPresencial: (f.fecha_presencial as string | null) ?? null,
     detallePresencial: (f.detalle_presencial as string | null) ?? null,

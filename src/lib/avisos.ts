@@ -21,7 +21,9 @@ export type Aviso = {
   artista_nombre: string;
   oferta_actual: number;
   minimo_siguiente: number;
+  /** Cierre de esta obra (el general, o más tarde si una oferta de último momento lo extendió). */
   cierre_virtual: Date | string;
+  /** Fase de esta obra. */
   fase: "por_confirmar" | "antes" | "abierta" | "cerrada";
   /** AAAA-MM-DD */
   fecha_presencial: string | null;

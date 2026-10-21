@@ -8,7 +8,8 @@ import { MONTO_MAXIMO, montoDesdeTexto } from "@/lib/validacion";
 
 export type ResultadoOferta =
   | { estado: "inicial" }
-  | { estado: "ok"; monto: number }
+  /** cierreExtendido: nueva hora de cierre de la obra (ISO) si esta oferta lo extendió. */
+  | { estado: "ok"; monto: number; cierreExtendido: string | null }
   | { estado: "error"; codigo: string; minimo?: number; ofertaActual?: number | null };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -46,5 +47,6 @@ export async function confirmarOferta(_previo: ResultadoOferta, datos: FormData)
   after(async () => {
     await procesarAvisos().catch((e) => console.error("Avisos:", e));
   });
-  return { estado: "ok", monto };
+  const cierreExtendido = r.extendio === true && typeof r.cierre === "string" ? new Date(r.cierre).toISOString() : null;
+  return { estado: "ok", monto, cierreExtendido };
 }

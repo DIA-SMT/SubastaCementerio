@@ -44,8 +44,9 @@ async function Ofertar({ params }: Pick<PageProps<"/obras/[numero]/ofertar">, "p
   const descripcion = `obra N° ${obra.numero} — ${tituloObra(obra.titulo)}, de ${obra.artistaNombre}`;
 
   let bloqueo: { titulo: string; detalle?: ReactNode; esMia?: boolean } | null = null;
-  if (estado.fase === "cerrada") bloqueo = { titulo: "La etapa virtual ya cerró. No se aceptan más ofertas." };
-  else if (estado.fase !== "abierta") bloqueo = { titulo: "La etapa virtual todavía no empezó." };
+  // La fase es la de la obra: con la extensión, cada obra puede cerrar a una hora distinta.
+  if (obra.fase === "cerrada") bloqueo = { titulo: "La etapa virtual de esta obra ya cerró. No se aceptan más ofertas." };
+  else if (obra.fase !== "abierta") bloqueo = { titulo: "La etapa virtual todavía no empezó." };
   else if (perfil.bloqueado) {
     bloqueo = { titulo: "Tu cuenta no puede ofertar. Comunicate con la Dirección de Cementerios." };
   } else if (obra.ofertaActualEsMia) {

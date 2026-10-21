@@ -265,6 +265,8 @@ const CAMPOS: [string, string][] = [
   ["detalle_presencial", "Detalle de la subasta presencial"],
   ["incremento_minimo", "Incremento mínimo"],
   ["modo_ejemplo", "Modo ejemplo"],
+  ["extension_activa", "Extensión del cierre"],
+  ["extension_minutos", "Minutos de extensión"],
   ["slug", "Página"],
   ["contenido", "Contenido"],
   ["provisorio", "Provisorio"],

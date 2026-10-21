@@ -45,6 +45,7 @@ export async function misOfertas(uid: string): Promise<MiOferta[]> {
     ofertaActual: f.oferta_actual == null ? null : Number(f.oferta_actual),
     // Sin la migración 20261019140300 la columna no llega: se toma como publicada (comportamiento anterior).
     publicada: f.publicada !== false,
+    fase: f.fase as MiOferta["fase"],
   }));
 }
 

@@ -471,6 +471,9 @@ describe("listado final desde la base", () => {
   const ESTADO: EstadoSubasta = {
     inicio: new Date(Date.UTC(2026, 9, 17, 23, 0)),
     cierre: new Date(Date.UTC(2026, 10, 1, 23, 0)),
+    cierreFinal: new Date(Date.UTC(2026, 10, 1, 23, 0)),
+    enExtension: false,
+    extension: null,
     fechasConfirmadas: true,
     fechaPresencial: null,
     detallePresencial: null,

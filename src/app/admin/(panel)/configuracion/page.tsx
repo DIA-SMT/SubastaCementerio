@@ -75,6 +75,10 @@ async function Contenido() {
             </li>
             <li>Las fechas y horas se cargan en hora de Tucumán.</li>
             <li>
+              Con la extensión del cierre activa, una obra que recibe una oferta en los últimos minutos sigue abierta
+              después de la hora de cierre general. La etapa cierra cuando cierra la última obra.
+            </li>
+            <li>
               Con la etapa virtual abierta, adelantar el cierre o dejar de aceptar ofertas pide una confirmación
               extra.
             </li>
@@ -103,6 +107,8 @@ async function Contenido() {
           incremento_minimo: numeroConPuntos(config.incrementoMinimo),
           precio_salida: numeroConPuntos(config.precioSalida),
           modo_ejemplo: config.modoEjemplo ? "si" : "no",
+          extension_activa: config.extensionActiva ? "si" : "no",
+          extension_minutos: String(config.extensionMinutos),
         }}
         actuales={{
           inicio: fechaHoraLarga(config.inicio),
@@ -110,6 +116,9 @@ async function Contenido() {
           incremento: pesos(config.incrementoMinimo),
           precioSalida: pesos(config.precioSalida),
           obrasConPrecioPropio: config.obrasConPrecioPropio,
+          extensionMinutos: `${config.extensionMinutos} ${config.extensionMinutos === 1 ? "minuto" : "minutos"}${
+            config.extensionActiva ? ", activa" : ", apagada"
+          }`,
         }}
       />
     </>

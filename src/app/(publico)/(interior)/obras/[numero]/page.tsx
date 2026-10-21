@@ -71,7 +71,7 @@ async function Ficha({ params }: Pick<PageProps<"/obras/[numero]">, "params">) {
     historialDeObra(obra.id, usuario?.id),
     usuario && obra.ofertaActualEsMia ? miPerfil(usuario.id) : null,
   ]);
-  const puedeOfertar = estado.fase === "abierta" && !obra.ofertaActualEsMia;
+  const puedeOfertar = obra.fase === "abierta" && !obra.ofertaActualEsMia;
   const titulo = tituloObra(obra.titulo);
 
   return (
@@ -84,7 +84,7 @@ async function Ficha({ params }: Pick<PageProps<"/obras/[numero]">, "params">) {
         <div className="lg:col-span-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="antetitulo">Obra N° {obra.numero}</p>
-            <EstadoChip fase={estado.fase} />
+            <EstadoChip fase={obra.fase} texto={obra.fase === "abierta" && obra.cierre > estado.cierre ? "Tiempo extra" : undefined} />
           </div>
           <h1 className={`mt-3 text-titulo ${obra.titulo ? "" : "italic"}`}>{titulo}</h1>
           <p className="mt-3 text-lg text-texto">
@@ -162,7 +162,7 @@ async function Ficha({ params }: Pick<PageProps<"/obras/[numero]">, "params">) {
         </div>
       )}
 
-      {estado.fase === "abierta" && <RefrescoPeriodico segundos={20} />}
+      {obra.fase === "abierta" && <RefrescoPeriodico segundos={obra.cierre > estado.cierre ? 10 : 20} />}
     </article>
   );
 }
@@ -171,7 +171,8 @@ const MONTO_DESTACADO =
   "mt-2 font-display text-[clamp(2.1rem,1.7rem+1vw,2.7rem)] leading-none font-semibold tracking-[-0.03em] text-tinta tabular-nums";
 
 function PanelOferta({ obra, estado, avisos }: { obra: ObraDetalle; estado: EstadoSubasta; avisos: boolean }) {
-  if (estado.fase === "cerrada") {
+  // La fase es la de la obra: con la extensión, cada obra puede cerrar a una hora distinta.
+  if (obra.fase === "cerrada") {
     return (
       <section aria-label="Resultado de la subasta virtual" className="superficie-tarjeta mt-8 p-6 md:p-7">
         <p className="rotulo">Subasta virtual finalizada</p>
@@ -188,7 +189,7 @@ function PanelOferta({ obra, estado, avisos }: { obra: ObraDetalle; estado: Esta
     );
   }
 
-  const puedeOfertar = estado.fase === "abierta";
+  const puedeOfertar = obra.fase === "abierta";
   return (
     <section aria-label="Oferta" className="superficie-tarjeta mt-8 overflow-hidden">
       <div className="p-6 md:p-7">
@@ -245,7 +246,7 @@ function PanelOferta({ obra, estado, avisos }: { obra: ObraDetalle; estado: Esta
       </div>
 
       <div className="border-t border-linea bg-papel px-6 py-5 md:px-7">
-        <PlazoCompacto estado={estado} />
+        <PlazoCompacto estado={estado} obra={obra} />
       </div>
     </section>
   );

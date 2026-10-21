@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { IconoCheck } from "@/components/Iconos";
-import { pesos, numeroConPuntos } from "@/lib/formato";
+import { horaConSegundos, pesos, numeroConPuntos } from "@/lib/formato";
 import { MONTO_MAXIMO, montoDesdeTexto } from "@/lib/validacion";
 import { confirmarOferta, type ResultadoOferta } from "./acciones";
 
@@ -124,6 +124,13 @@ export function FormularioOferta(props: Props) {
               </>
             )}
           </p>
+          {resultado.cierreExtendido && (
+            <p className="mt-3 rounded-md bg-superficie px-4 py-3.5 text-tinta">
+              Ofertaste en los últimos minutos, así que el cierre de esta obra se extendió: ahora cierra a las{" "}
+              <strong className="tabular-nums">{horaConSegundos(new Date(resultado.cierreExtendido))}</strong> (hora de
+              Tucumán).
+            </p>
+          )}
         </div>
         <div className="mt-7 flex flex-col gap-3 border-t border-linea pt-6 sm:flex-row">
           <Link href={`/obras/${props.numero}`} className="boton-primario">

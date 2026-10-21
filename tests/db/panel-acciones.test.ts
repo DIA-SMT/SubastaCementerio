@@ -198,6 +198,8 @@ describe("configuración con la etapa cerrada", () => {
     incrementoMinimo: c.incrementoMinimo,
     precioSalida: c.precioSalida,
     modoEjemplo: c.modoEjemplo,
+    extensionActiva: c.extensionActiva,
+    extensionMinutos: c.extensionMinutos,
   });
 
   async function cerrarHaceUnaHora() {
@@ -289,6 +291,7 @@ describe("configuración con la etapa cerrada", () => {
       incremento_minimo: String(c.incrementoMinimo),
       precio_salida: String(c.precioSalida),
       modo_ejemplo: c.modoEjemplo ? "si" : undefined,
+      extension_minutos: String(c.extensionMinutos),
     };
 
     const aviso = await guardarConfiguracion({}, formulario(campos));
@@ -308,6 +311,45 @@ describe("configuración con la etapa cerrada", () => {
     );
     expect(ok).toMatchObject({ ok: true });
     expect((await obtenerConfiguracion(prueba.admin)).fase).toBe("por_confirmar");
+  });
+
+  it("pasada la hora de cierre, la extensión no se puede activar ni cambiar (salvo que se reabra)", async () => {
+    const c = await cerrarHaceUnaHora();
+    expect(await actualizarConfiguracion(prueba.admin, { ...datosDe(c), extensionActiva: true }, [])).toEqual({
+      ok: false,
+      codigo: "extension_cerrada",
+    });
+    // Apagada, cambiar los minutos no cambia ningún cierre.
+    const minutos = await actualizarConfiguracion(prueba.admin, { ...datosDe(c), extensionMinutos: 5 }, []);
+    expect(minutos).toMatchObject({ ok: true, sinCambios: false });
+
+    const campos = {
+      inicio: aInputLocal(c.inicio),
+      cierre: aInputLocal(c.cierre),
+      fechas_confirmadas: "si",
+      fecha_presencial: c.fechaPresencial ?? "",
+      detalle_presencial: c.detallePresencial ?? "",
+      incremento_minimo: String(c.incrementoMinimo),
+      precio_salida: String(c.precioSalida),
+      modo_ejemplo: c.modoEjemplo ? "si" : undefined,
+      extension_activa: "si",
+      extension_minutos: "3",
+    };
+    const r = await guardarConfiguracion({}, formulario(campos));
+    expect(r.errores?.extension_activa).toContain("Ya pasó la hora de cierre general");
+    expect((await guardarConfiguracion({}, formulario({ ...campos, extension_minutos: "45" }))).errores?.extension_minutos).toContain(
+      "entre 1 y 30",
+    );
+
+    const enUnaSemana = new Date(Math.floor((Date.now() + 7 * 24 * HORA) / 60000) * 60000);
+    const reabre = await actualizarConfiguracion(
+      prueba.admin,
+      { ...datosDe(c), cierre: enUnaSemana, extensionActiva: true },
+      ["reabre"],
+    );
+    expect(reabre).toMatchObject({ ok: true });
+    expect(await obtenerConfiguracion(prueba.admin)).toMatchObject({ extensionActiva: true, extension: { minutos: 3 } });
+    await directo("update public.configuracion set extension_activa = false, extension_minutos = 3 where id = 1");
   });
 
   it("con la etapa abierta, adelantar el cierre a una hora que ya pasó informa las ofertas posteriores", async () => {

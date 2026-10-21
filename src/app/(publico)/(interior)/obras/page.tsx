@@ -56,7 +56,7 @@ async function Listado() {
             <ul className="mt-4 grid grid-cols-2 gap-x-3.5 gap-y-8 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-3 lg:gap-x-8 lg:gap-y-14">
               {obras.map((obra, i) => (
                 <li key={obra.id} className={i < 6 ? "" : "revelar"}>
-                  <TarjetaObra obra={obra} fase={estado.fase} prioridad={i < 3} />
+                  <TarjetaObra obra={obra} fase={obra.fase} prioridad={i < 3} />
                 </li>
               ))}
             </ul>

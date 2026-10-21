@@ -13,6 +13,9 @@ export type ConfiguracionAdmin = EstadoSubasta & {
   ultimoCambio: { at: Date; nombre: string | null; porSistema: boolean } | null;
   /** Obras con precio de salida propio: no usan el precio general. */
   obrasConPrecioPropio: number;
+  /** Extensión del cierre tal como está guardada (los minutos se guardan aunque esté apagada). */
+  extensionActiva: boolean;
+  extensionMinutos: number;
 };
 
 export type DatosConfiguracion = {
@@ -25,6 +28,9 @@ export type DatosConfiguracion = {
   incrementoMinimo: number;
   precioSalida: number;
   modoEjemplo: boolean;
+  extensionActiva: boolean;
+  /** De 1 a 30. */
+  extensionMinutos: number;
 };
 
 /**
@@ -50,16 +56,28 @@ export type MotivoConfirmacion =
 export type ResultadoConfiguracion =
   | { ok: true; sinCambios: boolean; fase: Fase }
   | { ok: false; codigo: "requiere_confirmacion"; motivos: MotivoConfirmacion[] }
+  /** La extensión del cierre no se puede cambiar una vez pasada la hora de cierre general. */
+  | { ok: false; codigo: "extension_cerrada" }
   | { ok: false; codigo: "sin_permiso" };
 
 const aFecha = (v: unknown) => new Date(v as string);
 
-/** Misma regla que la vista v_estado_subasta. */
-function faseDe(inicio: Date, cierre: Date, confirmadas: boolean, ahora: Date): Fase {
+/**
+ * Misma regla que la vista v_estado_subasta: la etapa sigue abierta hasta que cierra la última
+ * obra (`cierreFinal`, que con la extensión puede ser posterior al cierre general).
+ */
+function faseDe(inicio: Date, cierreFinal: Date, confirmadas: boolean, ahora: Date): Fase {
   if (!confirmadas) return "por_confirmar";
   if (ahora < inicio) return "antes";
-  if (ahora < cierre) return "abierta";
+  if (ahora < cierreFinal) return "abierta";
   return "cerrada";
+}
+
+/** Misma regla que public.cierre_con_extension. */
+function conExtension(cierre: Date, activa: boolean, minutos: number, ultimaOferta: Date | null): Date {
+  if (!activa || !ultimaOferta) return cierre;
+  const extendido = ultimaOferta.getTime() + minutos * 60000;
+  return extendido > cierre.getTime() ? new Date(extendido) : cierre;
 }
 
 /** Los formularios trabajan con minutos: se ignoran los segundos al comparar. */
@@ -89,7 +107,8 @@ export async function obtenerConfiguracion(admin: Admin): Promise<ConfiguracionA
       `select c.inicio_virtual, c.cierre_virtual, c.fechas_confirmadas,
               to_char(c.fecha_presencial, 'YYYY-MM-DD') as fecha_presencial, c.detalle_presencial,
               c.incremento_minimo, c.precio_salida, c.modo_ejemplo, c.actualizada_at,
-              e.fase, e.ahora,
+              c.extension_activa, c.extension_minutos,
+              e.fase, e.ahora, e.cierre_final, e.en_extension,
               (select count(*)::int from public.obras o where o.precio_salida is not null) as obras_con_precio_propio
        from public.configuracion c
        cross join public.v_estado_subasta e
@@ -107,6 +126,11 @@ export async function obtenerConfiguracion(admin: Admin): Promise<ConfiguracionA
     return {
       inicio: aFecha(f.inicio_virtual),
       cierre: aFecha(f.cierre_virtual),
+      cierreFinal: aFecha(f.cierre_final),
+      enExtension: Boolean(f.en_extension),
+      extension: f.extension_activa ? { minutos: Number(f.extension_minutos) } : null,
+      extensionActiva: Boolean(f.extension_activa),
+      extensionMinutos: Number(f.extension_minutos),
       fechasConfirmadas: Boolean(f.fechas_confirmadas),
       fechaPresencial: (f.fecha_presencial as string | null) ?? null,
       detallePresencial: (f.detalle_presencial as string | null) ?? null,
@@ -140,7 +164,11 @@ export async function actualizarConfiguracion(
     const [a] = await q(
       `select inicio_virtual, cierre_virtual, fechas_confirmadas,
               to_char(fecha_presencial, 'YYYY-MM-DD') as fecha_presencial, detalle_presencial,
-              incremento_minimo, precio_salida, modo_ejemplo, now() as ahora
+              incremento_minimo, precio_salida, modo_ejemplo, extension_activa, extension_minutos,
+              now() as ahora,
+              (select max(o.creada_at)
+               from public.ofertas o
+               join public.obras ob on ob.id = o.obra_id and ob.publicada) as ultima_oferta
        from public.configuracion
        where id = 1
        for update`,
@@ -150,8 +178,30 @@ export async function actualizarConfiguracion(
     const ahora = aFecha(a.ahora);
     const inicioActual = aFecha(a.inicio_virtual);
     const cierreActual = aFecha(a.cierre_virtual);
-    const faseActual = faseDe(inicioActual, cierreActual, Boolean(a.fechas_confirmadas), ahora);
-    const faseNueva = faseDe(datos.inicio, datos.cierre, datos.fechasConfirmadas, ahora);
+    const ultimaOferta = a.ultima_oferta == null ? null : aFecha(a.ultima_oferta);
+    const extensionActiva = Boolean(a.extension_activa);
+    const extensionMinutos = Number(a.extension_minutos);
+    const faseActual = faseDe(
+      inicioActual,
+      conExtension(cierreActual, extensionActiva, extensionMinutos, ultimaOferta),
+      Boolean(a.fechas_confirmadas),
+      ahora,
+    );
+    const faseNueva = faseDe(
+      datos.inicio,
+      conExtension(datos.cierre, datos.extensionActiva, datos.extensionMinutos, ultimaOferta),
+      datos.fechasConfirmadas,
+      ahora,
+    );
+
+    // Misma regla que el disparador validar_extension: pasada la hora de cierre general, cambiar
+    // la extensión cambiaría hacia atrás qué obras siguen abiertas (salvo que el cambio reabra la etapa).
+    const cambiaExtension =
+      datos.extensionActiva !== extensionActiva ||
+      (datos.extensionMinutos !== extensionMinutos && (datos.extensionActiva || extensionActiva));
+    if (cambiaExtension && Boolean(a.fechas_confirmadas) && ahora >= cierreActual && ahora >= datos.cierre) {
+      return { ok: false, codigo: "extension_cerrada" };
+    }
 
     const motivos: MotivoConfirmacion[] = [];
     if (faseActual === "abierta") {
@@ -190,7 +240,9 @@ export async function actualizarConfiguracion(
       datos.detallePresencial === ((a.detalle_presencial as string | null) ?? null) &&
       datos.incrementoMinimo === Number(a.incremento_minimo) &&
       datos.precioSalida === Number(a.precio_salida) &&
-      datos.modoEjemplo === Boolean(a.modo_ejemplo);
+      datos.modoEjemplo === Boolean(a.modo_ejemplo) &&
+      datos.extensionActiva === extensionActiva &&
+      datos.extensionMinutos === extensionMinutos;
     if (sinCambios) return { ok: true, sinCambios: true, fase: faseActual };
 
     const filas = await q(
@@ -202,7 +254,9 @@ export async function actualizarConfiguracion(
            detalle_presencial = $5,
            incremento_minimo = $6,
            precio_salida = $7,
-           modo_ejemplo = $8
+           modo_ejemplo = $8,
+           extension_activa = $9,
+           extension_minutos = $10
        where id = 1
        returning id`,
       [
@@ -214,6 +268,8 @@ export async function actualizarConfiguracion(
         datos.incrementoMinimo,
         datos.precioSalida,
         datos.modoEjemplo,
+        datos.extensionActiva,
+        datos.extensionMinutos,
       ],
     );
     if (filas.length === 0) return { ok: false, codigo: "sin_permiso" };

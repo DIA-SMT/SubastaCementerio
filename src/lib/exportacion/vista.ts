@@ -95,7 +95,7 @@ export function armarListado(vista: FilaVista[], estado: EstadoSubasta): Listado
   const meta: MetaListado = {
     generado: estado.ahora,
     preliminar: estado.fase !== "cerrada",
-    cierre: estado.cierre,
+    cierre: estado.cierreFinal,
     modoEjemplo: estado.modoEjemplo,
     noPublicadas,
   };

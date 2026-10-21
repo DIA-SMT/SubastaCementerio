@@ -318,10 +318,11 @@ describe("funciones y permisos reservados", () => {
         )
       ).map((f) => f.nombre);
 
-    expect(await otorgadas("anon")).toEqual(["es_admin", "tipo_actor"]);
+    expect(await otorgadas("anon")).toEqual(["cierre_con_extension", "es_admin", "tipo_actor"]);
     expect(await otorgadas("authenticated")).toEqual([
       "actualizar_mis_datos",
       "anular_oferta",
+      "cierre_con_extension",
       "es_admin",
       "indicadores",
       "ofertar",
