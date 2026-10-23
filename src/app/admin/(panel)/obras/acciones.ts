@@ -18,7 +18,7 @@ import {
   type DatosObra,
 } from "@/lib/datos/admin/obras";
 import { pesos } from "@/lib/formato";
-import { montoDesdeTexto } from "@/lib/validacion";
+import { medidaDesdeTexto, montoDesdeTexto } from "@/lib/validacion";
 
 // Acciones del panel para obras y sus fotos. Cada una verifica la sesión del equipo.
 
@@ -39,6 +39,10 @@ function leerObra(datos: FormData) {
     artista_id: texto(datos, "artista_id"),
     resena: String(datos.get("resena") ?? "").replace(/\r\n/g, "\n").trim(),
     tecnica: texto(datos, "tecnica"),
+    alto_cm: texto(datos, "alto_cm"),
+    ancho_cm: texto(datos, "ancho_cm"),
+    profundidad_cm: texto(datos, "profundidad_cm"),
+    medidas_aproximadas: datos.get("medidas_aproximadas") === "si" ? "si" : "",
     precio_salida: texto(datos, "precio_salida"),
     publicada: datos.get("publicada") === "si" ? "si" : "",
   };
@@ -53,8 +57,28 @@ function leerObra(datos: FormData) {
   if (!valores.artista_id) errores.artista_id = "Elegí el artista.";
   else if (!esUuid(valores.artista_id)) errores.artista_id = "Elegí un artista de la lista.";
 
-  if (valores.resena.length > MAX_RESENA) errores.resena = `La reseña puede tener hasta ${MAX_RESENA} caracteres.`;
-  if (valores.tecnica.length > MAX_TECNICA) errores.tecnica = `La técnica puede tener hasta ${MAX_TECNICA} caracteres.`;
+  if (valores.resena.length > MAX_RESENA) errores.resena = `La memoria puede tener hasta ${MAX_RESENA} caracteres.`;
+  if (valores.tecnica.length > MAX_TECNICA) {
+    errores.tecnica = `La técnica y los materiales pueden tener hasta ${MAX_TECNICA} caracteres.`;
+  }
+
+  // Medidas en centímetros: alto y ancho van juntos; la profundidad puede faltar (obra plana).
+  const medida = (campo: "alto_cm" | "ancho_cm" | "profundidad_cm") => {
+    if (!valores[campo]) return null;
+    const valor = medidaDesdeTexto(valores[campo]);
+    if (valor == null) {
+      errores[campo] = "Escribí la medida en centímetros, con un decimal como máximo. Por ejemplo: 80 o 30,5.";
+    }
+    return valor;
+  };
+  const altoCm = medida("alto_cm");
+  const anchoCm = medida("ancho_cm");
+  const profundidadCm = medida("profundidad_cm");
+  if (valores.alto_cm && !valores.ancho_cm) errores.ancho_cm = "Completá también el ancho.";
+  if (valores.ancho_cm && !valores.alto_cm) errores.alto_cm = "Completá también el alto.";
+  if (valores.profundidad_cm && !valores.alto_cm && !valores.ancho_cm) {
+    errores.alto_cm = "Completá el alto y el ancho.";
+  }
 
   let precioSalida: number | null = null;
   if (valores.precio_salida) {
@@ -78,6 +102,10 @@ function leerObra(datos: FormData) {
     artistaId: valores.artista_id,
     resena: valores.resena,
     tecnica: valores.tecnica || null,
+    altoCm,
+    anchoCm,
+    profundidadCm,
+    medidasAproximadas: valores.medidas_aproximadas === "si" && altoCm != null,
     precioSalida,
     publicada: valores.publicada === "si",
   };

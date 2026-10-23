@@ -62,7 +62,13 @@ async function Contenido({ params, searchParams }: Pick<PageProps<"/admin/artist
 
       <Tarjeta titulo="Datos del artista" className="max-w-4xl">
         <FormularioArtista
-          artista={{ id: artista.id, nombre: artista.nombre, resena: artista.resena, enlace: artista.enlace }}
+          artista={{
+            id: artista.id,
+            nombre: artista.nombre,
+            resena: artista.resena,
+            enlace: artista.enlace,
+            instagram: artista.instagram,
+          }}
         />
       </Tarjeta>
 

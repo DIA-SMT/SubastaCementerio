@@ -110,7 +110,7 @@ export function Galeria({ fotos, titulo }: { fotos: Foto[]; titulo: string }) {
                 }`}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element -- miniatura decorativa del mismo archivo */}
-                <img src={urlFoto(foto.ruta)} alt="" className="h-full w-full object-cover" />
+                <img src={urlFoto(foto.ruta)} alt="" className="h-full w-full object-contain" />
               </button>
             </li>
           ))}

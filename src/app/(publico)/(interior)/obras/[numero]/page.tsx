@@ -13,7 +13,7 @@ import { usuarioActual } from "@/lib/auth";
 import { miPerfil } from "@/lib/datos/oferente";
 import { estadoSubasta, historialDeObra, obtenerObra } from "@/lib/datos/publico";
 import type { EstadoSubasta, ObraDetalle, OfertaPublica } from "@/lib/datos/tipos";
-import { haceCuanto, pesos, tituloObra } from "@/lib/formato";
+import { haceCuanto, medidasTexto, pesos, tituloObra } from "@/lib/formato";
 import { numeroDeObra } from "@/lib/validacion";
 
 export async function generateMetadata({ params }: PageProps<"/obras/[numero]">): Promise<Metadata> {
@@ -73,6 +73,7 @@ async function Ficha({ params }: Pick<PageProps<"/obras/[numero]">, "params">) {
   ]);
   const puedeOfertar = obra.fase === "abierta" && !obra.ofertaActualEsMia;
   const titulo = tituloObra(obra.titulo);
+  const medidas = medidasTexto(obra.medidas);
 
   return (
     <article className="mt-4 md:mt-6">
@@ -91,18 +92,31 @@ async function Ficha({ params }: Pick<PageProps<"/obras/[numero]">, "params">) {
           <p className="mt-3 text-lg text-texto">
             de <span className="font-semibold text-tinta">{obra.artistaNombre}</span>
           </p>
-          {obra.tecnica && (
-            <dl className="mt-6 grid grid-cols-[auto_1fr] gap-x-6 border-t border-linea pt-4 text-[0.94rem]">
-              <dt className="text-gris">Técnica</dt>
-              <dd className="text-tinta">{obra.tecnica}</dd>
+          {(obra.tecnica || medidas) && (
+            <dl className="mt-6 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 border-t border-linea pt-4 text-[0.94rem]">
+              {obra.tecnica && (
+                <>
+                  <dt className="text-gris">Técnica y materiales</dt>
+                  <dd className="text-tinta">{obra.tecnica}</dd>
+                </>
+              )}
+              {medidas && (
+                <>
+                  <dt className="text-gris">Medidas</dt>
+                  <dd className="text-tinta tabular-nums">
+                    {medidas}
+                    <span className="sr-only"> (alto por ancho{obra.medidas.profundidad != null && " por profundidad"})</span>
+                  </dd>
+                </>
+              )}
             </dl>
           )}
 
           <PanelOferta obra={obra} estado={estado} avisos={perfil?.avisosPorCorreo ?? true} />
 
-          <Apartado id="titulo-obra" titulo="Sobre la obra">
+          <Apartado id="titulo-obra" titulo="Memoria conceptual">
             <p className="mt-4 text-lg leading-relaxed whitespace-pre-line text-texto">
-              {obra.resena || "Reseña pendiente."}
+              {obra.resena || "Memoria conceptual pendiente."}
             </p>
           </Apartado>
 
@@ -118,9 +132,22 @@ async function Ficha({ params }: Pick<PageProps<"/obras/[numero]">, "params">) {
               )}
               <div className="min-w-0">
                 <p className="font-display text-subtitulo font-semibold text-tinta">{obra.artistaNombre}</p>
-                <p className="mt-2 whitespace-pre-line text-texto">{obra.artistaResena || "Reseña pendiente."}</p>
+                {obra.artistaResena && <p className="mt-2 whitespace-pre-line text-texto">{obra.artistaResena}</p>}
+                {obra.artistaInstagram && (
+                  <p className="mt-3">
+                    <a
+                      href={`https://www.instagram.com/${obra.artistaInstagram}/`}
+                      className="enlace"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      @{obra.artistaInstagram}
+                      <span className="sr-only"> en Instagram (se abre en otra pestaña)</span>
+                    </a>
+                  </p>
+                )}
                 {obra.artistaEnlace && /^https?:\/\//.test(obra.artistaEnlace) && (
-                  <p className="mt-4">
+                  <p className="mt-3">
                     <a href={obra.artistaEnlace} className="enlace" rel="noopener noreferrer" target="_blank">
                       Ver más sobre {obra.artistaNombre} (se abre en otra pestaña)
                     </a>

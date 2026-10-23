@@ -53,6 +53,8 @@ export type ArtistaEnEdicion = {
   nombre: string;
   resena: string;
   enlace: string | null;
+  /** Usuario de Instagram, sin @. */
+  instagram: string | null;
   fotoRuta: string | null;
   esEjemplo: boolean;
   obras: { id: string; numero: number; titulo: string | null; publicada: boolean }[];
@@ -62,7 +64,7 @@ export async function obtenerArtistaAdmin(admin: Admin, id: string): Promise<Art
   if (!esUuid(id)) return null;
   return conBase(comoAdmin(admin), async (q) => {
     const [f] = await q(
-      "select id, nombre, resena, enlace, foto_ruta, es_ejemplo from public.artistas where id = $1",
+      "select id, nombre, resena, enlace, instagram, foto_ruta, es_ejemplo from public.artistas where id = $1",
       [id],
     );
     if (!f) return null;
@@ -75,6 +77,7 @@ export async function obtenerArtistaAdmin(admin: Admin, id: string): Promise<Art
       nombre: String(f.nombre),
       resena: String(f.resena ?? ""),
       enlace: (f.enlace as string | null) ?? null,
+      instagram: (f.instagram as string | null) ?? null,
       fotoRuta: (f.foto_ruta as string | null) ?? null,
       esEjemplo: Boolean(f.es_ejemplo),
       obras: obras.map((o) => ({
@@ -87,13 +90,13 @@ export async function obtenerArtistaAdmin(admin: Admin, id: string): Promise<Art
   });
 }
 
-export type DatosArtista = { nombre: string; resena: string; enlace: string | null };
+export type DatosArtista = { nombre: string; resena: string; enlace: string | null; instagram: string | null };
 
 export async function crearArtista(admin: Admin, datos: DatosArtista): Promise<string> {
   const [f] = await consultar<{ id: string }>(
     comoAdmin(admin),
-    "insert into public.artistas (nombre, resena, enlace) values ($1, $2, $3) returning id",
-    [datos.nombre, datos.resena, datos.enlace],
+    "insert into public.artistas (nombre, resena, enlace, instagram) values ($1, $2, $3, $4) returning id",
+    [datos.nombre, datos.resena, datos.enlace, datos.instagram],
   );
   return String(f.id);
 }
@@ -103,8 +106,8 @@ export async function actualizarArtista(admin: Admin, id: string, datos: DatosAr
   if (!esUuid(id)) return false;
   const filas = await consultar(
     comoAdmin(admin),
-    "update public.artistas set nombre = $1, resena = $2, enlace = $3 where id = $4 returning id",
-    [datos.nombre, datos.resena, datos.enlace, id],
+    "update public.artistas set nombre = $1, resena = $2, enlace = $3, instagram = $4 where id = $5 returning id",
+    [datos.nombre, datos.resena, datos.enlace, datos.instagram, id],
   );
   return filas.length > 0;
 }

@@ -224,10 +224,13 @@ Todo se hace desde el panel (`/admin`), con una cuenta del equipo.
    Tucumán), la fecha de la subasta presencial, el incremento mínimo y el precio de salida.
    Dejá **"Las fechas están confirmadas"** sin marcar hasta que todo esté listo: mientras tanto,
    el sitio muestra "Fechas a confirmar" y no acepta ofertas. Desmarcá **modo ejemplo**.
-2. **Artistas**: cargá cada artista con su nombre, una reseña breve y, si querés, una foto y un
-   enlace.
+2. **Artistas**: cargá cada artista con su nombre (o nombre artístico) y su **Instagram**
+   (sirve el @usuario o la dirección del perfil: se guarda solo el usuario). La reseña, la foto
+   y otro enlace son opcionales.
 3. **Obras**: por cada obra, el número (es el que va en el cartel y en la URL `/obras/N`), el
-   título (si no tiene, queda "Sin título"), el artista, la reseña y la técnica. Al crearla,
+   título (si no tiene, queda "Sin título"), el artista, la **técnica y materiales**, las
+   **medidas** en centímetros (si llegan en metros, multiplicá por 100) y la **memoria
+   conceptual** (de 60 a 100 palabras; el panel cuenta las palabras). Al crearla,
    cargá las **fotos**: la primera es la portada. El navegador las achica antes de subirlas y el
    servidor les quita los datos de ubicación. Escribí un **texto alternativo** para cada una
    (lo leen las personas que usan lector de pantalla). Marcá **Publicada** cuando esté completa.

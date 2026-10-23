@@ -7,7 +7,13 @@ import { Campo, MensajeAccion } from "@/components/admin/Panel";
 import { estadoInicial } from "@/lib/admin/acciones";
 import { actualizarArtistaAccion, crearArtistaAccion } from "./acciones";
 
-export type ArtistaParaFormulario = { id: string; nombre: string; resena: string; enlace: string | null };
+export type ArtistaParaFormulario = {
+  id: string;
+  nombre: string;
+  resena: string;
+  enlace: string | null;
+  instagram: string | null;
+};
 
 /** Alta y edición de un artista. Sin `artista`, crea uno nuevo. */
 export function FormularioArtista({ artista }: { artista?: ArtistaParaFormulario }) {
@@ -18,6 +24,7 @@ export function FormularioArtista({ artista }: { artista?: ArtistaParaFormulario
     nombre: v?.nombre ?? artista?.nombre ?? "",
     resena: v?.resena ?? artista?.resena ?? "",
     enlace: v?.enlace ?? artista?.enlace ?? "",
+    instagram: v?.instagram ?? (artista?.instagram ? `@${artista.instagram}` : ""),
   };
   const describir = (id: string, conAyuda: boolean) =>
     [conAyuda && `${id}-ayuda`, e[id] && `${id}-error`].filter(Boolean).join(" ") || undefined;
@@ -26,7 +33,7 @@ export function FormularioArtista({ artista }: { artista?: ArtistaParaFormulario
     <form action={enviar} className="space-y-6" noValidate>
       {artista && <input type="hidden" name="id" value={artista.id} />}
 
-      <Campo id="nombre" etiqueta="Nombre" ayuda="Como quiere figurar en el sitio." error={e.nombre}>
+      <Campo id="nombre" etiqueta="Nombre" ayuda="Nombre y apellido, o el nombre artístico con el que quiere figurar." error={e.nombre}>
         <input
           id="nombre"
           name="nombre"
@@ -59,9 +66,30 @@ export function FormularioArtista({ artista }: { artista?: ArtistaParaFormulario
       </Campo>
 
       <Campo
+        id="instagram"
+        etiqueta="Instagram (opcional)"
+        ayuda="El usuario (@usuario) o la dirección del perfil: guardamos solo el usuario y en el sitio se muestra con su enlace."
+        error={e.instagram}
+      >
+        <input
+          id="instagram"
+          name="instagram"
+          maxLength={200}
+          autoComplete="off"
+          autoCapitalize="none"
+          spellCheck={false}
+          placeholder="@usuario"
+          defaultValue={inicial.instagram}
+          className="campo"
+          aria-invalid={e.instagram ? true : undefined}
+          aria-describedby={describir("instagram", true)}
+        />
+      </Campo>
+
+      <Campo
         id="enlace"
-        etiqueta="Enlace (opcional)"
-        ayuda="Sitio web o red social. Pegá la dirección completa, que empiece con https://."
+        etiqueta="Otro enlace (opcional)"
+        ayuda="Sitio web u otra red. Pegá la dirección completa, que empiece con https://."
         error={e.enlace}
       >
         <input

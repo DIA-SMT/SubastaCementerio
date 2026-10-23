@@ -55,6 +55,8 @@ export function TarjetaObra({
         <span aria-hidden className="absolute inset-x-0 bottom-0 z-10 h-0.5 origin-left scale-x-0 bg-oro transition-transform duration-300 ease-suave group-hover:scale-x-100" />
         <FotoObra
           foto={obra.portada}
+          // La obra entera, sin recortes: las fotos de las esculturas suelen ser verticales.
+          ajuste="contener"
           tamanos={tamanos}
           prioridad={prioridad}
           className="transition-transform duration-300 ease-suave group-hover:scale-[1.03]"

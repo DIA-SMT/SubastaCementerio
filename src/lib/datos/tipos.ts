@@ -49,8 +49,12 @@ export type ObraDetalle = ObraResumen & {
   tecnica: string | null;
   artistaResena: string;
   artistaEnlace: string | null;
+  /** Usuario de Instagram del artista, sin @. */
+  artistaInstagram: string | null;
   /** Ruta de la foto del artista (bucket "obras"), si se cargó. */
   artistaFotoRuta: string | null;
+  /** Medidas en centímetros (null si no se cargaron). */
+  medidas: { alto: number | null; ancho: number | null; profundidad: number | null; aproximadas: boolean };
   fotos: Foto[];
 };
 

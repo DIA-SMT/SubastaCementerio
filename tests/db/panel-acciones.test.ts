@@ -86,6 +86,10 @@ describe("despublicar una obra con ofertas", () => {
     artistaId: ARTISTA(n),
     resena: "Reseña de prueba.",
     tecnica: null,
+    altoCm: null,
+    anchoCm: null,
+    profundidadCm: null,
+    medidasAproximadas: false,
     precioSalida: null,
     publicada,
   });

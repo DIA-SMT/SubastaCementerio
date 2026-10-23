@@ -110,6 +110,10 @@ async function Contenido({ params, searchParams }: Pick<PageProps<"/admin/obras/
             artistaId: obra.artistaId,
             resena: obra.resena,
             tecnica: obra.tecnica,
+            altoCm: obra.altoCm,
+            anchoCm: obra.anchoCm,
+            profundidadCm: obra.profundidadCm,
+            medidasAproximadas: obra.medidasAproximadas,
             precioSalida: obra.precioSalida,
             publicada: obra.publicada,
           }}

@@ -21,7 +21,7 @@ export function FotoObra({
   foto: Foto | null;
   tamanos: string;
   prioridad?: boolean;
-  /** cubrir: llena el recuadro (tarjetas). contener: la obra entera, sin recortes (ficha). */
+  /** cubrir: llena el recuadro. contener: la obra entera, sin recortes (tarjetas y ficha). */
   ajuste?: "cubrir" | "contener";
   className?: string;
 }) {

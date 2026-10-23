@@ -89,7 +89,14 @@ export async function obtenerObra(numero: number, uid?: string | null): Promise<
       tecnica: (f.tecnica as string | null) ?? null,
       artistaResena: String(f.artista_resena ?? ""),
       artistaEnlace: (f.artista_enlace as string | null) ?? null,
+      artistaInstagram: (f.artista_instagram as string | null) ?? null,
       artistaFotoRuta: (f.artista_foto_ruta as string | null) ?? null,
+      medidas: {
+        alto: f.alto_cm == null ? null : Number(f.alto_cm),
+        ancho: f.ancho_cm == null ? null : Number(f.ancho_cm),
+        profundidad: f.profundidad_cm == null ? null : Number(f.profundidad_cm),
+        aproximadas: Boolean(f.medidas_aproximadas),
+      },
       fotos: fotos.map(
         (x): Foto => ({ ruta: x.ruta, alt: x.texto_alternativo, ancho: x.ancho, alto: x.alto }),
       ),

@@ -84,3 +84,17 @@ export function duracionEnPalabras(ms: number) {
   if (partes.length === 1) return partes[0];
   return `${partes.slice(0, -1).join(", ")} y ${partes.at(-1)}`;
 }
+
+const centimetros = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 1 });
+
+/** "80 × 30 × 40 cm (aprox.)"; sin profundidad, "80 × 30 cm". null si no hay medidas cargadas. */
+export function medidasTexto(m: {
+  alto: number | null;
+  ancho: number | null;
+  profundidad: number | null;
+  aproximadas: boolean;
+}) {
+  if (m.alto == null || m.ancho == null) return null;
+  const partes = [m.alto, m.ancho, m.profundidad].filter((x): x is number => x != null).map((x) => centimetros.format(x));
+  return `${partes.join(" × ")} cm${m.aproximadas ? " (aprox.)" : ""}`;
+}

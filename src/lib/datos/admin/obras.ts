@@ -81,6 +81,11 @@ export type ObraEnEdicion = {
   artistaNombre: string;
   resena: string;
   tecnica: string | null;
+  /** Medidas en centímetros (null si no se cargaron). */
+  altoCm: number | null;
+  anchoCm: number | null;
+  profundidadCm: number | null;
+  medidasAproximadas: boolean;
   /** Precio de salida propio de la obra; null = se usa el general. */
   precioSalida: number | null;
   publicada: boolean;
@@ -97,6 +102,7 @@ export async function obtenerObraAdmin(admin: Admin, id: string): Promise<ObraEn
     comoAdmin(admin),
     `select ob.id, ob.numero, ob.titulo, ob.artista_id, ar.nombre as artista_nombre,
             ob.resena, ob.tecnica, ob.precio_salida, ob.publicada, ob.es_ejemplo,
+            ob.alto_cm, ob.ancho_cm, ob.profundidad_cm, ob.medidas_aproximadas,
             lf.precio_base as oferta_actual,
             coalesce(lf.cantidad_ofertas, 0)::int as cantidad_ofertas,
             (select count(*)::int from public.ofertas o where o.obra_id = ob.id) as ofertas_registradas
@@ -115,6 +121,10 @@ export async function obtenerObraAdmin(admin: Admin, id: string): Promise<ObraEn
     artistaNombre: String(f.artista_nombre),
     resena: String(f.resena ?? ""),
     tecnica: (f.tecnica as string | null) ?? null,
+    altoCm: numeroONulo(f.alto_cm),
+    anchoCm: numeroONulo(f.ancho_cm),
+    profundidadCm: numeroONulo(f.profundidad_cm),
+    medidasAproximadas: Boolean(f.medidas_aproximadas),
     precioSalida: numeroONulo(f.precio_salida),
     publicada: Boolean(f.publicada),
     esEjemplo: Boolean(f.es_ejemplo),
@@ -150,6 +160,10 @@ export type DatosObra = {
   artistaId: string;
   resena: string;
   tecnica: string | null;
+  altoCm: number | null;
+  anchoCm: number | null;
+  profundidadCm: number | null;
+  medidasAproximadas: boolean;
   precioSalida: number | null;
   publicada: boolean;
 };
@@ -162,14 +176,19 @@ const valoresObra = (d: DatosObra) => [
   d.tecnica,
   d.precioSalida,
   d.publicada,
+  d.altoCm,
+  d.anchoCm,
+  d.profundidadCm,
+  d.medidasAproximadas,
 ];
 
 /** Crea la obra y devuelve su id. Lanza el error de Postgres si el número está repetido. */
 export async function crearObra(admin: Admin, datos: DatosObra): Promise<string> {
   const [f] = await consultar<{ id: string }>(
     comoAdmin(admin),
-    `insert into public.obras (numero, titulo, artista_id, resena, tecnica, precio_salida, publicada)
-     values ($1, $2, $3, $4, $5, $6, $7)
+    `insert into public.obras (numero, titulo, artista_id, resena, tecnica, precio_salida, publicada,
+                               alto_cm, ancho_cm, profundidad_cm, medidas_aproximadas)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
      returning id`,
     valoresObra(datos),
   );
@@ -229,8 +248,9 @@ export async function actualizarObra(
     const filas = await q(
       `update public.obras
        set numero = $1, titulo = $2, artista_id = $3, resena = $4, tecnica = $5,
-           precio_salida = $6, publicada = $7
-       where id = $8
+           precio_salida = $6, publicada = $7,
+           alto_cm = $8, ancho_cm = $9, profundidad_cm = $10, medidas_aproximadas = $11
+       where id = $12
        returning id`,
       [...valoresObra(datos), id],
     );

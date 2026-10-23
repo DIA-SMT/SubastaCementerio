@@ -12,6 +12,7 @@ import {
   crearArtista,
   type DatosArtista,
 } from "@/lib/datos/admin/artistas";
+import { usuarioInstagram } from "@/lib/validacion";
 
 // Acciones del panel para artistas. Cada una verifica la sesión del equipo.
 
@@ -38,6 +39,7 @@ function leerArtista(datos: FormData) {
     nombre: texto(datos, "nombre").replace(/\s+/g, " "),
     resena: String(datos.get("resena") ?? "").replace(/\r\n/g, "\n").trim(),
     enlace: texto(datos, "enlace"),
+    instagram: texto(datos, "instagram"),
   };
   const errores: Record<string, string> = {};
   if (!valores.nombre) errores.nombre = "Escribí el nombre del artista.";
@@ -46,13 +48,19 @@ function leerArtista(datos: FormData) {
   if (valores.enlace) {
     if (valores.enlace.length > MAX_ENLACE) errores.enlace = `El enlace puede tener hasta ${MAX_ENLACE} caracteres.`;
     else if (!enlaceValido(valores.enlace)) {
-      errores.enlace = "Pegá la dirección completa, que empiece con http:// o https://. Por ejemplo: https://www.instagram.com/usuario";
+      errores.enlace = "Pegá la dirección completa, que empiece con http:// o https://. Por ejemplo: https://www.sitio.com.ar";
     }
+  }
+  const instagram = valores.instagram ? usuarioInstagram(valores.instagram) : null;
+  if (valores.instagram && !instagram) {
+    errores.instagram =
+      "Escribí el usuario (por ejemplo, @usuario) o pegá la dirección del perfil (https://www.instagram.com/usuario).";
   }
   const artista: DatosArtista = {
     nombre: valores.nombre,
     resena: valores.resena,
     enlace: valores.enlace || null,
+    instagram,
   };
   return { artista, errores, valores };
 }
@@ -81,7 +89,12 @@ export async function actualizarArtistaAccion(_previo: EstadoAccion, datos: Form
     return { error: mensajeDeErrorDb(error), valores };
   }
   refresh();
-  return { ok: true, mensaje: "Guardamos los cambios.", valores };
+  // El campo vuelve a mostrar lo que quedó guardado: solo el usuario, con @.
+  return {
+    ok: true,
+    mensaje: "Guardamos los cambios.",
+    valores: { ...valores, instagram: artista.instagram ? `@${artista.instagram}` : "" },
+  };
 }
 
 export async function subirFotoArtistaAccion(_previo: EstadoAccion, datos: FormData): Promise<EstadoAccion> {
