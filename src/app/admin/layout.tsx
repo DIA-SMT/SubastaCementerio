@@ -5,6 +5,7 @@ import { FranjaEjemplo } from "@/components/Avisos";
 import { FondoSala } from "@/components/FondoSala";
 import { IconoFlecha } from "@/components/Iconos";
 import { Marca } from "@/components/Marca";
+import { GuiaPanel } from "@/components/admin/Recorrido";
 import { adminActual } from "@/lib/admin/sesion";
 import { salirDelPanel } from "./acciones";
 
@@ -60,11 +61,18 @@ async function Sesion() {
   const admin = await adminActual();
   if (!admin) return null;
   return (
-    <form action={salirDelPanel} className="flex items-center gap-3 border-l border-linea pl-3 sm:pl-4">
-      <span className="hidden text-[0.94rem] font-medium text-tinta sm:inline">{admin.nombre}</span>
-      <button type="submit" className="inline-flex min-h-10 items-center rounded-md bg-white px-4 text-[0.94rem] font-semibold text-tinta ring-1 ring-[#cfd3d8] transition-[box-shadow] duration-200 ring-inset hover:ring-tinta">
-        Salir
-      </button>
-    </form>
+    <>
+      {/* Recorrido guiado: solo con sesión del equipo. */}
+      <GuiaPanel />
+      <form action={salirDelPanel} className="flex items-center gap-3 border-l border-linea pl-3 sm:pl-4">
+        <span className="hidden text-[0.94rem] font-medium text-tinta sm:inline">{admin.nombre}</span>
+        <button
+          type="submit"
+          className="inline-flex min-h-10 items-center rounded-md bg-white px-4 text-[0.94rem] font-semibold text-tinta ring-1 ring-[#cfd3d8] transition-[box-shadow] duration-200 ring-inset hover:ring-tinta"
+        >
+          Salir
+        </button>
+      </form>
+    </>
   );
 }

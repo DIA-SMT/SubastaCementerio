@@ -86,7 +86,7 @@ function MenuPanel({ ruta }: { ruta: string | null }) {
   return (
     <>
       {/* Celular y tablet */}
-      <nav aria-label="Panel" className="border-b border-linea lg:hidden">
+      <nav aria-label="Panel" data-recorrido="menu" className="border-b border-linea lg:hidden">
         <button
           type="button"
           onClick={() => setAbierto((a) => !a)}
@@ -117,6 +117,7 @@ function MenuPanel({ ruta }: { ruta: string | null }) {
       />
       <nav
         aria-label="Panel"
+        data-recorrido="menu"
         className={`fondo-noche fixed top-[4.5rem] bottom-0 z-30 hidden flex-col pt-3 pb-5 transition-[width] duration-300 ease-suave lg:flex ${
           plegado ? "w-[4.25rem] px-2" : "w-56 px-3"
         }`}

@@ -37,7 +37,7 @@ function describir(id: string, conAyuda: boolean, error?: string) {
 
 function Seccion({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
-    <fieldset className="rounded-lg border border-linea bg-white p-5">
+    <fieldset data-recorrido={titulo} className="rounded-lg border border-linea bg-white p-5">
       <legend className="float-left mb-4 w-full text-xl font-semibold text-tinta">{titulo}</legend>
       <div className="clear-both space-y-5">{children}</div>
     </fieldset>

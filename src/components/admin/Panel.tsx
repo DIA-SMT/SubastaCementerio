@@ -23,7 +23,11 @@ export function TituloPanel({
         <h1 className="mt-1.5 text-[clamp(1.9rem,1.5rem+1vw,2.5rem)] leading-[1.05]">{titulo}</h1>
         {bajada && <p className="mt-2 text-gris">{bajada}</p>}
       </div>
-      {acciones && <div className="flex flex-wrap gap-3">{acciones}</div>}
+      {acciones && (
+        <div data-recorrido="acciones" className="flex flex-wrap gap-3">
+          {acciones}
+        </div>
+      )}
     </div>
   );
 }
@@ -31,7 +35,11 @@ export function TituloPanel({
 /** Bloque con borde para agrupar contenido dentro de una pantalla. */
 export function Tarjeta({ titulo, children, className = "" }: { titulo?: ReactNode; children: ReactNode; className?: string }) {
   return (
-    <section className={`rounded-lg bg-white p-5 shadow-suave ring-1 ring-linea md:p-6 ${className}`}>
+    // El título también identifica la tarjeta en el recorrido guiado (data-recorrido).
+    <section
+      data-recorrido={typeof titulo === "string" ? titulo : undefined}
+      className={`rounded-lg bg-white p-5 shadow-suave ring-1 ring-linea md:p-6 ${className}`}
+    >
       {titulo && <h2 className="mb-4 text-[1.45rem] leading-tight">{titulo}</h2>}
       {children}
     </section>

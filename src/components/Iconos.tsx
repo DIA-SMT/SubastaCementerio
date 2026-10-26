@@ -172,3 +172,11 @@ export const IconoAbajo = (p: Props) => (
     <path d="m6 9.5 6 6 6-6" />
   </Icono>
 );
+
+export const IconoAyuda = (p: Props) => (
+  <Icono {...p}>
+    <circle cx="12" cy="12" r="8.5" />
+    <path d="M9.6 9.4a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.1-2.4 3.7" />
+    <path d="M12 16.9v.1" />
+  </Icono>
+);

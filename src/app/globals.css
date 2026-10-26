@@ -151,6 +151,12 @@ body {
   outline-offset: 3px;
 }
 
+/* Título de cada paso del recorrido guiado: recibe el foco para anunciarse, pero no es un
+   control, así que no lleva contorno. */
+[data-recorrido-titulo]:focus-visible {
+  outline: none;
+}
+
 /* El redondeo sí va en la capa base: un control con su propio rounded-* lo conserva al
    recibir el foco; los enlaces de texto, que no tienen, toman 4 px. */
 @layer base {
