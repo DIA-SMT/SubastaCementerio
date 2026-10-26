@@ -74,7 +74,7 @@ npm run build
 | Servicio | Plan recomendado | Por qué |
 |---|---|---|
 | Supabase | Pro | El plan gratuito pausa el proyecto si no se usa y no hace copias de seguridad automáticas. |
-| Vercel | Pro | El plan Hobby es solo para uso personal y no permite el cron cada 10 minutos de los avisos (el despliegue falla con un cron más frecuente que diario). |
+| Vercel | Pro (recomendado) | El plan Hobby es solo para uso personal y admite crons diarios: con Hobby, el reintento de avisos corre una vez por día (ver el paso 5 del despliegue). |
 
 Conviene crear ambos proyectos cerca del público: Supabase en **South America (São Paulo)** y,
 en Vercel (Pro), la región de las funciones en **São Paulo (gru1)**
@@ -194,7 +194,7 @@ sirven para atender a quien avisa que su DNI ya figura.
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Sí | Clave pública (anon) del proyecto. |
    | `NEXT_PUBLIC_URL_SITIO` | Sí | Dirección pública del sitio (correos y QR). |
    | `RESEND_API_KEY` y `CORREO_REMITENTE` | Para los avisos | Avisos "te superaron". Sin ellas quedan pendientes. |
-   | `CRON_SECRET` | Para los avisos | Protege `/api/avisos`, que reintenta los avisos cada 10 minutos. |
+   | `CRON_SECRET` | Para los avisos | Protege `/api/avisos`, que reintenta los avisos que fallaron (una vez por día con el plan Hobby). |
    | `SUPABASE_CA_CERT` | Recomendada | Verifica el certificado de la base. |
 
    Las variables que empiezan con `NEXT_PUBLIC_` quedan fijas al compilar: cargalas antes del
@@ -208,11 +208,12 @@ sirven para atender a quien avisa que su DNI ya figura.
    advierte en los registros y en el tablero del panel. Los avisos que hayan quedado pendientes
    salen solos cuando se completa la configuración (con la próxima oferta o la próxima corrida
    del cron).
-5. **Con el plan Hobby de Vercel** (solo admite crons diarios), hay dos opciones: cambiar en
-   `vercel.json` la frecuencia a una diaria (`"0 3 * * *"`), o programar el llamado desde
-   Supabase con `pg_cron` + `pg_net` a `https://<sitio>/api/avisos` con el encabezado
-   `Authorization: Bearer <CRON_SECRET>` (guardado en Vault). Cada oferta aceptada ya dispara el
-   envío de la cola; el cron solo reintenta los que fallaron.
+5. **Cron y plan de Vercel.** `vercel.json` trae el reintento una vez por día (`"0 11 * * *"`,
+   las 8 de Tucumán), lo único que admite el plan Hobby: un cron más frecuente hace fallar el
+   despliegue. Cada oferta aceptada ya dispara el envío de la cola; el cron solo reintenta los
+   que fallaron. Con el plan Pro se puede volver a `"*/10 * * * *"`, o programar el llamado
+   desde Supabase con `pg_cron` + `pg_net` a `https://<sitio>/api/avisos` con el encabezado
+   `Authorization: Bearer <CRON_SECRET>` (guardado en Vault).
 
 ---
 
