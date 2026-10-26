@@ -45,7 +45,8 @@ vi.mock("@/lib/db", () => {
 });
 
 import { guardarConfiguracion } from "@/app/admin/(panel)/configuracion/acciones";
-import { actualizarObraAccion } from "@/app/admin/(panel)/obras/acciones";
+import { actualizarObraAccion, crearObraAccion } from "@/app/admin/(panel)/obras/acciones";
+import { guardarFoto } from "@/lib/almacenamiento";
 import { buscarOferentesAccion } from "@/app/admin/(panel)/oferentes/acciones";
 import {
   actualizarConfiguracion,
@@ -401,5 +402,56 @@ describe("búsqueda de oferentes", () => {
   it("sin texto o con «Ver a todas» vuelve al listado completo", async () => {
     expect(await buscarOferentesAccion(null, formulario({ q: "   " }))).toBeNull();
     expect(await buscarOferentesAccion(null, formulario({ q: "30000003", accion: "todas" }))).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Alta de una obra con su foto principal
+// ---------------------------------------------------------------------------
+
+describe("alta de una obra con foto", () => {
+  beforeAll(async () => {
+    prueba.db = await baseDePrueba();
+  });
+
+  const conFoto = (campos: Record<string, string | undefined>) => {
+    const datos = formulario(campos);
+    datos.set("foto", new File([new Uint8Array([1, 2, 3])], "foto.jpg", { type: "image/jpeg" }));
+    return datos;
+  };
+  const campos = (numero: number) => ({ numero: String(numero), artista_id: ARTISTA(1), titulo: `Prueba ${numero}` });
+  const idDeObra = async (numero: number) =>
+    (await directo<{ id: string }>("select id from public.obras where numero = $1", [numero]))[0]?.id;
+  const fotosDe = (id: string) =>
+    directo<{ ruta: string; texto_alternativo: string }>("select ruta, texto_alternativo from public.obra_fotos where obra_id = $1", [id]);
+
+  it("crea la obra y guarda la foto como portada", async () => {
+    vi.mocked(guardarFoto).mockResolvedValueOnce({ ruta: "obra-41/prueba.jpg", ancho: 800, alto: 1200 });
+    const datos = conFoto({ ...campos(41), texto_alternativo: "Cabeza pintada de rojo con objetos encima" });
+    await expect(crearObraAccion({}, datos)).rejects.toThrow(/redirect: \/admin\/obras\/[0-9a-f-]+\?creada=1$/);
+    const id = await idDeObra(41);
+    expect(await fotosDe(id)).toEqual([
+      { ruta: "obra-41/prueba.jpg", texto_alternativo: "Cabeza pintada de rojo con objetos encima" },
+    ]);
+  });
+
+  it("con foto pide el texto alternativo y no crea nada", async () => {
+    const r = await crearObraAccion({}, conFoto({ ...campos(42), texto_alternativo: "" }));
+    expect(r.errores?.texto_alternativo).toBeDefined();
+    expect(await idDeObra(42)).toBeUndefined();
+  });
+
+  it("si la foto falla, la obra queda creada y la página lo avisa", async () => {
+    vi.mocked(guardarFoto).mockRejectedValueOnce(new Error("No se pudo subir: prueba"));
+    const datos = conFoto({ ...campos(43), texto_alternativo: "Cabeza escultórica de prueba" });
+    await expect(crearObraAccion({}, datos)).rejects.toThrow(/\?creada=1&foto=error$/);
+    const id = await idDeObra(43);
+    expect(id).toBeDefined();
+    expect(await fotosDe(id)).toEqual([]);
+  });
+
+  it("sin foto, se crea como antes", async () => {
+    await expect(crearObraAccion({}, formulario(campos(44)))).rejects.toThrow(/\?creada=1$/);
+    expect(await idDeObra(44)).toBeDefined();
   });
 });

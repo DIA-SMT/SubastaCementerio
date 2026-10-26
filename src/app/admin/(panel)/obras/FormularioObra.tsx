@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import { BotonEnviar } from "@/components/admin/BotonEnviar";
 import { Campo, MensajeAccion } from "@/components/admin/Panel";
-import { estadoInicial } from "@/lib/admin/acciones";
+import { AYUDA_TEXTO_ALTERNATIVO, CampoFoto, useFotoElegida } from "@/components/admin/SubirFoto";
+import { estadoInicial, type EstadoAccion } from "@/lib/admin/acciones";
 import { pesos } from "@/lib/formato";
 import { actualizarObraAccion, crearObraAccion } from "./acciones";
 
@@ -48,8 +49,17 @@ export function FormularioObra({
   precioGeneral: number;
   numeroSugerido?: number;
 }) {
-  const [estado, enviar] = useActionState(obra ? actualizarObraAccion : crearObraAccion, estadoInicial);
+  // En el alta, la primera foto (opcional) se elige acá y viaja junto con los datos, ya achicada.
+  const foto = useFotoElegida();
+  const [estado, enviar] = useActionState(async (previo: EstadoAccion, datos: FormData) => {
+    if (obra) return actualizarObraAccion(previo, datos);
+    foto.marcarEnviada();
+    const lista = await foto.lista();
+    if (lista) datos.set("foto", lista.blob, "foto.jpg");
+    return crearObraAccion(previo, datos);
+  }, estadoInicial);
   const e = estado.errores ?? {};
+  const errorFoto = foto.errorLocal ?? (foto.eleccionNueva ? undefined : e.foto);
   const v = estado.valores;
 
   // Valores iniciales: lo último que se envió (si hubo) o lo guardado.
@@ -148,6 +158,39 @@ export function FormularioObra({
           ))}
         </select>
       </Campo>
+
+      {!obra && (
+        <fieldset className="space-y-5 rounded-lg border border-linea p-4 md:p-5">
+          <legend className="px-1 font-semibold text-tinta">Foto de la obra</legend>
+          <CampoFoto
+            campoRef={foto.registrarCampo}
+            alElegir={foto.alElegir}
+            procesando={foto.procesando}
+            preparada={foto.preparada}
+            id="foto"
+            etiqueta="Foto principal (opcional)"
+            ayuda="Es la portada en el catálogo. Elegí una imagen de la computadora o sacala con el celular; antes de subirla la achicamos a 2000 px por lado. Las demás fotos se cargan después de crear la obra."
+            error={errorFoto}
+          />
+          <Campo
+            id="texto_alternativo"
+            etiqueta="Texto alternativo de la foto"
+            ayuda={AYUDA_TEXTO_ALTERNATIVO}
+            error={e.texto_alternativo}
+          >
+            <input
+              id="texto_alternativo"
+              name="texto_alternativo"
+              maxLength={250}
+              autoComplete="off"
+              defaultValue={v?.texto_alternativo ?? ""}
+              className="campo"
+              aria-invalid={e.texto_alternativo ? true : undefined}
+              aria-describedby={describir("texto_alternativo")}
+            />
+          </Campo>
+        </fieldset>
+      )}
 
       <Campo
         id="tecnica"

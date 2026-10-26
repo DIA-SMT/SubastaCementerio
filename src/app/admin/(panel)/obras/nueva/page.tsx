@@ -19,7 +19,7 @@ export default function PaginaNuevaObra() {
       </p>
       <TituloPanel
         titulo="Nueva obra"
-        bajada="Completá los datos de la obra. Cuando la crees, vas a poder cargar las fotos."
+        bajada="Completá los datos y elegí la foto principal. Las demás fotos se cargan después de crear la obra."
       />
       <Suspense fallback={<Esqueleto />}>
         <Contenido />

@@ -123,19 +123,48 @@ function erroresDeGuardado(error: unknown, valores: Record<string, string>): Est
   return { error: mensajeDeErrorDb(error), valores };
 }
 
+/**
+ * Alta de la obra. Puede traer la primera foto ("foto", ya achicada en el navegador, con su
+ * texto alternativo): se guarda después de crear la obra. Si la foto falla, la obra queda
+ * creada igual y la página de la obra avisa que hay que volver a subirla.
+ */
 export async function crearObraAccion(_previo: EstadoAccion, datos: FormData): Promise<EstadoAccion> {
   const admin = await requerirAdmin();
   const { obra, errores, valores } = leerObra(datos);
+  const archivo = datos.get("foto");
+  const foto = archivo instanceof File && archivo.size > 0 ? archivo : null;
+  const textoAlternativo = texto(datos, "texto_alternativo");
+  const valoresConFoto = { ...valores, texto_alternativo: textoAlternativo };
+  if (foto) {
+    const errorAlt = validarTextoAlternativo(textoAlternativo);
+    if (errorAlt) errores.texto_alternativo = errorAlt;
+  }
   if (Object.keys(errores).length) {
-    return { errores, valores, error: "Revisá los datos marcados." };
+    return { errores, valores: valoresConFoto, error: "Revisá los datos marcados." };
   }
   let id: string;
   try {
     id = await crearObra(admin, obra);
   } catch (error) {
-    return erroresDeGuardado(error, valores);
+    return erroresDeGuardado(error, valoresConFoto);
   }
-  redirect(`/admin/obras/${id}?creada=1`);
+
+  let fotoGuardada = true;
+  if (foto) {
+    try {
+      const guardada = await guardarFoto(foto, `obra-${obra.numero}`);
+      try {
+        await agregarFotoObra(admin, id, { ...guardada, textoAlternativo });
+      } catch (error) {
+        await borrarFoto(guardada.ruta);
+        throw error;
+      }
+    } catch (error) {
+      console.error("La obra se creó, pero no se pudo guardar su foto:", errorDeFoto(error));
+      fotoGuardada = false;
+    }
+  }
+  redirect(`/admin/obras/${id}?creada=1${fotoGuardada ? "" : "&foto=error"}`);
 }
 
 /** Aviso antes de despublicar una obra con ofertas válidas. */

@@ -1,7 +1,7 @@
 "use client";
 
 import { unstable_rethrow } from "next/navigation";
-import { useActionState, useEffect, useId, useRef, useState, type ChangeEvent } from "react";
+import { useActionState, useCallback, useEffect, useId, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { BotonEnviar } from "@/components/admin/BotonEnviar";
 import { Campo, MensajeAccion } from "@/components/admin/Panel";
 import { estadoInicial, type EstadoAccion } from "@/lib/admin/acciones";
@@ -79,26 +79,11 @@ async function achicar(archivo: File): Promise<FotoPreparada> {
 }
 
 /**
- * Formulario para subir una foto. `guardarAction` es un Server Action que recibe el campo
- * "foto" (JPEG ya achicado), los campos `ocultos` y, si corresponde, "texto_alternativo".
+ * Foto elegida en un campo de archivo: la achica en el navegador apenas se elige y la deja
+ * lista para enviar. La usan SubirFoto (fotos de una obra existente o de un artista) y el alta
+ * de la obra, que sube la primera foto junto con los datos.
  */
-export function SubirFoto({
-  guardarAction,
-  ocultos,
-  conTextoAlternativo = true,
-  etiqueta = "Foto",
-  textoBoton = "Subir la foto",
-}: {
-  guardarAction: (estado: EstadoAccion, datos: FormData) => Promise<EstadoAccion>;
-  ocultos: Record<string, string>;
-  conTextoAlternativo?: boolean;
-  etiqueta?: string;
-  textoBoton?: string;
-}) {
-  const id = useId();
-  const idFoto = `${id}foto`;
-  const idAlt = `${id}alt`;
-
+export function useFotoElegida() {
   const [preparada, setPreparada] = useState<FotoPreparada | null>(null);
   const [procesando, setProcesando] = useState(false);
   const [errorLocal, setErrorLocal] = useState<string | null>(null);
@@ -121,6 +106,10 @@ export function SubirFoto({
       setProcesando(false);
       if (campo) campo.value = "";
     };
+  }, []);
+
+  const registrarCampo = useCallback((campo: HTMLInputElement | null) => {
+    entrada.current = campo;
   }, []);
 
   function descartar() {
@@ -179,66 +168,60 @@ export function SubirFoto({
     pendiente.current = promesa;
   }
 
-  const [estado, enviar] = useActionState(async (previo: EstadoAccion, datos: FormData): Promise<EstadoAccion> => {
-    setEleccionNueva(false);
-    const alt = String(datos.get("texto_alternativo") ?? "").trim();
-    const valores = conTextoAlternativo ? { texto_alternativo: alt } : undefined;
+  return {
+    preparada,
+    procesando,
+    errorLocal,
+    eleccionNueva,
+    /** Ref del campo de archivo (función: el objeto ref no sale del hook). */
+    registrarCampo,
+    alElegir,
+    /** Espera a que termine de prepararse la foto elegida (null si no hay ninguna lista). */
+    lista: () => pendiente.current ?? Promise.resolve(null),
+    /** Al enviar: el error que se muestre a partir de ahora es el del envío. */
+    marcarEnviada: () => setEleccionNueva(false),
+    /** Después de subirla: vacía el campo y la vista previa. */
+    vaciar: () => {
+      descartar();
+      if (entrada.current) entrada.current.value = "";
+    },
+  };
+}
 
-    const errores: Record<string, string> = {};
-    const lista = await (pendiente.current ?? Promise.resolve(null));
-    if (!lista) errores.foto = "Elegí una foto.";
-    if (conTextoAlternativo && alt.length < MIN_ALT) {
-      errores.texto_alternativo = alt
-        ? "La descripción es muy corta. Contá en pocas palabras qué se ve en la foto."
-        : "Escribí una descripción breve de la foto.";
-    }
-    if (!lista || Object.keys(errores).length) return { errores, valores };
-
-    datos.set("foto", lista.blob, "foto.jpg");
-    try {
-      const resultado = await guardarAction(previo, datos);
-      if (resultado.ok) {
-        descartar();
-        if (entrada.current) entrada.current.value = "";
-      }
-      return resultado;
-    } catch (error) {
-      // Deja pasar las redirecciones (por ejemplo, si venció la sesión).
-      unstable_rethrow(error);
-      return {
-        error: "No pudimos subir la foto. Revisá la conexión y probá de nuevo; si sigue fallando, probá con otra imagen.",
-        valores,
-      };
-    }
-  }, estadoInicial);
-
-  const e = estado.errores ?? {};
-  const errorFoto = errorLocal ?? (eleccionNueva ? undefined : e.foto);
-  const describir = (campo: string, error?: string) =>
-    [`${campo}-ayuda`, error && `${campo}-error`].filter(Boolean).join(" ");
-
+/** Campo de archivo con el aviso mientras se prepara y la vista previa de la foto lista. */
+export function CampoFoto({
+  campoRef,
+  alElegir,
+  procesando,
+  preparada,
+  id,
+  etiqueta,
+  error,
+  ayuda = "Elegí una imagen de la computadora o, desde el celular, sacá la foto en el momento. Antes de subirla la achicamos a 2000 px por lado como máximo.",
+}: {
+  /** De useFotoElegida: registrarCampo, alElegir, procesando y preparada. */
+  campoRef: (campo: HTMLInputElement | null) => void;
+  alElegir: (evento: ChangeEvent<HTMLInputElement>) => void;
+  procesando: boolean;
+  preparada: FotoPreparada | null;
+  id: string;
+  etiqueta: ReactNode;
+  error?: string;
+  ayuda?: ReactNode;
+}) {
   return (
-    <form action={enviar} className="space-y-5" noValidate>
-      {Object.entries(ocultos).map(([nombre, valor]) => (
-        <input key={nombre} type="hidden" name={nombre} value={valor} />
-      ))}
-
-      <Campo
-        id={idFoto}
-        etiqueta={etiqueta}
-        ayuda="Elegí una imagen de la computadora o, desde el celular, sacá la foto en el momento. Antes de subirla la achicamos a 2000 px por lado como máximo."
-        error={errorFoto}
-      >
+    <>
+      <Campo id={id} etiqueta={etiqueta} ayuda={ayuda} error={error}>
         {/* Sin name: se envía la versión achicada, nunca el archivo original. */}
         <input
-          ref={entrada}
-          id={idFoto}
+          ref={campoRef}
+          id={id}
           type="file"
           accept="image/*"
           onChange={alElegir}
           className="block w-full cursor-pointer rounded-md border-2 border-dashed border-linea bg-fondo p-3 text-base text-tinta file:mr-4 file:min-h-12 file:cursor-pointer file:rounded-lg file:border-0 file:bg-azul file:px-4 file:font-semibold file:text-white hover:file:bg-azul-profundo"
-          aria-invalid={errorFoto ? true : undefined}
-          aria-describedby={describir(idFoto, errorFoto)}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={[`${id}-ayuda`, error && `${id}-error`].filter(Boolean).join(" ")}
         />
       </Campo>
 
@@ -259,18 +242,94 @@ export function SubirFoto({
           />
           <figcaption className="text-base text-gris">
             Lista para subir: {preparada.ancho} × {preparada.alto} px, {pesoLegible(preparada.blob.size)}
-            {preparada.pesoOriginal > preparada.blob.size && ` (la original pesaba ${pesoLegible(preparada.pesoOriginal)})`}.
+            {preparada.pesoOriginal > preparada.blob.size && ` (la original pesaba ${pesoLegible(preparada.pesoOriginal)})`}
+            .
           </figcaption>
         </figure>
       )}
+    </>
+  );
+}
+
+/** Ayuda del texto alternativo, la misma en todos los formularios de fotos. */
+export const AYUDA_TEXTO_ALTERNATIVO =
+  "Descripción breve de lo que se ve, para las personas que usan lector de pantalla. Por ejemplo: «Cabeza escultórica pintada de azul, con flores de papel en la frente».";
+
+/**
+ * Formulario para subir una foto. `guardarAction` es un Server Action que recibe el campo
+ * "foto" (JPEG ya achicado), los campos `ocultos` y, si corresponde, "texto_alternativo".
+ */
+export function SubirFoto({
+  guardarAction,
+  ocultos,
+  conTextoAlternativo = true,
+  etiqueta = "Foto",
+  textoBoton = "Subir la foto",
+}: {
+  guardarAction: (estado: EstadoAccion, datos: FormData) => Promise<EstadoAccion>;
+  ocultos: Record<string, string>;
+  conTextoAlternativo?: boolean;
+  etiqueta?: string;
+  textoBoton?: string;
+}) {
+  const id = useId();
+  const idFoto = `${id}foto`;
+  const idAlt = `${id}alt`;
+  const foto = useFotoElegida();
+
+  const [estado, enviar] = useActionState(async (previo: EstadoAccion, datos: FormData): Promise<EstadoAccion> => {
+    foto.marcarEnviada();
+    const alt = String(datos.get("texto_alternativo") ?? "").trim();
+    const valores = conTextoAlternativo ? { texto_alternativo: alt } : undefined;
+
+    const errores: Record<string, string> = {};
+    const lista = await foto.lista();
+    if (!lista) errores.foto = "Elegí una foto.";
+    if (conTextoAlternativo && alt.length < MIN_ALT) {
+      errores.texto_alternativo = alt
+        ? "La descripción es muy corta. Contá en pocas palabras qué se ve en la foto."
+        : "Escribí una descripción breve de la foto.";
+    }
+    if (!lista || Object.keys(errores).length) return { errores, valores };
+
+    datos.set("foto", lista.blob, "foto.jpg");
+    try {
+      const resultado = await guardarAction(previo, datos);
+      if (resultado.ok) foto.vaciar();
+      return resultado;
+    } catch (error) {
+      // Deja pasar las redirecciones (por ejemplo, si venció la sesión).
+      unstable_rethrow(error);
+      return {
+        error: "No pudimos subir la foto. Revisá la conexión y probá de nuevo; si sigue fallando, probá con otra imagen.",
+        valores,
+      };
+    }
+  }, estadoInicial);
+
+  const e = estado.errores ?? {};
+  const errorFoto = foto.errorLocal ?? (foto.eleccionNueva ? undefined : e.foto);
+  const describir = (campo: string, error?: string) =>
+    [`${campo}-ayuda`, error && `${campo}-error`].filter(Boolean).join(" ");
+
+  return (
+    <form action={enviar} className="space-y-5" noValidate>
+      {Object.entries(ocultos).map(([nombre, valor]) => (
+        <input key={nombre} type="hidden" name={nombre} value={valor} />
+      ))}
+
+      <CampoFoto
+        campoRef={foto.registrarCampo}
+        alElegir={foto.alElegir}
+        procesando={foto.procesando}
+        preparada={foto.preparada}
+        id={idFoto}
+        etiqueta={etiqueta}
+        error={errorFoto}
+      />
 
       {conTextoAlternativo && (
-        <Campo
-          id={idAlt}
-          etiqueta="Texto alternativo"
-          ayuda="Descripción breve de lo que se ve, para las personas que usan lector de pantalla. Por ejemplo: «Cabeza escultórica pintada de azul, con flores de papel en la frente»."
-          error={e.texto_alternativo}
-        >
+        <Campo id={idAlt} etiqueta="Texto alternativo" ayuda={AYUDA_TEXTO_ALTERNATIVO} error={e.texto_alternativo}>
           <input
             id={idAlt}
             name="texto_alternativo"

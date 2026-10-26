@@ -49,9 +49,18 @@ async function Contenido({ params, searchParams }: Pick<PageProps<"/admin/obras/
     searchParams,
   ]);
   if (!obra) notFound();
-  // "?creada=1" queda en la dirección mientras se trabaja en la página: el aviso deja de
-  // mostrarse cuando ya se cargó la primera foto.
-  const recienCreada = parametros.creada === "1" && fotos.length === 0;
+  // "?creada=1" queda en la dirección mientras se trabaja en la página: el aviso cambia (o deja
+  // de mostrarse) a medida que se cargan las fotos.
+  const creada = parametros.creada === "1";
+  const avisoAlta: Parameters<typeof MensajeAccion>[0]["estado"] | null = !creada
+    ? null
+    : fotos.length === 0
+      ? parametros.foto === "error"
+        ? { error: "La obra quedó creada, pero no pudimos guardar la foto. Subila de nuevo en «Fotos», más abajo." }
+        : { ok: true, mensaje: "La obra quedó creada. Ahora cargá las fotos: la primera de la lista es la portada." }
+      : fotos.length === 1
+        ? { ok: true, mensaje: "La obra quedó creada con su foto. Si querés, sumá más fotos abajo." }
+        : null;
 
   return (
     <>
@@ -95,11 +104,7 @@ async function Contenido({ params, searchParams }: Pick<PageProps<"/admin/obras/
         </p>
       </div>
 
-      {recienCreada && (
-        <MensajeAccion
-          estado={{ ok: true, mensaje: "La obra quedó creada. Ahora cargá las fotos: la primera de la lista es la portada." }}
-        />
-      )}
+      {avisoAlta && <MensajeAccion estado={avisoAlta} />}
 
       <Tarjeta titulo="Datos de la obra" className="max-w-4xl">
         <FormularioObra
