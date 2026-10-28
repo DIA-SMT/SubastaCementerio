@@ -198,3 +198,37 @@ describe("bases: extensión del cierre", () => {
     await db.close();
   });
 });
+
+// 20261028120000_catalogo_muestra.sql: página "La muestra" y portada con 24 obras.
+describe("catálogo de la muestra", () => {
+  it("crea «La muestra» como provisoria y la portada habla de 24 obras", async () => {
+    const db = await baseDePrueba(false);
+    const por = Object.fromEntries(
+      (
+        await db.query<{ slug: string; titulo: string; contenido: string; provisorio: boolean }>(
+          "select slug, titulo, contenido, provisorio from public.paginas",
+        )
+      ).rows.map((p) => [p.slug, p]),
+    );
+    expect(por["la-muestra"]).toMatchObject({ titulo: "La muestra", provisorio: true });
+    expect(por["la-muestra"].contenido).toContain("**Dra. Rossana Chahla**, Intendenta de San Miguel de Tucumán.");
+    expect(por["la-muestra"].contenido).toContain("- 24. Ariel Xamena");
+    expect(por["la-muestra"].contenido).toContain("## Créditos");
+    expect(por.portada.contenido).toContain("Veinticuatro artistas contemporáneos");
+    expect(por.portada.contenido).not.toContain("Veinticinco");
+    expect(por.portada.contenido).toContain("[La muestra](/la-muestra)");
+    await db.close();
+  });
+
+  it("no pisa la portada si el equipo ya la editó", async () => {
+    const db = await PGlite.create({ extensions: { pgcrypto } });
+    await db.exec(leer("supabase", "local", "shim.sql"));
+    const todas = listarMigraciones();
+    await aplicar(db, todas.filter((a) => a < "20261028120000_catalogo_muestra.sql"), sinCambios);
+    await db.query("update public.paginas set contenido = 'Portada editada por el equipo.' where slug = 'portada'");
+    await aplicar(db, ["20261028120000_catalogo_muestra.sql"], sinCambios);
+    const [p] = (await db.query<{ contenido: string }>("select contenido from public.paginas where slug = 'portada'")).rows;
+    expect(p.contenido).toBe("Portada editada por el equipo.");
+    await db.close();
+  });
+});

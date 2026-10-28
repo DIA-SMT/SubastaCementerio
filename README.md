@@ -1,6 +1,6 @@
 # Subasta solidaria — Cementerio del Oeste
 
-Plataforma de la etapa virtual de la subasta solidaria de las 25 cabezas escultóricas.
+Plataforma de la etapa virtual de la subasta solidaria de las 24 cabezas escultóricas de la muestra "Memorias del futuro".
 Municipalidad de San Miguel de Tucumán · Dirección de Cementerios. Desarrollado por la
 Dirección de Inteligencia Artificial.
 
@@ -220,6 +220,11 @@ sirven para atender a quien avisa que su DNI ya figura.
 ## 4. Carga de las obras reales
 
 Todo se hace desde el panel (`/admin`), con una cuenta del equipo.
+
+Para no cargar a mano la base de las 24 obras, `npm run db:catalogo` deja en Supabase los 24
+artistas y sus obras con el número del catálogo (01 a 24, por apellido), **sin publicar**. Con
+`npm run db:catalogo -- --ver` muestra qué haría sin tocar nada. No pisa obras que ya existan.
+Después, en el panel, se completa cada obra y se publica.
 
 1. **Configuración**: cargá las fechas de inicio y cierre de la etapa virtual (hora de
    Tucumán), la fecha de la subasta presencial, el incremento mínimo y el precio de salida.

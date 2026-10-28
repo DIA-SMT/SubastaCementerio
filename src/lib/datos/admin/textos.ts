@@ -20,6 +20,12 @@ export type PaginaEditable = {
 
 export const PAGINAS_EDITABLES: readonly PaginaEditable[] = [
   { slug: "portada", nombre: "Portada", ruta: "/", aprobacion: null },
+  {
+    slug: "la-muestra",
+    nombre: "La muestra (presentación, artistas y créditos)",
+    ruta: "/la-muestra",
+    aprobacion: "Es el texto del catálogo oficial de la muestra. Si cambia el catálogo, actualizalo acá.",
+  },
   { slug: "como-participar", nombre: "Cómo participar", ruta: "/como-participar", aprobacion: null },
   {
     slug: "bases-y-condiciones",

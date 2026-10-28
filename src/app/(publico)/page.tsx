@@ -184,6 +184,7 @@ async function Iniciativa() {
             {resto.trim() && <Markdown texto={resto} />}
             <ul className="mt-10 divide-y divide-linea border-y border-tinta">
               {[
+                { href: "/la-muestra", texto: "La muestra: presentación, artistas y créditos" },
                 { href: "/destino", texto: "Destino de lo recaudado" },
                 { href: "/bases-y-condiciones", texto: "Bases y condiciones" },
               ].map((e) => (

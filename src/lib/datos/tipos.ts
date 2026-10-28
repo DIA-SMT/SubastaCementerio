@@ -66,7 +66,13 @@ export type OfertaPublica = {
   esPropia: boolean;
 };
 
-export type SlugPagina = "portada" | "como-participar" | "bases-y-condiciones" | "destino" | "privacidad";
+export type SlugPagina =
+  | "portada"
+  | "como-participar"
+  | "bases-y-condiciones"
+  | "destino"
+  | "privacidad"
+  | "la-muestra";
 
 export type Pagina = {
   slug: SlugPagina;

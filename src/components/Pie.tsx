@@ -14,6 +14,7 @@ const GRUPOS = [
   {
     titulo: "Información",
     enlaces: [
+      { href: "/la-muestra", texto: "La muestra y créditos" },
       { href: "/bases-y-condiciones", texto: "Bases y condiciones" },
       { href: "/destino", texto: "Destino de lo recaudado" },
       { href: "/privacidad", texto: "Privacidad" },
