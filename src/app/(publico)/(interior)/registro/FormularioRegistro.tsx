@@ -1,8 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, type ReactNode } from "react";
+import { TextoEnRecuadro } from "@/components/TextoEnRecuadro";
 import { registrarse, type EstadoRegistro } from "./acciones";
+
+/** Texto de las bases o de la privacidad, ya armado en el servidor, para leerlo en un recuadro. */
+export type TextoLegal = { titulo: string; contenido: ReactNode };
 
 function MensajeError({ id, texto }: { id: string; texto?: string }) {
   if (!texto) return null;
@@ -14,11 +17,26 @@ function MensajeError({ id, texto }: { id: string; texto?: string }) {
   );
 }
 
-export function FormularioRegistro({ volver, email }: { volver: string; email: string }) {
+export function FormularioRegistro({
+  volver,
+  email,
+  bases,
+  privacidad,
+}: {
+  volver: string;
+  email: string;
+  bases: TextoLegal;
+  privacidad: TextoLegal;
+}) {
   const [estado, enviar, enviando] = useActionState<EstadoRegistro, FormData>(registrarse, {});
   const e = estado.errores ?? {};
   const v = estado.valores ?? {};
   const formulario = useRef<HTMLFormElement>(null);
+  // «Leí y acepto» en el recuadro marca la casilla correspondiente.
+  const marcar = (nombre: "bases" | "privacidad") => {
+    const casillaElegida = formulario.current?.querySelector<HTMLInputElement>(`input[name="${nombre}"]`);
+    if (casillaElegida) casillaElegida.checked = true;
+  };
 
   // Después de un envío con errores, el foco va al primer campo para revisar (el lector lee su
   // error) o, si el error es general, al aviso.
@@ -88,20 +106,25 @@ export function FormularioRegistro({ volver, email }: { volver: string; email: s
           <input type="checkbox" {...casilla("bases")} />
           <span>
             Leí y acepto las{" "}
-            <Link href="/bases-y-condiciones" target="_blank" className="enlace">
-              bases y condiciones
-            </Link>{" "}
-            (se abren en otra pestaña).
+            <TextoEnRecuadro etiqueta="bases y condiciones" titulo={bases.titulo} href="/bases-y-condiciones" alAceptar={() => marcar("bases")}>
+              {bases.contenido}
+            </TextoEnRecuadro>
+            .
           </span>
         </label>
         <label className="flex items-start gap-3 text-lg">
           <input type="checkbox" {...casilla("privacidad")} />
           <span>
             Acepto que mis datos se usen según la{" "}
-            <Link href="/privacidad" target="_blank" className="enlace">
-              política de privacidad
-            </Link>{" "}
-            (se abre en otra pestaña).
+            <TextoEnRecuadro
+              etiqueta="política de privacidad"
+              titulo={privacidad.titulo}
+              href="/privacidad"
+              alAceptar={() => marcar("privacidad")}
+            >
+              {privacidad.contenido}
+            </TextoEnRecuadro>
+            .
           </span>
         </label>
         <MensajeError id="error-aceptacion" texto={e.aceptacion} />
