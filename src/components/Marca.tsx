@@ -8,6 +8,14 @@ import path from "node:path";
 
 const LOGOS = {
   "smt-blanco": { archivo: "logo-smt-blanco.png", nombre: "Ciudad SMT", marcador: "Logo Ciudad SMT", alto: 44, proporcion: 507 / 206 },
+  // A color, para fondos oscuros: isologo azul, celeste y amarillo con el texto en blanco.
+  "smt-color": {
+    archivo: "logo-smt-color.png",
+    nombre: "Ciudad San Miguel de Tucumán",
+    marcador: "Logo Ciudad San Miguel de Tucumán",
+    alto: 44,
+    proporcion: 910 / 297,
+  },
   "muni-iso": { archivo: "logo-muni-iso.png", nombre: "Municipalidad de San Miguel de Tucumán", marcador: "Isologo", alto: 56, proporcion: 1 },
   ia: { archivo: "logo-ia.png", nombre: "Dirección de Inteligencia Artificial", marcador: "Logo DIA", alto: 36, proporcion: 526 / 220 },
 } as const;

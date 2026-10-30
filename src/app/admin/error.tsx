@@ -4,7 +4,7 @@ import Link from "next/link";
 import { TituloSeccion } from "@/components/TituloSeccion";
 
 // Errores del layout del panel (la verificación de la sesión, el menú) y del ingreso del
-// equipo. Queda dentro del encabezado y el pie del panel, pero fuera de su main: lleva el suyo.
+// equipo. Queda dentro del tema del panel, pero sin su menú ni su barra: lleva su propio main.
 export default function ErrorDelPanel({ retry }: { error: unknown; retry: () => void }) {
   return (
     <main id="contenido" className="flex-1">

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Esqueleto, TituloPanel } from "@/components/admin/Panel";
+import { EsqueletoTabla, TituloPanel } from "@/components/admin/Panel";
 import { requerirAdmin } from "@/lib/admin/sesion";
 import { buscarOferentes } from "@/lib/datos/admin/oferentes";
 import { BuscadorOferentes } from "./BuscadorOferentes";
@@ -14,7 +14,7 @@ export default function Pagina() {
         titulo="Oferentes"
         bajada="Personas registradas para ofertar. Sus datos personales solo se ven en el panel: no los copies en mensajes ni planillas fuera del equipo."
       />
-      <Suspense fallback={<Esqueleto />}>
+      <Suspense fallback={<EsqueletoTabla />}>
         <Contenido />
       </Suspense>
     </div>

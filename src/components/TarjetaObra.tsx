@@ -51,8 +51,8 @@ export function TarjetaObra({
   return (
     <article className="tarjeta-obra @container group relative flex h-full flex-col overflow-hidden rounded-lg bg-white shadow-suave ring-1 ring-tinta/[0.05] transition-shadow duration-300 ease-suave hover:shadow-elevada">
       <div className="relative aspect-[4/5] overflow-hidden bg-piedra">
-        {/* Filete en oro que aparece al pasar el mouse, entre la foto y los datos. */}
-        <span aria-hidden className="absolute inset-x-0 bottom-0 z-10 h-0.5 origin-left scale-x-0 bg-oro transition-transform duration-300 ease-suave group-hover:scale-x-100" />
+        {/* Filete azul que aparece al pasar el mouse, entre la foto y los datos. */}
+        <span aria-hidden className="absolute inset-x-0 bottom-0 z-10 h-0.5 origin-left scale-x-0 bg-smt transition-transform duration-300 ease-suave group-hover:scale-x-100" />
         <FotoObra
           foto={obra.portada}
           // La obra entera, sin recortes: las fotos de las esculturas suelen ser verticales.
@@ -65,14 +65,14 @@ export function TarjetaObra({
 
       <div className="flex flex-1 flex-col p-3.5 @min-[15rem]:p-5">
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-          <span className="text-[0.72rem] font-semibold tracking-[0.12em] text-dorado uppercase tabular-nums">
+          <span className="text-[0.72rem] font-semibold tracking-[0.12em] text-smt-intenso uppercase tabular-nums">
             Obra {String(obra.numero).padStart(2, "0")}
           </span>
           <span className="hidden @min-[15rem]:inline-flex">
             <EstadoChip fase={fase} texto={estadoDeObra(obra, fase)} />
           </span>
         </div>
-        <h3 className="mt-1.5 font-serif text-[1.15rem] leading-snug font-medium tracking-[-0.005em] @min-[15rem]:text-[1.55rem] @min-[15rem]:leading-tight">
+        <h3 className="mt-1.5 font-display text-[1.02rem] leading-snug font-semibold tracking-[-0.015em] @min-[15rem]:text-[1.2rem] @min-[15rem]:leading-tight">
           <Link href={`/obras/${obra.numero}`} className="enlace-tarjeta after:absolute after:inset-0 after:z-0">
             <span className={obra.titulo ? "" : "italic"}>{tituloObra(obra.titulo)}</span>
           </Link>
@@ -107,7 +107,7 @@ export function TarjetaObra({
                 <span className="sr-only"> por la obra N° {obra.numero}</span>
                 <span
                   aria-hidden
-                  className="flex h-10 w-10 items-center justify-center rounded-md bg-noche text-marfil transition-colors duration-200 group-hover/oferta:bg-oro group-hover/oferta:text-noche"
+                  className="flex h-10 w-10 items-center justify-center rounded-md bg-smt text-white transition-colors duration-200 group-hover/oferta:bg-marino"
                 >
                   <IconoFlecha className="transition-transform duration-200 group-hover:translate-x-0.5" />
                 </span>
@@ -118,7 +118,7 @@ export function TarjetaObra({
                 className="hidden shrink-0 items-center gap-2.5 py-1 text-[0.9rem] font-semibold text-tinta @min-[15rem]:inline-flex"
               >
                 Ver obra
-                <span className="flex h-10 w-10 items-center justify-center rounded-md ring-1 ring-linea transition-colors duration-200 ring-inset group-hover:ring-oro">
+                <span className="flex h-10 w-10 items-center justify-center rounded-md ring-1 ring-linea transition-colors duration-200 ring-inset group-hover:ring-smt">
                   <IconoFlecha className="transition-transform duration-200 group-hover:translate-x-0.5" />
                 </span>
               </span>

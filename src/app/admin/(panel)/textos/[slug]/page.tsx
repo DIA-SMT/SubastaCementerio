@@ -14,11 +14,6 @@ export const metadata: Metadata = { title: "Editar texto" };
 export default function Pagina(props: PageProps<"/admin/textos/[slug]">) {
   return (
     <div className="space-y-6">
-      <p>
-        <Link href="/admin/textos" className="enlace">
-          ← Volver a Textos
-        </Link>
-      </p>
       <Suspense fallback={<Esqueleto alto="h-96" />}>
         <Contenido params={props.params} />
       </Suspense>
@@ -42,6 +37,7 @@ async function Contenido({ params }: { params: PageProps<"/admin/textos/[slug]">
   return (
     <>
       <TituloPanel
+        migas={[{ href: "/admin/textos", texto: "Textos" }]}
         titulo={info.nombre}
         bajada={
           <>

@@ -32,7 +32,7 @@ export default function Inicio() {
         className="relative overflow-hidden border-y border-white/50 bg-papel/[0.92] backdrop-blur-md"
         aria-labelledby="titulo-pasos"
       >
-        <OrnamentoOlivo className="pointer-events-none absolute -top-8 -right-12 w-56 text-dorado-suave/40 md:w-80" />
+        <OrnamentoOlivo className="pointer-events-none absolute -top-8 -right-12 w-56 text-celeste/40 md:w-80" />
         <div className="contenedor relative py-20 md:py-28">
           <div className="max-w-2xl lg:mx-auto lg:text-center">
             <TituloSeccion id="titulo-pasos" antetitulo="Sala 02 · Participar">
@@ -41,7 +41,7 @@ export default function Inicio() {
             <p className="mt-5 text-texto">
               No necesitás crear una contraseña. Te identificás con tu correo y un código de seis números.
             </p>
-            <Divisor className="mt-8 h-4 w-48 text-oro/70 lg:mx-auto" />
+            <Divisor className="mt-8 h-4 w-48 text-smt/45 lg:mx-auto" />
           </div>
           <div className="mt-14 md:mt-16">
             <PasosParticipar />
@@ -83,7 +83,7 @@ function RecorridoSalas() {
               href={sala.href}
               className="group flex min-h-20 flex-col justify-center gap-1 px-3 transition-colors duration-200 hover:bg-white/40 sm:min-h-24 sm:flex-row sm:items-center sm:justify-start sm:gap-4 sm:px-6"
             >
-              <span className="font-serif text-[1.15rem] leading-none font-medium text-dorado tabular-nums">
+              <span className="font-display text-[1rem] leading-none font-semibold text-smt-intenso tabular-nums">
                 {sala.numero}
               </span>
               <span className="text-[0.74rem] leading-tight font-semibold text-tinta sm:text-[0.9rem]">
@@ -112,36 +112,36 @@ async function Hero() {
 
   return (
     <>
-      {/* Panel en azul noche a la izquierda; a la derecha, una arcada en oro enmarca la sala del
+      {/* Panel en azul noche a la izquierda; a la derecha, una arcada celeste enmarca la sala del
           fondo. En el celular, el arco queda de fondo dentro del panel. */}
       <section
         aria-labelledby="titulo-portada"
         className="relative lg:grid lg:min-h-[84svh] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]"
       >
-        <div className="fondo-noche relative overflow-hidden">
+        <div className="fondo-arcos relative overflow-hidden">
           <div className="relative flex min-h-[78svh] flex-col justify-end px-4 pt-32 pb-14 sm:px-6 lg:min-h-0 lg:h-full lg:justify-center lg:py-24 lg:pr-16 lg:pl-[max(2.5rem,calc((100vw-75rem)/2+2.5rem))]">
             <div className="max-w-[38rem]">
               <p className="antetitulo entrada">Muestra y subasta solidaria</p>
-              <span aria-hidden className="filete-oro entrada mt-5" style={retraso(40)} />
+              <span aria-hidden className="filete entrada mt-5" style={retraso(40)} />
               <h1 id="titulo-portada" className="entrada mt-6 text-display" style={retraso(80)}>
                 {pagina?.titulo ?? "Memorias del futuro"}
               </h1>
               {bajada && (
-                <p className="entrada mt-6 max-w-[34rem] text-marfil/85" style={retraso(160)}>
+                <p className="entrada mt-6 max-w-[34rem] text-white/85" style={retraso(160)}>
                   {bajada}
                 </p>
               )}
               <div className="entrada mt-9 flex flex-wrap items-center gap-4" style={retraso(260)}>
-                <Link href="/obras" className="boton-oro group">
+                <Link href="/obras" className="boton-acento group">
                   Explorar las obras
                   <IconoFlecha className="transition-transform duration-200 group-hover:translate-x-0.5" />
                 </Link>
-                <Link href="#iniciativa" className="boton-noche-secundario">
+                <Link href="#iniciativa" className="boton-claro-secundario">
                   Conocer la iniciativa
                 </Link>
               </div>
               <p
-                className="entrada mt-12 border-t border-oro/35 pt-5 text-[0.78rem] font-medium tracking-[0.12em] text-oro-claro uppercase"
+                className="entrada mt-12 border-t border-white/20 pt-5 text-[0.78rem] font-medium tracking-[0.12em] text-marino-tenue uppercase"
                 style={retraso(320)}
               >
                 Cementerio del Oeste · San Miguel de Tucumán
@@ -150,8 +150,8 @@ async function Hero() {
           </div>
         </div>
         <div aria-hidden className="relative hidden items-end justify-center overflow-hidden lg:flex">
-          <div className="absolute inset-0 bg-linear-to-r from-noche/35 to-transparent to-40%" />
-          <OrnamentoArco className="entrada-foto relative -mb-px h-[80%] max-h-[40rem] text-oro" />
+          <div className="absolute inset-0 bg-linear-to-r from-marino/35 to-transparent to-40%" />
+          <OrnamentoArco className="entrada-foto relative -mb-px h-[80%] max-h-[40rem] text-celeste/60" />
         </div>
       </section>
 
@@ -176,10 +176,10 @@ async function Iniciativa() {
             Una invitación a mirar el patrimonio desde nuevas perspectivas y convertir esa experiencia en una acción
             solidaria.
           </p>
-          <Divisor className="mt-8 h-4 w-40 text-oro/70" />
+          <Divisor className="mt-8 h-4 w-40 text-smt/45" />
         </div>
         <div className="relative overflow-hidden rounded-lg bg-white/70 p-6 shadow-suave ring-1 ring-white/60 backdrop-blur-md md:p-9 lg:col-span-7 lg:col-start-6">
-          <OrnamentoRoseton className="pointer-events-none absolute -top-16 -right-16 w-48 text-oro/15" />
+          <OrnamentoRoseton className="pointer-events-none absolute -top-16 -right-16 w-48 text-smt/10" />
           <div className="relative">
             {resto.trim() && <Markdown texto={resto} />}
             <ul className="mt-10 divide-y divide-linea border-y border-tinta">
@@ -219,25 +219,25 @@ async function AccesoObras() {
     <section id="catalogo" className="contenedor pt-[30svh] md:pt-[40svh]" aria-labelledby="titulo-acceso-obras">
       <Link
         href="/obras"
-        className="fondo-noche group relative block overflow-hidden px-6 py-10 shadow-elevada sm:px-10 sm:py-12 md:px-14 md:py-16"
+        className="fondo-arcos group relative block overflow-hidden px-6 py-10 shadow-elevada sm:px-10 sm:py-12 md:px-14 md:py-16"
       >
-        <OrnamentoArco className="pointer-events-none absolute -right-6 -bottom-20 hidden w-64 text-oro/25 md:block" />
-        {/* Filete interior en oro, como el marco de los cuadros de la sala. */}
+        <OrnamentoArco className="pointer-events-none absolute -right-6 -bottom-20 hidden w-64 text-celeste/25 md:block" />
+        {/* Filete interior celeste, como el marco de los cuadros de la sala. */}
         <span
           aria-hidden
-          className="absolute inset-3 border border-oro/45 transition-colors duration-300 group-hover:border-oro/90"
+          className="absolute inset-3 border border-celeste/40 transition-colors duration-300 group-hover:border-celeste/90"
         />
         <span className="relative grid gap-10 md:grid-cols-12 md:items-end">
           <span className="md:col-span-7">
-            <span className="block text-rotulo font-semibold text-oro-claro uppercase">Sala 03 · Colección completa</span>
+            <span className="block text-rotulo font-semibold text-marino-tenue uppercase">Sala 03 · Colección completa</span>
             <h2 id="titulo-acceso-obras" className="mt-3 text-[clamp(2.6rem,1.8rem+2.8vw,4.6rem)] leading-none">
               Descubrí las obras
             </h2>
-            <span className="mt-5 block max-w-xl text-marfil/80">{descripcion}</span>
+            <span className="mt-5 block max-w-xl text-white/80">{descripcion}</span>
           </span>
-          <span className="flex items-center gap-4 font-semibold text-marfil md:col-span-4 md:col-start-9 md:justify-end">
+          <span className="flex items-center gap-4 font-semibold text-white md:col-span-4 md:col-start-9 md:justify-end">
             Abrir el catálogo
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-oro text-noche transition-[background-color,transform] duration-300 group-hover:translate-x-1 group-hover:bg-oro-claro">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-amarillo text-marino transition-[background-color,transform] duration-300 group-hover:translate-x-1 group-hover:bg-amarillo-claro">
               <IconoFlecha className="text-xl" />
             </span>
           </span>
@@ -251,7 +251,7 @@ function EsqueletoHero() {
   const bloque = "animate-pulse rounded-md bg-white/10 motion-reduce:animate-none";
   return (
     <div aria-busy="true" aria-label="Cargando la portada">
-      <div className="bg-noche lg:w-[58%]">
+      <div className="bg-marino lg:w-[58%]">
         <div className="contenedor flex min-h-[78svh] flex-col justify-end gap-5 pt-32 pb-14 lg:min-h-[84svh] lg:justify-center">
           <div className={`h-4 w-56 ${bloque}`} />
           <div className={`h-32 w-full max-w-xl ${bloque}`} />
@@ -267,7 +267,7 @@ function EsqueletoHero() {
 function EsqueletoAccesoObras() {
   return (
     <div className="contenedor pt-[30svh] md:pt-[40svh]">
-      <div className="h-72 animate-pulse bg-noche/85 motion-reduce:animate-none" />
+      <div className="h-72 animate-pulse bg-marino/85 motion-reduce:animate-none" />
     </div>
   );
 }

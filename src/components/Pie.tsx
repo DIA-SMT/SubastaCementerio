@@ -26,7 +26,7 @@ export function Pie() {
   return (
     <footer className="border-t border-linea bg-papel">
       <div className="contenedor py-14 md:py-16">
-        <Divisor className="mx-auto -mt-2 mb-12 h-4 w-40 text-oro/70" />
+        <Divisor className="mx-auto -mt-2 mb-12 h-4 w-40 text-smt/45" />
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-12 md:gap-x-10">
           <div className="col-span-2 flex items-start gap-4 md:col-span-5">
             <Marca logo="muni-iso" alto={48} />

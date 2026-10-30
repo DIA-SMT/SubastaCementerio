@@ -12,12 +12,8 @@ export const metadata: Metadata = { title: "Nueva obra" };
 export default function PaginaNuevaObra() {
   return (
     <div className="space-y-6">
-      <p>
-        <Link href="/admin/obras" className="enlace">
-          ← Volver a las obras
-        </Link>
-      </p>
       <TituloPanel
+        migas={[{ href: "/admin/obras", texto: "Obras" }]}
         titulo="Nueva obra"
         bajada="Completá los datos y elegí la foto principal. Las demás fotos se cargan después de crear la obra."
       />

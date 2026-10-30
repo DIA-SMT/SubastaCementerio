@@ -101,7 +101,7 @@ export function FormularioTexto({
       <input type="hidden" name="marca" value={base.marca} />
 
       <div className="grid gap-6 xl:grid-cols-2 xl:items-start">
-        <div className="space-y-5 rounded-lg border border-linea bg-white p-5">
+        <div className="tarjeta-panel space-y-5 p-5 md:p-6">
           <Campo id="titulo" etiqueta="Título" error={e.titulo}>
             <input
               id="titulo"
@@ -184,7 +184,7 @@ export function FormularioTexto({
 
         <section
           aria-labelledby="vista-previa"
-          className="rounded-lg border border-linea bg-white p-5 xl:sticky xl:top-4 xl:max-h-[calc(100vh-2rem)] xl:overflow-y-auto"
+          className="tarjeta-panel p-5 md:p-6 xl:sticky xl:top-24 xl:max-h-[calc(100vh-7rem)] xl:overflow-y-auto"
         >
           <h2 id="vista-previa" className="text-xl">
             Vista previa
@@ -199,7 +199,7 @@ export function FormularioTexto({
               if ((ev.target as Element).closest("a")) ev.preventDefault();
             }}
           >
-            <p className="font-serif text-[2.4rem] leading-tight font-medium text-tinta">
+            <p className="font-display text-[1.9rem] leading-tight font-semibold tracking-[-0.025em] text-tinta">
               {normalizarTitulo(titulo) || "Sin título"}
             </p>
             <div className="mt-6">

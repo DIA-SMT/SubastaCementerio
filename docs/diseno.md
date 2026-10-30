@@ -84,8 +84,9 @@ Panel: `/admin/ingresar`, `/admin`, `/admin/obras`, `/admin/obras/[id]`,
 8. "Monto acumulado" = suma de la oferta más alta vigente de cada obra.
 9. Datos de ejemplo marcados (`es_ejemplo`, franja visible). Producción se crea en un proyecto
    de Supabase nuevo, sin los datos de ejemplo.
-10. Contraste: botones en `#126ff5` o `#28469f`; `#2589ea` y `#3cb4f0` solo en fondos,
-    degradés o texto grande; verde, ámbar y rojo como fondo de etiqueta con texto en tinta.
+10. Contraste (criterio original; los colores vigentes están en la decisión 22): botones en
+    `#126ff5` o `#28469f`; `#2589ea` y `#3cb4f0` solo en fondos, degradés o texto grande; verde,
+    ámbar y rojo como fondo de etiqueta con texto en tinta.
     El gris `#6b7885` solo sobre blanco. Los bordes de los campos van en gris (azul con foco,
     rojo con error). Sobre el degradé, el contorno de foco es blanco y los textos van en tamaño
     grande; el hover oscurece con `#0d3fb0`.
@@ -117,13 +118,42 @@ Panel: `/admin/ingresar`, `/admin`, `/admin/obras`, `/admin/obras/[id]`,
     de minutos (lo controla un disparador), para que no cambie hacia atrás qué obras siguen
     abiertas. Tomado del portal de subastas del Poder Judicial de Tucumán; falta que la
     Dirección confirme si se aplica.
-21. Identidad de la muestra "Memorias del futuro": azul noche (#101e2e) para botones principales y
-    bloques oscuros, oro patrimonial (#a98350) solo para filetes, ornamentos y el botón sobre azul
-    noche (como texto, solo sobre azul noche). El azul municipal queda para la marca, los enlaces
-    y el foco. Los ornamentos (arco, rosetón, olivo, columna, separador) son componentes SVG en
-    src/components/Ornamentos.tsx. Las imágenes del paquete de recursos son ilustrativas
-    (generadas): solo se usan chicas, en los ingresos, con la leyenda "Imagen ilustrativa".
-    Las obras usan siempre sus fotografías reales.
+21. Identidad de la muestra "Memorias del futuro" (azul noche #101e2e y oro patrimonial):
+    reemplazada el 30/10/2026 por la identidad municipal (decisión 22). Se conservan los ornamentos
+    (arco, rosetón, olivo, columna, separador: componentes SVG en src/components/Ornamentos.tsx) y
+    el criterio de imágenes: las del paquete de recursos son ilustrativas (generadas), se usan
+    chicas o detrás de un velo, siempre con la leyenda "Imagen ilustrativa". Las obras usan
+    siempre sus fotografías reales.
+22. Identidad de la Ciudad de San Miguel de Tucumán en el sitio y en el panel (aprobada el
+    29 y el 30/10/2026). Los tokens están en el `@theme` de globals.css y son los mismos para todo.
+    - Azul noche municipal (#062b6f) en la barra del sitio, el menú lateral del panel y los
+      bloques oscuros; logo a color para fondos oscuros (`public/marca/logo-smt-color.png`, sin
+      modificar) y el isologo cuando el menú del panel se pliega.
+    - Botón principal, enlaces y foco en azul municipal (#1665f5, 5:1 con blanco). El celeste y el
+      amarillo del logo son solo acentos: ornamentos, el filete tricolor bajo los antetítulos, las
+      fechas sin confirmar, la sección activa y el foco sobre azul noche. El amarillo nunca va como
+      texto sobre fondo claro; como botón (`boton-acento`), solo sobre azul noche y uno por
+      pantalla como mucho.
+    - Fondo blanco cálido (#faf7f2), tarjetas blancas, texto en #0f172a y secundario en #5b6779
+      (5:1 o más). Poppins, la tipografía de la identidad de Ciudad SMT, en todo: textos,
+      interfaz, cifras y títulos (pedido del 30/10/2026; reemplaza a Inter, Manrope y Cormorant).
+      En el sitio, la sala de museo de fondo; en el panel, fondo liso.
+    - Panel: cada pantalla abre con una banda en azul noche que aclara hacia el azul municipal
+      (`.banda-panel`, termina en #1452c9 para que el texto blanco tenga 6,8:1), con migas en las
+      fichas. Las reglas propias del panel van en `:root:has(.panel)` para que lleguen al
+      recorrido guiado y a los diálogos, que se dibujan fuera de su árbol.
+    - Las tablas principales del panel se leen como tarjetas por debajo de 1024 px
+      (`TablaContenedor apilable` y `data-etiqueta` en cada celda); las demás se desplazan de
+      costado.
+    - Tablero: indicadores, cronograma (punto amarillo en lo que falta confirmar), monto acumulado
+      y el gráfico "Ofertas válidas por día", que usa una consulta de solo lectura sobre
+      `v_ofertas_admin` y aparece cuando hay ofertas en al menos dos días.
+    - Las ofertas se muestran como Más alta, Superada (válida, pero no la más alta) o Anulada.
+    - Obras tiene un buscador y un filtro de estado que trabajan en el navegador sobre el listado
+      que ya mandó el servidor.
+    - La imagen del ingreso al panel es ilustrativa (con su leyenda) hasta tener fotografías
+      reales y autorizadas del Cementerio del Oeste.
+    - Los PDF (listado final y carteles QR) conservan su propio diseño de impresión.
 
 ## Respuestas pendientes (se usan valores por defecto hasta tenerlas)
 

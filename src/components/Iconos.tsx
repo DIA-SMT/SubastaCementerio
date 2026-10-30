@@ -173,6 +173,59 @@ export const IconoAbajo = (p: Props) => (
   </Icono>
 );
 
+export const IconoBuscar = (p: Props) => (
+  <Icono {...p}>
+    <circle cx="10.5" cy="10.5" r="6" />
+    <path d="m15 15 5 5" />
+  </Icono>
+);
+
+export const IconoEditar = (p: Props) => (
+  <Icono {...p}>
+    <path d="M15.5 5.5 18.5 8.5M4.5 19.5l1-4L16 5a2.1 2.1 0 0 1 3 3L8.5 18.5z" />
+  </Icono>
+);
+
+/** Ver en el sitio (se abre la página pública). */
+export const IconoVer = (p: Props) => (
+  <Icono {...p}>
+    <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />
+    <circle cx="12" cy="12" r="2.75" />
+  </Icono>
+);
+
+export const IconoMas = (p: Props) => (
+  <Icono {...p}>
+    <path d="M12 5v14M5 12h14" />
+  </Icono>
+);
+
+export const IconoDescargar = (p: Props) => (
+  <Icono {...p}>
+    <path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M4.5 19.5h15" />
+  </Icono>
+);
+
+export const IconoSalir = (p: Props) => (
+  <Icono {...p}>
+    <path d="M14 4.5H6.5a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1H14M10 12h10M16.5 8.5 20 12l-3.5 3.5" />
+  </Icono>
+);
+
+export const IconoCalendario = (p: Props) => (
+  <Icono {...p}>
+    <rect x="3.5" y="5" width="17" height="15.5" rx="1.5" />
+    <path d="M3.5 10h17M8 3v4M16 3v4" />
+  </Icono>
+);
+
+export const IconoMonto = (p: Props) => (
+  <Icono {...p}>
+    <circle cx="12" cy="12" r="8.5" />
+    <path d="M14.8 9.2c-.5-.9-1.6-1.4-2.8-1.4-1.6 0-2.8.8-2.8 2.1 0 2.9 5.7 1.5 5.7 4.3 0 1.3-1.2 2.1-2.9 2.1-1.3 0-2.4-.6-2.9-1.5M12 6v1.8M12 16.3V18" />
+  </Icono>
+);
+
 export const IconoAyuda = (p: Props) => (
   <Icono {...p}>
     <circle cx="12" cy="12" r="8.5" />

@@ -34,7 +34,7 @@ const GENERAL: Recorrido = {
     {
       titulo: "El menú",
       texto:
-        "Cada sección del panel está acá. En la computadora se puede plegar con la flecha de arriba; en el celular se abre con el botón «Menú».",
+        "Cada sección del panel está acá. En la computadora se pliega con «Plegar el menú», al pie; en el celular se abre con el botón «Menú», arriba a la izquierda.",
       elemento: '[data-recorrido="menu"]',
     },
     {
@@ -102,16 +102,22 @@ const GENERAL: Recorrido = {
       soloConElemento: true,
     },
     {
+      titulo: "Indicadores",
+      texto:
+        "Obras publicadas, artistas, oferentes registrados y ofertas válidas. Se calculan cada vez que abrís la página.",
+      elemento: seccion("titulo-indicadores"),
+    },
+    {
       titulo: "Estado de la etapa virtual",
       texto:
-        "Si la subasta está abierta, cuánto falta para el cierre y los montos configurados. Las fechas se cambian en Configuración.",
+        "Si la subasta está abierta, cuánto falta para el cierre, el cronograma y los montos configurados. Las fechas se cambian en Configuración.",
       elemento: tarjeta("Estado de la etapa virtual"),
     },
     {
-      titulo: "Indicadores",
+      titulo: "Monto acumulado",
       texto:
-        "Monto acumulado, ofertas válidas, oferentes registrados y cuántas obras tienen ofertas. Se calculan cada vez que abrís la página.",
-      elemento: seccion("titulo-indicadores"),
+        "La suma de la oferta más alta de cada obra, cuántas obras ya tienen ofertas y cuántas ofertas llegaron cada día.",
+      elemento: tarjeta("Monto acumulado"),
     },
     {
       titulo: "Últimas ofertas",
@@ -137,9 +143,15 @@ const RECORRIDOS: { patron: RegExp; recorrido: Recorrido }[] = [
           elemento: '[data-recorrido="acciones"]',
         },
         {
+          titulo: "Buscar y filtrar",
+          texto: "Buscá por título, artista o número, o mostrá solo las publicadas, las no publicadas o las que no tienen fotos.",
+          elemento: '[role="search"][aria-label="Buscar obras"]',
+          soloConElemento: true,
+        },
+        {
           titulo: "Listado de obras",
           texto:
-            "Cada fila muestra la portada, si la obra está publicada, la oferta actual y cuántas ofertas válidas tiene. Entrá a una para editarla.",
+            "Cada fila muestra la portada, si la obra está publicada, la oferta actual y cuántas ofertas válidas tiene. «Editar» abre la obra y «Ofertas», las suyas.",
           elemento: tabla("Listado de obras"),
         },
         {

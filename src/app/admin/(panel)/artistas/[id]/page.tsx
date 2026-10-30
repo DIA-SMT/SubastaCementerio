@@ -18,11 +18,6 @@ export const metadata: Metadata = { title: "Editar artista" };
 export default function PaginaEditarArtista(props: PageProps<"/admin/artistas/[id]">) {
   return (
     <div className="space-y-6">
-      <p>
-        <Link href="/admin/artistas" className="enlace">
-          ← Volver a los artistas
-        </Link>
-      </p>
       <Suspense fallback={<Esqueleto />}>
         <Contenido params={props.params} searchParams={props.searchParams} />
       </Suspense>
@@ -41,6 +36,7 @@ async function Contenido({ params, searchParams }: Pick<PageProps<"/admin/artist
   return (
     <>
       <TituloPanel
+        migas={[{ href: "/admin/artistas", texto: "Artistas" }]}
         titulo={artista.nombre}
         bajada={
           artista.obras.length === 0

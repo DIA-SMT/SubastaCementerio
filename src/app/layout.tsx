@@ -1,18 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Inter, Manrope } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 
-// Manrope para cifras y subtítulos; Inter para textos e interfaz. next/font las sirve desde el
-// propio sitio: el navegador no le pide nada a Google.
-const manrope = Manrope({ subsets: ["latin"], display: "swap", variable: "--font-manrope" });
-const inter = Inter({ subsets: ["latin"], display: "swap", variable: "--font-inter" });
-// Serif para los títulos del sitio público, en sintonía con la sala de museo del fondo.
-const cormorant = Cormorant_Garamond({
+// Poppins, la tipografía de la identidad de Ciudad SMT, en textos, interfaz, cifras y títulos.
+// next/font la sirve desde el propio sitio: el navegador no le pide nada a Google.
+const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["500", "600"],
-  style: ["normal", "italic"],
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
-  variable: "--font-cormorant",
+  variable: "--font-poppins",
 });
 
 export const metadata: Metadata = {
@@ -25,12 +21,12 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f7f3ec",
+  themeColor: "#062b6f",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="es-AR" className={`${manrope.variable} ${inter.variable} ${cormorant.variable}`}>
+    <html lang="es-AR" className={poppins.variable}>
       <body className="flex min-h-dvh flex-col">
         <a
           href="#contenido"

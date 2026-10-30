@@ -38,7 +38,7 @@ async function Listado({ searchParams }: Pick<PageProps<"/obras">, "searchParams
         <div className="grid gap-x-10 gap-y-9 lg:grid-cols-12 lg:items-end">
           <div className="lg:col-span-7">
             <p className="antetitulo">Catálogo</p>
-            <span aria-hidden className="filete-oro mt-4" />
+            <span aria-hidden className="filete mt-4" />
             <h1 className="mt-5 text-titulo">Las obras</h1>
             <p className="mt-5 max-w-xl text-lg text-texto">
               {todas.length} cabezas escultóricas intervenidas por artistas locales. Elegí una para ver sus fotos, su
@@ -69,7 +69,7 @@ async function Listado({ searchParams }: Pick<PageProps<"/obras">, "searchParams
                         href={f.clave === "todas" ? "/obras" : `/obras?ver=${f.clave}`}
                         aria-current={f === filtro ? "page" : undefined}
                         scroll={false}
-                        className="inline-flex min-h-10 items-center rounded-full px-4 font-medium text-texto ring-1 ring-linea transition-colors duration-200 ring-inset hover:text-tinta hover:ring-tinta aria-[current=page]:bg-noche aria-[current=page]:text-marfil aria-[current=page]:ring-noche"
+                        className="inline-flex min-h-10 items-center rounded-full px-4 font-medium text-texto ring-1 ring-linea transition-colors duration-200 ring-inset hover:text-tinta hover:ring-tinta aria-[current=page]:bg-smt aria-[current=page]:text-white aria-[current=page]:ring-smt"
                       >
                         {f.texto}
                       </Link>

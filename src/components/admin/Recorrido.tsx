@@ -93,7 +93,7 @@ export function GuiaPanel() {
         className="inline-flex min-h-10 items-center gap-2 rounded-md px-2.5 text-[0.94rem] font-medium text-gris transition-colors duration-200 hover:text-tinta"
       >
         <IconoAyuda className="text-[1.15rem]" />
-        <span className="max-sm:sr-only">Cómo se usa</span>
+        <span className="max-xl:sr-only">Cómo se usa</span>
       </button>
       {activo && (
         <TarjetaRecorrido
@@ -110,14 +110,14 @@ export function GuiaPanel() {
 
 /**
  * Velo con un hueco sobre el elemento: cuatro paneles alrededor (una sombra gigante no se
- * dibuja en todos los navegadores) y un marco en oro.
+ * dibuja en todos los navegadores) y un marco en azul municipal.
  */
 function Foco({ rect }: { rect: Rect }) {
   const top = rect.top - MARGEN;
   const left = rect.left - MARGEN;
   const ancho = rect.width + MARGEN * 2;
   const alto = rect.height + MARGEN * 2;
-  const panel = "pointer-events-none absolute bg-noche/55";
+  const panel = "pointer-events-none absolute bg-marino/55";
   return (
     <div aria-hidden>
       <div className={`${panel} inset-x-0 top-0`} style={{ height: Math.max(0, top) }} />
@@ -125,7 +125,7 @@ function Foco({ rect }: { rect: Rect }) {
       <div className={`${panel} left-0`} style={{ top, height: alto, width: Math.max(0, left) }} />
       <div className={`${panel} right-0`} style={{ top, height: alto, left: left + ancho }} />
       <div
-        className="pointer-events-none absolute rounded-lg outline-2 outline-oro outline-solid"
+        className="pointer-events-none absolute rounded-lg outline-2 outline-smt outline-solid"
         style={{ top, left, width: ancho, height: alto }}
       />
     </div>
@@ -252,7 +252,7 @@ function TarjetaRecorrido({
     <div className="fixed inset-0 z-[60]" onKeyDown={alTeclear}>
       {/* Velo: bloquea el resto de la página mientras dura el recorrido (los clics no pasan). */}
       <div aria-hidden className="absolute inset-0" />
-      {rect ? <Foco rect={rect} /> : <div aria-hidden className="absolute inset-0 bg-noche/55" />}
+      {rect ? <Foco rect={rect} /> : <div aria-hidden className="absolute inset-0 bg-marino/55" />}
 
       <div
         ref={caja}
@@ -263,7 +263,7 @@ function TarjetaRecorrido({
         className="absolute w-[min(23rem,calc(100vw-2rem))] rounded-lg bg-white p-5 text-texto shadow-elevada ring-1 ring-linea"
         style={tarjeta ?? { top: -9999, left: -9999 }}
       >
-        <p className="flex items-center justify-between gap-3 text-[0.8rem] font-semibold tracking-[0.08em] text-dorado uppercase">
+        <p className="flex items-center justify-between gap-3 text-[0.8rem] font-semibold tracking-[0.08em] text-smt-intenso uppercase">
           <span>{recorrido.nombre}</span>
           <span className="tabular-nums" aria-label={`Paso ${indice + 1} de ${pasos.length}`}>
             {indice + 1} / {pasos.length}
@@ -285,7 +285,7 @@ function TarjetaRecorrido({
         {/* Progreso: un punto por paso. */}
         <div aria-hidden className="mt-4 flex flex-wrap gap-1">
           {pasos.map((p, i) => (
-            <span key={p.titulo} className={`h-1.5 rounded-full ${i === indice ? "w-5 bg-oro" : "w-1.5 bg-linea"}`} />
+            <span key={p.titulo} className={`h-1.5 rounded-full ${i === indice ? "w-5 bg-smt" : "w-1.5 bg-linea"}`} />
           ))}
         </div>
 

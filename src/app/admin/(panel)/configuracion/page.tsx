@@ -39,8 +39,10 @@ async function Contenido() {
   const fase = FASES[config.fase];
 
   return (
-    <>
-      <div className="grid gap-6 lg:grid-cols-2">
+    // En la computadora, el formulario a la izquierda y el estado y las advertencias a la derecha;
+    // en pantallas chicas, las advertencias van primero (conviene leerlas antes de cambiar algo).
+    <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
+      <aside className="space-y-6 xl:col-start-2 xl:row-start-1">
         <Tarjeta titulo="Estado de la subasta">
           <div className="space-y-3">
             <Etiqueta tono={fase.tono}>{fase.texto}</Etiqueta>
@@ -95,32 +97,34 @@ async function Contenido() {
             </li>
           </ul>
         </Tarjeta>
-      </div>
+      </aside>
 
-      <FormularioConfiguracion
-        inicial={{
-          inicio: aInputLocal(config.inicio),
-          cierre: aInputLocal(config.cierre),
-          fechas_confirmadas: config.fechasConfirmadas ? "si" : "no",
-          fecha_presencial: config.fechaPresencial ?? "",
-          detalle_presencial: config.detallePresencial ?? "",
-          incremento_minimo: numeroConPuntos(config.incrementoMinimo),
-          precio_salida: numeroConPuntos(config.precioSalida),
-          modo_ejemplo: config.modoEjemplo ? "si" : "no",
-          extension_activa: config.extensionActiva ? "si" : "no",
-          extension_minutos: String(config.extensionMinutos),
-        }}
-        actuales={{
-          inicio: fechaHoraLarga(config.inicio),
-          cierre: fechaHoraLarga(config.cierre),
-          incremento: pesos(config.incrementoMinimo),
-          precioSalida: pesos(config.precioSalida),
-          obrasConPrecioPropio: config.obrasConPrecioPropio,
-          extensionMinutos: `${config.extensionMinutos} ${config.extensionMinutos === 1 ? "minuto" : "minutos"}${
-            config.extensionActiva ? ", activa" : ", apagada"
-          }`,
-        }}
-      />
-    </>
+      <div className="min-w-0 xl:col-start-1 xl:row-start-1">
+        <FormularioConfiguracion
+          inicial={{
+            inicio: aInputLocal(config.inicio),
+            cierre: aInputLocal(config.cierre),
+            fechas_confirmadas: config.fechasConfirmadas ? "si" : "no",
+            fecha_presencial: config.fechaPresencial ?? "",
+            detalle_presencial: config.detallePresencial ?? "",
+            incremento_minimo: numeroConPuntos(config.incrementoMinimo),
+            precio_salida: numeroConPuntos(config.precioSalida),
+            modo_ejemplo: config.modoEjemplo ? "si" : "no",
+            extension_activa: config.extensionActiva ? "si" : "no",
+            extension_minutos: String(config.extensionMinutos),
+          }}
+          actuales={{
+            inicio: fechaHoraLarga(config.inicio),
+            cierre: fechaHoraLarga(config.cierre),
+            incremento: pesos(config.incrementoMinimo),
+            precioSalida: pesos(config.precioSalida),
+            obrasConPrecioPropio: config.obrasConPrecioPropio,
+            extensionMinutos: `${config.extensionMinutos} ${config.extensionMinutos === 1 ? "minuto" : "minutos"}${
+              config.extensionActiva ? ", activa" : ", apagada"
+            }`,
+          }}
+        />
+      </div>
+    </div>
   );
 }

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Suspense } from "react";
 import { Esqueleto, Tarjeta, TituloPanel } from "@/components/admin/Panel";
 import { requerirAdmin } from "@/lib/admin/sesion";
@@ -10,12 +9,8 @@ export const metadata: Metadata = { title: "Cargar un artista" };
 export default function PaginaNuevoArtista() {
   return (
     <div className="space-y-6">
-      <p>
-        <Link href="/admin/artistas" className="enlace">
-          ← Volver a los artistas
-        </Link>
-      </p>
       <TituloPanel
+        migas={[{ href: "/admin/artistas", texto: "Artistas" }]}
         titulo="Cargar un artista"
         bajada="Completá los datos. Cuando lo cargues, vas a poder subir su foto."
       />

@@ -26,7 +26,7 @@ export function Cabecera({
       {antetitulo && (
         <>
           <p className="antetitulo">{antetitulo}</p>
-          <span aria-hidden className="filete-oro mt-4" />
+          <span aria-hidden className="filete mt-4" />
         </>
       )}
       <h1 className={antetitulo ? "mt-5 text-titulo" : "mt-3 text-titulo"}>{titulo}</h1>

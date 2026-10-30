@@ -146,7 +146,7 @@ async function Contenido() {
       </div>
 
       <section aria-labelledby="titulo-vista-previa" className="space-y-3">
-        <h2 id="titulo-vista-previa" className="text-2xl">
+        <h2 id="titulo-vista-previa" className="text-[1.15rem] text-tinta">
           Vista previa
         </h2>
         <Tabla listado={listado} />
@@ -157,10 +157,10 @@ async function Contenido() {
 
 function Indicador({ titulo, valor, detalle }: { titulo: string; valor: string; detalle?: string }) {
   return (
-    <div className="rounded-lg border border-linea bg-white p-5">
-      <p className="text-gris">{titulo}</p>
-      <p className="mt-1 text-3xl font-semibold text-tinta">{valor}</p>
-      {detalle && <p className="mt-1 text-base text-gris">{detalle}</p>}
+    <div className="tarjeta-panel p-5">
+      <p className="text-[0.94rem] font-medium text-gris">{titulo}</p>
+      <p className="mt-1 text-[1.9rem] leading-tight font-semibold tracking-[-0.02em] text-tinta">{valor}</p>
+      {detalle && <p className="mt-1 text-[0.9rem] text-gris">{detalle}</p>}
     </div>
   );
 }

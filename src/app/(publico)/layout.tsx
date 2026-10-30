@@ -6,7 +6,7 @@ import { Pie } from "@/components/Pie";
 
 export default function LayoutPublico({ children }: LayoutProps<"/">) {
   return (
-    <div className="sitio flex flex-1 flex-col">
+    <div className="flex flex-1 flex-col">
       <FondoSala />
       <Encabezado />
       <Suspense fallback={null}>

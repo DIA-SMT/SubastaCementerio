@@ -42,14 +42,14 @@ export function parametro(valor: string | string[] | undefined) {
   return (Array.isArray(valor) ? valor[0] : valor) ?? "";
 }
 
+/**
+ * Estado de una oferta: la más alta vigente de su obra, superada por otra más alta (sigue siendo
+ * válida) o anulada por el equipo.
+ */
 export function EstadoDeOferta({ estado, esLaMasAlta }: { estado: "valida" | "anulada"; esLaMasAlta: boolean }) {
   if (estado === "anulada") return <Etiqueta tono="rojo">Anulada</Etiqueta>;
-  return (
-    <span className="flex flex-wrap gap-1.5">
-      <Etiqueta tono="gris">Válida</Etiqueta>
-      {esLaMasAlta && <Etiqueta tono="verde">Más alta</Etiqueta>}
-    </span>
-  );
+  if (esLaMasAlta) return <Etiqueta tono="verde">Más alta</Etiqueta>;
+  return <Etiqueta tono="gris">Superada</Etiqueta>;
 }
 
 /** Teléfono como enlace para llamar desde el celular. */
@@ -88,6 +88,6 @@ export function EnlaceOferente({ id, alias, bloqueado = false }: { id: string; a
   );
 }
 
-/** Enlace con forma de botón chico, para usar dentro de tablas. */
+/** Enlace con forma de botón chico, para usar dentro de tablas (el color del borde va aparte: ring-*). */
 export const claseBotonChico =
-  "inline-flex min-h-11 items-center justify-center rounded-lg border-2 px-3 text-base font-semibold whitespace-nowrap";
+  "inline-flex min-h-10 items-center justify-center rounded-md px-3.5 text-[0.9rem] font-semibold whitespace-nowrap ring-1 ring-inset transition-[background-color,box-shadow] duration-200";

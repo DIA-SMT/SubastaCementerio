@@ -148,3 +148,26 @@ export async function resumenAvisos(admin: Admin): Promise<ResumenAvisos> {
     faltas: faltasDeConfiguracion(),
   };
 }
+
+export type OfertasDelDia = {
+  /** Día en hora de Tucumán, "2026-10-31". */
+  dia: string;
+  ofertas: number;
+};
+
+/**
+ * Ofertas válidas por día (hora de Tucumán), para el gráfico del tablero. Solo los días con
+ * ofertas: el gráfico completa los días sin ofertas. Solo lectura, sobre la vista del panel.
+ */
+export async function ofertasPorDia(admin: Admin): Promise<OfertasDelDia[]> {
+  const filas = await consultar(
+    comoAdmin(admin),
+    `select to_char(creada_at at time zone 'America/Argentina/Tucuman', 'YYYY-MM-DD') as dia,
+            count(*)::int as ofertas
+     from public.v_ofertas_admin
+     where estado = 'valida'
+     group by 1
+     order by 1`,
+  );
+  return filas.map((f) => ({ dia: String(f.dia), ofertas: Number(f.ofertas) }));
+}

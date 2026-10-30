@@ -1,65 +1,68 @@
 @import "tailwindcss";
 
 /*
- * Sistema visual de la subasta: una sala de museo con respaldo institucional. Los neutros salen
- * de la fotografía de fondo (marfil, piedra, dorado de los marcos y pizarra del arco del fondo).
- * La muestra "Memorias del futuro" suma el azul noche y el oro patrimonial: bloques oscuros,
- * botones principales, filetes y ornamentos. El azul de la Municipalidad queda para la marca,
- * los enlaces y el foco.
+ * Sistema visual de la subasta con la identidad de la Ciudad de San Miguel de Tucumán (del logo a
+ * color: #0066FF, #2EB1FF y #F4DC00). Fondo en blanco cálido, bloques oscuros y menú en azul noche
+ * municipal, acciones en azul municipal. El celeste y el amarillo del logo son solo acentos: nunca
+ * van como texto sobre fondo claro. El sitio suma la sala de museo como fondo fijo y títulos en
+ * serif; el panel, tarjetas blancas sobre fondo liso.
  */
 @theme {
   /* Neutros */
-  --color-papel: #f7f3ec; /* fondo general: marfil de las paredes */
-  --color-piedra: #ebe4d7; /* fondo de fotos y bloques neutros: piedra del piso */
-  --color-superficie: #f1ece3; /* recuadros dentro de una tarjeta */
-  --color-tinta: #1f1c18; /* negro cálido: títulos y montos */
-  --color-texto: #3d3933; /* texto corrido */
-  --color-gris: #6a655c; /* texto secundario (5,2:1 sobre marfil) */
-  --color-gris-suave: #7d776c; /* íconos, separadores y bordes de campos (4,4:1 sobre blanco) */
-  --color-linea: #e2dacb; /* bordes suaves */
-  --color-dorado: #7f6131; /* marcos de la sala: antetítulos (5,3:1 sobre marfil) */
-  --color-dorado-suave: #b8955a; /* filetes decorativos, nunca texto */
-  --color-pizarra: #3e4954; /* pared del arco del fondo: bloques oscuros */
+  --color-papel: #faf7f2; /* fondo general: blanco cálido */
+  --color-piedra: #efe9df; /* fondo de fotos, miniaturas y bloques neutros */
+  --color-superficie: #f6f4ef; /* encabezados de tabla y recuadros dentro de una tarjeta */
+  --color-tinta: #0f172a; /* títulos y montos */
+  --color-texto: #334155; /* texto corrido */
+  --color-gris: #5b6779; /* texto secundario (5:1 o más sobre todos los fondos claros) */
+  --color-gris-suave: #7b8696; /* íconos, separadores y bordes de campos (3,2:1 o más) */
+  --color-linea: #e6e1d7; /* bordes suaves */
 
-  /* Memorias del futuro */
-  --color-noche: #101e2e; /* azul noche: botones principales y bloques oscuros (15:1 con marfil) */
-  --color-noche-claro: #1d3047; /* hover sobre azul noche */
-  --color-oro: #a98350; /* oro patrimonial: filetes, ornamentos y botón sobre noche; como texto, solo sobre noche (4,9:1) */
-  --color-oro-claro: #d9c08f; /* texto chico sobre azul noche (9:1) */
-  --color-marfil: #f7f4ed; /* texto sobre azul noche */
-
-  /* Azul institucional */
-  --color-azul: #1464c8; /* acciones principales y enlaces (5,7:1 sobre blanco) */
-  --color-azul-profundo: #123b70; /* identidad: sello del logo, títulos destacados */
-  --color-azul-oscuro: #0d2c55; /* estados presionados sobre azul profundo */
-  --color-celeste: #3cb4f0; /* del isologo: solo acentos mínimos */
-  --color-amarillo: #f2d91c; /* del isologo: solo acento, nunca texto */
+  /* Ciudad SMT */
+  --color-azul: #1665f5; /* azul municipal: acciones, enlaces y foco (5:1 con blanco) */
+  --color-smt: #1665f5; /* el mismo azul, con nombre propio en los componentes nuevos */
+  --color-smt-intenso: #0f52d1; /* hover, antetítulos y texto azul sobre fondos celestes (5,8:1) */
+  --color-smt-suave: #e9f0fe; /* fondo de íconos, etiquetas y pestañas activas */
+  --color-azul-profundo: #062b6f; /* identidad: títulos destacados y logo en una tinta */
+  --color-azul-oscuro: #041d4d; /* estados presionados sobre azul noche */
+  --color-marino: #062b6f; /* azul noche municipal: menú, encabezados y bloques oscuros (13:1 con blanco) */
+  --color-marino-claro: #0d3d97; /* hover sobre azul noche */
+  --color-marino-tenue: #b7c6e6; /* texto e íconos secundarios sobre azul noche (7,7:1) */
+  --color-celeste: #3cb4f0; /* del isologo: acentos y ornamentos (sobre azul noche, 5,7:1) */
+  --color-amarillo: #f2d91c; /* del isologo: acento y foco sobre azul noche; nunca texto en claro */
+  --color-amarillo-claro: #f7e76b; /* hover del botón amarillo */
 
   /* Estados (el texto encima siempre va en tinta) */
   --color-verde: #2f8a5b;
   --color-ambar: #d39a12;
   --color-rojo: #c8372d;
-  --color-fondo: color-mix(in srgb, var(--color-azul) 5%, white);
+  --color-fondo: #edf3fe;
   --color-verde-suave: color-mix(in srgb, var(--color-verde) 11%, white);
   --color-ambar-suave: color-mix(in srgb, var(--color-ambar) 14%, white);
   --color-rojo-suave: color-mix(in srgb, var(--color-rojo) 9%, white);
 
-  /* Sombras muy suaves: separan sin dibujar cajas. */
-  --shadow-suave: 0 1px 2px rgb(23 25 28 / 0.04), 0 1px 1px rgb(23 25 28 / 0.02);
-  --shadow-elevada: 0 2px 6px rgb(23 25 28 / 0.04), 0 18px 36px -18px rgb(23 25 28 / 0.22);
+  /* Sombras muy suaves, teñidas de azul noche: separan sin dibujar cajas. */
+  --shadow-suave: 0 1px 2px rgb(15 23 42 / 0.05);
+  --shadow-elevada: 0 2px 6px rgb(15 23 42 / 0.05), 0 22px 44px -20px rgb(6 43 111 / 0.35);
+  --shadow-tarjeta: 0 1px 2px rgb(15 23 42 / 0.04), 0 12px 28px -18px rgb(6 43 111 / 0.2);
+
+  /* Redondeos: 8 px en controles, 14 px en tarjetas. */
+  --radius-md: 0.5rem;
+  --radius-lg: 0.875rem;
 
   /* Escala tipográfica (la raíz es de 18 px: 1 rem = 18 px). */
-  /* Display, título y sección van en la serif (Cormorant): más grandes y sin apretar. */
-  --text-display: clamp(3.1rem, 1.6rem + 4.6vw, 6.2rem);
-  --text-display--line-height: 0.95;
-  --text-display--letter-spacing: -0.015em;
-  --text-titulo: clamp(2.5rem, 1.7rem + 2.4vw, 3.9rem);
-  --text-titulo--line-height: 1.02;
-  --text-titulo--letter-spacing: -0.01em;
-  --text-seccion: clamp(2rem, 1.5rem + 1.4vw, 2.9rem);
-  --text-seccion--line-height: 1.06;
-  --text-seccion--letter-spacing: -0.005em;
-  --text-subtitulo: 1.25rem;
+  /* Display, título y sección en Poppins semibold: es ancha, así que va más chica y apretada
+     que una serif de títulos. */
+  --text-display: clamp(2.6rem, 1.5rem + 3.4vw, 4.6rem);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.03em;
+  --text-titulo: clamp(2.05rem, 1.5rem + 1.7vw, 3rem);
+  --text-titulo--line-height: 1.08;
+  --text-titulo--letter-spacing: -0.025em;
+  --text-seccion: clamp(1.65rem, 1.3rem + 1vw, 2.25rem);
+  --text-seccion--line-height: 1.12;
+  --text-seccion--letter-spacing: -0.02em;
+  --text-subtitulo: 1.2rem;
   --text-subtitulo--line-height: 1.3;
   --text-subtitulo--letter-spacing: -0.015em;
   --text-rotulo: 0.72rem;
@@ -76,9 +79,8 @@
 
 /* Tipografías cargadas con next/font en el layout raíz (variables en <html>). */
 @theme inline {
-  --font-sans: var(--font-inter), "Segoe UI", system-ui, sans-serif;
-  --font-display: var(--font-manrope), var(--font-inter), "Segoe UI", system-ui, sans-serif;
-  --font-serif: var(--font-cormorant), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-poppins), "Segoe UI", system-ui, sans-serif;
+  --font-display: var(--font-poppins), "Segoe UI", system-ui, sans-serif;
 }
 
 /* Textos grandes: 18 px de base (público amplio, también personas mayores). */
@@ -135,16 +137,6 @@ body {
   }
 }
 
-/* En el sitio público, los títulos grandes van en serif, como las cartelas de un museo.
-   (El panel conserva Manrope.) */
-@layer base {
-  .sitio :is(h1, h2) {
-    font-family: var(--font-serif);
-    font-weight: 500;
-    letter-spacing: -0.005em;
-  }
-}
-
 /* Fuera de las capas de Tailwind: ninguna utilidad puede quitar el contorno de foco. */
 :focus-visible {
   outline: 2px solid var(--color-azul);
@@ -175,33 +167,27 @@ body {
   outline: none;
 }
 
-/* Bloque de la muestra en azul noche: grano suave y arcos en oro casi transparentes. El texto
-   encima va en marfil; el foco, en blanco. */
-.fondo-noche {
-  background-color: var(--color-noche);
+/* Bloque en azul noche municipal con grano suave y arcos casi transparentes (portada, acceso al
+   catálogo). Una luz celeste muy suave arriba a la derecha. El texto encima va en blanco; el foco,
+   en amarillo. */
+.fondo-arcos {
+  background-color: var(--color-marino);
   /* El velo en azul noche atenúa los arcos: se adivinan, no compiten con el texto. */
   background-image:
     url("/assets/memorias/fondos/grano-suave.svg"),
-    linear-gradient(rgb(16 30 46 / 0.55), rgb(16 30 46 / 0.55)),
+    radial-gradient(70% 60% at 100% 0%, rgb(60 180 240 / 0.18), transparent),
+    linear-gradient(rgb(6 43 111 / 0.6), rgb(6 43 111 / 0.6)),
     url("/assets/memorias/fondos/patron-arcos.svg");
-  background-repeat: repeat, no-repeat, repeat;
-  background-size: auto, 100% 100%, auto;
-  background-position: 0 0, 0 0, 0 100%;
-  color: var(--color-marfil);
+  background-repeat: repeat, no-repeat, no-repeat, repeat;
+  background-size: auto, 100% 100%, 100% 100%, auto;
+  background-position: 0 0, 0 0, 0 0, 0 100%;
+  color: #ffffff;
 }
-.fondo-noche :is(h1, h2, h3) {
-  color: var(--color-marfil);
+:is(.fondo-arcos, .fondo-marino) :is(h1, h2, h3) {
+  color: #ffffff;
 }
-.fondo-noche :focus-visible {
-  outline-color: #ffffff;
-}
-
-/* Bloque institucional en azul profundo (sello del logo, encabezado del panel). */
-.fondo-institucional {
-  background: var(--color-azul-profundo);
-}
-.fondo-institucional :focus-visible {
-  outline-color: #ffffff;
+.fondo-arcos :focus-visible {
+  outline-color: var(--color-amarillo);
 }
 
 /* ---------- Movimiento ---------- */
@@ -285,15 +271,16 @@ body {
   @apply inline-flex min-h-12 items-center justify-center gap-2.5 rounded-md px-6 text-center text-base font-semibold tracking-[-0.005em] transition-[background-color,color,box-shadow,transform] duration-200 ease-suave active:scale-[0.985] disabled:cursor-not-allowed disabled:opacity-60;
 }
 @utility boton-primario {
-  @apply boton bg-noche text-marfil hover:bg-noche-claro;
+  @apply boton bg-smt text-white hover:bg-smt-intenso;
 }
-/* Sobre azul noche: botón en oro con texto en azul noche (4,9:1). */
-@utility boton-oro {
-  @apply boton bg-oro text-noche hover:bg-oro-claro;
+/* Sobre azul noche: botón amarillo con texto en azul noche (9,4:1). El acento más fuerte: uno por
+   pantalla, como mucho. */
+@utility boton-acento {
+  @apply boton bg-amarillo text-marino hover:bg-amarillo-claro;
 }
-/* Sobre azul noche: borde fino marfil. */
-@utility boton-noche-secundario {
-  @apply boton text-marfil ring-1 ring-marfil/45 ring-inset hover:bg-white/10 hover:ring-marfil;
+/* Sobre azul noche: borde fino blanco. */
+@utility boton-claro-secundario {
+  @apply boton text-white ring-1 ring-white/45 ring-inset hover:bg-white/10 hover:ring-white;
 }
 /* Secundario: blanco con borde fino; en el hover el borde pasa a tinta. */
 @utility boton-secundario {
@@ -318,13 +305,13 @@ body {
 @utility enlace-sutil {
   @apply inline-flex items-center gap-2 font-semibold text-tinta underline decoration-transparent decoration-1 underline-offset-[0.3em] transition-[color,text-decoration-color] duration-200 hover:text-azul hover:decoration-current;
 }
-/* Antetítulo: rótulo chico en mayúsculas sobre los títulos (sobre azul noche va en oro claro). */
+/* Antetítulo: rótulo chico en mayúsculas sobre los títulos (sobre azul noche, en azul tenue). */
 @utility antetitulo {
-  @apply font-sans text-rotulo font-semibold text-dorado uppercase in-[.fondo-noche]:text-oro-claro;
+  @apply font-sans text-rotulo font-semibold text-smt-intenso uppercase in-[.fondo-arcos]:text-marino-tenue;
 }
-/* Filete corto en oro bajo los antetítulos. */
-@utility filete-oro {
-  @apply block h-px w-14 bg-oro;
+/* Filete corto bajo los antetítulos con los tres colores del logo: azul, celeste y amarillo. */
+@utility filete {
+  @apply block h-[3px] w-14 rounded-full bg-[linear-gradient(90deg,var(--color-smt)_0_46%,var(--color-celeste)_46%_78%,var(--color-amarillo)_78%)];
 }
 /* Rótulo neutro para datos (Oferta actual, Cierre, etc.). */
 @utility rotulo {
@@ -342,4 +329,206 @@ body {
 /* Con la vista ampliada de fotos abierta, la página de fondo no se desplaza. */
 html:has(dialog[open]) {
   overflow: hidden;
+}
+
+/* ---------- Panel del equipo ---------- */
+
+/*
+ * El panel usa los mismos colores que el sitio, sin la sala de fondo ni los títulos de sección en
+ * serif. Las reglas van sobre la raíz mientras el panel está en pantalla (:root:has(.panel)), así
+ * también llegan a lo que se dibuja fuera de su árbol: el recorrido guiado y los diálogos.
+ */
+/* Encabezado de cada pantalla del panel: banda en azul noche que aclara hacia el azul municipal,
+   con una luz celeste arriba a la derecha. El degradé termina en #1452c9 para que el texto blanco
+   (6,8:1) y la bajada al 85 % (5,2:1) se lean en todo el ancho. */
+.banda-panel {
+  background-color: var(--color-marino);
+  background-image:
+    radial-gradient(55% 90% at 100% 0%, rgb(60 180 240 / 0.22), transparent),
+    linear-gradient(115deg, var(--color-marino) 0%, #0b388f 50%, #1452c9 100%);
+  color: #ffffff;
+}
+.banda-panel :focus-visible {
+  outline-color: var(--color-amarillo);
+}
+/* Los botones que cada pantalla pone en su encabezado, en su versión sobre azul. */
+.banda-panel .boton-primario {
+  background-color: #ffffff;
+  color: var(--color-marino);
+}
+.banda-panel .boton-primario:hover {
+  background-color: var(--color-smt-suave);
+}
+.banda-panel .boton-secundario {
+  background-color: rgb(255 255 255 / 0.08);
+  color: #ffffff;
+  --tw-ring-color: rgb(255 255 255 / 0.45);
+}
+.banda-panel .boton-secundario:hover {
+  background-color: rgb(255 255 255 / 0.16);
+  --tw-ring-color: #ffffff;
+}
+
+/* Menú lateral en azul noche: el foco va en amarillo municipal (9:1). */
+.fondo-marino {
+  background-color: var(--color-marino);
+  color: #ffffff;
+}
+.fondo-marino :focus-visible {
+  outline-color: var(--color-amarillo);
+}
+
+@layer components {
+  /* Tablas del panel. Las filas se resaltan al pasar el mouse; una fila con fondo propio lo conserva. */
+  .tabla-panel {
+    width: 100%;
+    text-align: left;
+    font-size: 0.97rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .tabla-panel :is(th, td) {
+    padding: 0.85rem 1rem;
+    vertical-align: middle;
+  }
+  .tabla-panel thead th {
+    background: var(--color-superficie);
+    color: var(--color-gris);
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .tabla-panel tbody tr {
+    border-top: 1px solid var(--color-linea);
+    transition: background-color 150ms var(--ease-suave);
+  }
+  .tabla-panel tbody tr:hover {
+    background-color: color-mix(in srgb, var(--color-azul) 3%, white);
+  }
+}
+
+/* En el celular y la tablet, las tablas marcadas como apilables se leen como tarjetas: cada celda muestra su
+   rótulo (data-etiqueta). Las celdas sin rótulo (foto, acciones) ocupan todo el ancho. Va fuera de
+   las capas para ganarles a las utilidades de alineación y ancho de cada celda. */
+@media (width < 64rem) {
+  .tabla-apilable {
+    min-width: 0;
+  }
+  .tabla-apilable thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .tabla-apilable :is(tbody, tr, td) {
+    display: block;
+  }
+  .tabla-apilable tbody tr {
+    /* flow-root: la fila contiene una celda flotante (la miniatura de la obra). */
+    display: flow-root;
+    padding: 0.9rem 1rem;
+  }
+  .tabla-apilable tbody tr:first-child {
+    border-top: 0;
+  }
+  .tabla-apilable td {
+    min-width: 0;
+    padding: 0.3rem 0;
+    text-align: left;
+    white-space: normal;
+  }
+  .tabla-apilable td[data-etiqueta] {
+    display: grid;
+    grid-template-columns: minmax(6.5rem, 36%) minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: baseline;
+  }
+  .tabla-apilable td[data-etiqueta]::before {
+    content: attr(data-etiqueta);
+    color: var(--color-gris);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .tabla-apilable td:empty {
+    display: none;
+  }
+}
+
+@keyframes subir-suave {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes crecer-barra {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes crecer-ancho {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes menu-entrada {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Cada pantalla nueva del panel entra con un fundido breve (el main conserva el menú y la barra). */
+  .contenido-panel > :first-child {
+    animation: subir-suave 320ms var(--ease-suave) both;
+  }
+  /* Avisos de resultado (guardado, error): aparecen sin saltar. */
+  .aviso-panel {
+    animation: subir-suave 280ms var(--ease-suave) both;
+  }
+  .barra-grafico {
+    transform-origin: bottom;
+    animation: crecer-barra 700ms var(--ease-suave) both;
+    animation-delay: var(--retraso, 0ms);
+  }
+  .barra-progreso {
+    transform-origin: left;
+    animation: crecer-ancho 800ms var(--ease-suave) both;
+  }
+  .menu-movil[open] {
+    animation: menu-entrada 260ms var(--ease-suave) both;
+  }
+  .menu-movil[open]::backdrop {
+    animation: aparecer 260ms var(--ease-suave) both;
+  }
+}
+
+/* Botón chico para acciones dentro de tablas y tarjetas: blanco con borde fino; en el hover, azul. */
+@utility boton-tabla {
+  @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-white px-3.5 text-[0.9rem] font-semibold whitespace-nowrap text-tinta ring-1 ring-linea transition-[color,box-shadow] duration-200 ease-suave ring-inset hover:text-azul hover:ring-azul/50;
+}
+
+/* Tarjeta del panel: blanca, borde mínimo y sombra suave teñida de azul noche. */
+@utility tarjeta-panel {
+  @apply rounded-lg bg-white shadow-tarjeta ring-1 ring-linea;
 }

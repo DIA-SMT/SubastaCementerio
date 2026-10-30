@@ -1,7 +1,7 @@
 import type { SVGProps } from "react";
 
 // Ornamentos de la muestra "Memorias del futuro" (trazos del paquete de recursos visuales, en
-// el color del texto para poder teñirlos: oro sobre azul noche, dorado suave sobre marfil).
+// el color del texto para poder teñirlos: celeste sobre azul noche, azul suave sobre blanco cálido).
 // Siempre decorativos y en segundo plano: nunca llevan información.
 
 type Props = SVGProps<SVGSVGElement>;

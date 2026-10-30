@@ -2,22 +2,25 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useSyncExternalStore, type ComponentType, type SVGProps } from "react";
+import { useEffect, useRef, useSyncExternalStore, type ComponentType, type ReactNode, type SVGProps } from "react";
 import {
-  IconoAbajo,
   IconoAjustes,
   IconoAnterior,
   IconoArtista,
   IconoAuditoria,
+  IconoCerrar,
   IconoListado,
   IconoMartillo,
+  IconoMenu,
   IconoObra,
   IconoPersonas,
   IconoQr,
   IconoSiguiente,
   IconoTablero,
   IconoTexto,
+  IconoVer,
 } from "@/components/Iconos";
+import { OrnamentoArco } from "@/components/Ornamentos";
 
 type Seccion = { href: string; texto: string; Icono: ComponentType<SVGProps<SVGSVGElement>> };
 
@@ -63,86 +66,191 @@ const suscribir = (f: () => void) => {
   };
 };
 
+// Menú del celular y la tablet: el botón va en la barra superior y el menú, acá. Comparten este
+// estado (abierto o cerrado) sin pasar por un contexto.
+let movilAbierto = false;
+const oyentesMovil = new Set<() => void>();
+const abrirMovil = (valor: boolean) => {
+  movilAbierto = valor;
+  oyentesMovil.forEach((f) => f());
+};
+const suscribirMovil = (f: () => void) => {
+  oyentesMovil.add(f);
+  return () => oyentesMovil.delete(f);
+};
+const useMovilAbierto = () =>
+  useSyncExternalStore(
+    suscribirMovil,
+    () => movilAbierto,
+    () => false,
+  );
+
+type Logos = {
+  /** Logo completo a color, para el menú desplegado (lo arma el servidor: <Marca>). */
+  logo: ReactNode;
+  /** Solo el isologo, para el menú plegado. */
+  isologo: ReactNode;
+};
+
 /** Menú del panel con la sección actual marcada. Va dentro de <Suspense> (lee la URL). */
-export function NavPanel() {
-  return <MenuPanel ruta={usePathname()} />;
+export function NavPanel(logos: Logos) {
+  return <MenuPanel ruta={usePathname()} {...logos} />;
 }
 
 /** Mismo menú sin marcar la sección: se muestra mientras se resuelve la URL. */
-export function NavPanelBase() {
-  return <MenuPanel ruta={null} />;
+export function NavPanelBase(logos: Logos) {
+  return <MenuPanel ruta={null} {...logos} />;
+}
+
+/** Botón «Menú» de la barra superior (celular y tablet). */
+export function BotonMenuPanel() {
+  const abierto = useMovilAbierto();
+  return (
+    <button
+      type="button"
+      onClick={() => abrirMovil(true)}
+      aria-haspopup="dialog"
+      aria-expanded={abierto}
+      aria-controls="menu-panel"
+      data-recorrido="menu"
+      className="-ml-1.5 inline-flex min-h-11 items-center gap-2 rounded-md px-2.5 font-semibold text-tinta transition-colors duration-200 hover:bg-tinta/5 lg:hidden"
+    >
+      <IconoMenu className="text-[1.35rem] text-marino" />
+      <span className="max-[26rem]:sr-only">Menú</span>
+    </button>
+  );
 }
 
 /**
- * Computadora: columna fija a la izquierda (no se desplaza con la página: un espaciador ocupa
- * su lugar en el flujo y el menú va con position: fixed), en azul noche, que se pliega a una franja de íconos.
- * Celular y tablet: un botón con la sección actual que despliega el menú.
+ * Computadora: columna fija a la izquierda, de alto completo y en azul noche municipal, con el
+ * logo arriba (no se desplaza con la página: un espaciador ocupa su lugar en el flujo). Se pliega
+ * a una franja de íconos.
+ * Celular y tablet: el mismo menú en un panel lateral (diálogo modal: Escape lo cierra y el foco
+ * no sale de él mientras está abierto).
  */
-function MenuPanel({ ruta }: { ruta: string | null }) {
+function MenuPanel({ ruta, logo, isologo }: { ruta: string | null } & Logos) {
   const plegado = useSyncExternalStore(suscribir, leerPlegado, () => false);
-  const [abierto, setAbierto] = useState(false);
-  const actual = SECCIONES_PANEL.find((s) => esActiva(ruta, s.href));
+  const abierto = useMovilAbierto();
+  const dialogo = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    const d = dialogo.current;
+    if (!d) return;
+    if (abierto && !d.open) d.showModal();
+    if (!abierto && d.open) d.close();
+  }, [abierto]);
+
+  // Al cambiar de pantalla (también con «Atrás»), el menú del celular se cierra.
+  useEffect(() => abrirMovil(false), [ruta]);
 
   return (
     <>
       {/* Celular y tablet */}
-      <nav aria-label="Panel" data-recorrido="menu" className="border-b border-linea lg:hidden">
-        <button
-          type="button"
-          onClick={() => setAbierto((a) => !a)}
-          aria-expanded={abierto}
-          aria-controls="menu-panel"
-          className="flex min-h-12 w-full items-center gap-3 px-4 text-left font-medium text-tinta"
-        >
-          {actual ? <actual.Icono className="text-lg text-azul" /> : null}
-          <span className="flex-1">{actual?.texto ?? "Menú del panel"}</span>
-          <span className="text-[0.85rem] text-gris">{abierto ? "Cerrar" : "Menú"}</span>
-          <IconoAbajo className={`text-lg text-gris transition-transform duration-200 ${abierto ? "rotate-180" : ""}`} />
-        </button>
-        {abierto && (
-          <ul id="menu-panel" className="grid grid-cols-2 gap-1 px-2 pb-3 sm:grid-cols-3">
-            {SECCIONES_PANEL.map((s) => (
-              <li key={s.href}>
-                <Enlace seccion={s} activa={esActiva(ruta, s.href)} alElegir={() => setAbierto(false)} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </nav>
+      <dialog
+        ref={dialogo}
+        id="menu-panel"
+        aria-label="Menú del panel"
+        onClose={() => abrirMovil(false)}
+        // Un clic en el velo (fuera del panel) también cierra.
+        onClick={(e) => e.target === e.currentTarget && abrirMovil(false)}
+        className="menu-movil fondo-marino m-0 h-dvh max-h-none w-[min(20rem,86vw)] max-w-none overflow-hidden p-0 backdrop:bg-marino/55 backdrop:backdrop-blur-[2px] lg:hidden"
+      >
+        <div className="relative flex h-full flex-col">
+          <div className="flex min-h-16 items-center justify-between gap-3 border-b border-white/10 py-3 pr-3 pl-5">
+            <Link href="/admin" onClick={() => abrirMovil(false)} className="rounded-sm">
+              {logo}
+              <span className="sr-only">: ir al tablero</span>
+            </Link>
+            <button
+              type="button"
+              onClick={() => abrirMovil(false)}
+              className="flex h-11 w-11 items-center justify-center rounded-md text-[1.3rem] text-marino-tenue transition-colors duration-200 hover:bg-white/10 hover:text-white"
+            >
+              <IconoCerrar />
+              <span className="sr-only">Cerrar el menú</span>
+            </button>
+          </div>
+          <nav aria-label="Panel" className="relative z-10 flex-1 overflow-y-auto px-3 py-4">
+            <ul className="flex flex-col gap-1">
+              {SECCIONES_PANEL.map((s) => (
+                <li key={s.href}>
+                  <Enlace seccion={s} activa={esActiva(ruta, s.href)} alElegir={() => abrirMovil(false)} />
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <div className="relative z-10 border-t border-white/10 px-3 py-3">
+            <Link
+              href="/"
+              className="flex min-h-11 items-center gap-3 rounded-md px-3 text-[0.94rem] font-medium text-white/80 transition-colors duration-200 hover:bg-white/[0.07] hover:text-white"
+            >
+              <IconoVer className="text-lg text-marino-tenue" />
+              Ver el sitio
+            </Link>
+          </div>
+          <MarcaDeAgua />
+        </div>
+      </dialog>
 
       {/* Computadora */}
       <div
         aria-hidden
-        className={`hidden shrink-0 transition-[width] duration-300 ease-suave lg:block ${plegado ? "w-[4.25rem]" : "w-56"}`}
+        className={`hidden shrink-0 transition-[width] duration-300 ease-suave lg:block ${plegado ? "w-[4.75rem]" : "w-64"}`}
       />
       <nav
         aria-label="Panel"
         data-recorrido="menu"
-        className={`fondo-noche fixed top-[4.5rem] bottom-0 z-30 hidden flex-col pt-3 pb-5 transition-[width] duration-300 ease-suave lg:flex ${
-          plegado ? "w-[4.25rem] px-2" : "w-56 px-3"
+        className={`fondo-marino fixed inset-y-0 left-0 z-40 hidden flex-col overflow-hidden transition-[width] duration-300 ease-suave lg:flex ${
+          plegado ? "w-[4.75rem]" : "w-64"
         }`}
       >
-        <div className={`mb-2 flex ${plegado ? "justify-center" : "justify-end"}`}>
-          <button
-            type="button"
-            onClick={() => guardarPlegado(!plegado)}
-            aria-label={plegado ? "Desplegar el menú" : "Plegar el menú"}
-            aria-expanded={!plegado}
-            title={plegado ? "Desplegar el menú" : "Plegar el menú"}
-            className="flex h-7 w-7 items-center justify-center rounded-full text-[0.95rem] text-marfil/70 ring-1 ring-marfil/25 transition-colors duration-200 hover:bg-white/10 hover:text-marfil"
-          >
-            {plegado ? <IconoSiguiente /> : <IconoAnterior />}
-          </button>
+        <div className={`flex h-[4.5rem] shrink-0 items-center border-b border-white/10 ${plegado ? "justify-center" : "px-5"}`}>
+          <Link href="/admin" title={plegado ? "Tablero" : undefined} className="rounded-sm">
+            {plegado ? isologo : logo}
+            <span className="sr-only">: ir al tablero</span>
+          </Link>
         </div>
-        <ul className="flex flex-col gap-0.5">
+        <ul className={`relative z-10 flex flex-1 flex-col gap-1 overflow-y-auto py-4 ${plegado ? "px-2.5" : "px-3"}`}>
           {SECCIONES_PANEL.map((s) => (
             <li key={s.href}>
-              <Enlace seccion={s} activa={esActiva(ruta, s.href)} plegado={plegado} oscuro />
+              <Enlace seccion={s} activa={esActiva(ruta, s.href)} plegado={plegado} />
             </li>
           ))}
         </ul>
+        <div className={`relative z-10 flex flex-col gap-1 border-t border-white/10 py-3 ${plegado ? "items-center px-2.5" : "px-3"}`}>
+          <Link
+            href="/"
+            title={plegado ? "Ver el sitio" : undefined}
+            className={`flex min-h-10 items-center gap-3 rounded-md text-[0.9rem] font-medium text-marino-tenue transition-colors duration-200 hover:bg-white/[0.07] hover:text-white ${
+              plegado ? "w-10 justify-center" : "px-3"
+            }`}
+          >
+            <IconoVer className="text-lg" />
+            <span className={plegado ? "sr-only" : ""}>Ver el sitio</span>
+          </Link>
+          <button
+            type="button"
+            onClick={() => guardarPlegado(!plegado)}
+            aria-expanded={!plegado}
+            title={plegado ? "Desplegar el menú" : undefined}
+            className={`flex min-h-10 items-center gap-3 rounded-md text-[0.9rem] font-medium text-marino-tenue transition-colors duration-200 hover:bg-white/[0.07] hover:text-white ${
+              plegado ? "w-10 justify-center" : "w-full px-3"
+            }`}
+          >
+            {plegado ? <IconoSiguiente className="text-lg" /> : <IconoAnterior className="text-lg" />}
+            <span className={plegado ? "sr-only" : ""}>{plegado ? "Desplegar el menú" : "Plegar el menú"}</span>
+          </button>
+        </div>
+        {!plegado && <MarcaDeAgua />}
       </nav>
     </>
+  );
+}
+
+/** Marca de agua: el arco de la galería del cementerio, casi transparente, al pie del menú. */
+function MarcaDeAgua() {
+  return (
+    <OrnamentoArco aria-hidden className="pointer-events-none absolute -bottom-10 -left-8 w-56 text-white/[0.055]" />
   );
 }
 
@@ -150,36 +258,31 @@ function Enlace({
   seccion: { href, texto, Icono },
   activa,
   plegado = false,
-  oscuro = false,
   alElegir,
 }: {
   seccion: Seccion;
   activa: boolean;
   plegado?: boolean;
-  /** En la columna en azul noche (computadora). */
-  oscuro?: boolean;
   alElegir?: () => void;
 }) {
-  const estilo = oscuro
-    ? activa
-      ? "bg-white/10 font-semibold text-marfil before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-oro"
-      : "font-medium text-marfil/75 hover:bg-white/5 hover:text-marfil"
-    : activa
-      ? "bg-white font-semibold text-tinta shadow-suave ring-1 ring-linea"
-      : "font-medium text-texto hover:bg-white/60 hover:text-tinta";
-  const icono = oscuro ? (activa ? "text-oro" : "text-marfil/55") : activa ? "text-azul" : "text-gris-suave";
   return (
     <Link
       href={href}
       onClick={alElegir}
       aria-current={activa ? "page" : undefined}
       title={plegado ? texto : undefined}
-      className={`relative flex min-h-10 items-center gap-3 rounded-md px-3 text-[0.94rem] whitespace-nowrap transition-colors duration-200 ${
-        plegado ? "justify-center px-0" : ""
-      } ${estilo}`}
+      className={`relative flex min-h-11 items-center gap-3 rounded-md text-[0.95rem] whitespace-nowrap transition-[background-color,color] duration-200 ${
+        plegado ? "justify-center" : "px-3"
+      } ${
+        activa
+          ? "bg-smt font-semibold text-white shadow-[0_8px_18px_-10px_rgb(22_101_245/0.9)]"
+          : "font-medium text-white/80 hover:bg-white/[0.07] hover:text-white"
+      }`}
     >
-      <Icono className={`shrink-0 text-lg ${icono}`} />
+      <Icono className={`shrink-0 text-[1.2rem] ${activa ? "text-white" : "text-marino-tenue"}`} />
       <span className={plegado ? "sr-only" : ""}>{texto}</span>
+      {/* Acento amarillo del logo en la sección activa. */}
+      {activa && !plegado && <span aria-hidden className="ml-auto h-1.5 w-1.5 rounded-full bg-amarillo" />}
     </Link>
   );
 }

@@ -44,10 +44,10 @@ export function TextoEnRecuadro({
         onClick={(e) => {
           if (e.target === e.currentTarget) cerrar();
         }}
-        className="m-auto max-h-[min(85dvh,46rem)] w-[min(42rem,calc(100vw-2rem))] max-w-none flex-col overflow-hidden rounded-lg bg-white p-0 text-base text-texto shadow-elevada backdrop:bg-noche/55 open:flex"
+        className="m-auto max-h-[min(85dvh,46rem)] w-[min(42rem,calc(100vw-2rem))] max-w-none flex-col overflow-hidden rounded-lg bg-white p-0 text-base text-texto shadow-elevada backdrop:bg-marino/55 open:flex"
       >
         <div className="flex items-center justify-between gap-4 border-b border-linea px-5 py-4 md:px-6">
-          <h2 id={`${id}-titulo`} className="font-serif text-[1.6rem] leading-tight font-medium text-tinta">
+          <h2 id={`${id}-titulo`} className="font-display text-[1.35rem] leading-tight font-semibold text-tinta">
             {titulo}
           </h2>
           <button

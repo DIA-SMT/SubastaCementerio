@@ -151,7 +151,7 @@ function Filtros({ lectura, tablas, acciones }: { lectura: LecturaFiltros; tabla
     <Form
       key={hrefPagina(valores, 1)}
       action="/admin/auditoria"
-      className="rounded-lg border border-linea bg-white p-5"
+      className="tarjeta-panel p-4 md:p-5"
       aria-label="Filtros"
     >
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

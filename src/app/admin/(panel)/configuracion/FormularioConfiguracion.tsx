@@ -37,8 +37,8 @@ function describir(id: string, conAyuda: boolean, error?: string) {
 
 function Seccion({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
-    <fieldset data-recorrido={titulo} className="rounded-lg border border-linea bg-white p-5">
-      <legend className="float-left mb-4 w-full text-xl font-semibold text-tinta">{titulo}</legend>
+    <fieldset data-recorrido={titulo} className="tarjeta-panel p-5 md:p-6">
+      <legend className="float-left mb-5 w-full border-b border-linea pb-3 text-[1.15rem] font-semibold text-tinta">{titulo}</legend>
       <div className="clear-both space-y-5">{children}</div>
     </fieldset>
   );
@@ -278,8 +278,8 @@ export function FormularioConfiguracion({ inicial, actuales }: { inicial: Valore
       </Seccion>
 
       {motivos.length > 0 && (
-        <div className="space-y-3 rounded-md border-l-2 border-ambar bg-ambar-suave px-4 py-4 text-tinta">
-          <p className="text-xl font-semibold">Confirmá el cambio</p>
+        <div className="space-y-3 rounded-lg bg-ambar-suave px-4 py-4 text-tinta ring-1 ring-ambar/30 ring-inset md:px-5">
+          <p className="text-lg font-semibold">Confirmá el cambio</p>
           <ul id="confirmar-detalle" className="list-disc space-y-2 pl-6">
             {motivos.map((m) => (
               <li key={m}>{m}</li>
@@ -304,7 +304,13 @@ export function FormularioConfiguracion({ inicial, actuales }: { inicial: Valore
 
       <MensajeAccion estado={estado} />
 
-      <BotonEnviar className="w-full sm:w-auto">Guardar configuración</BotonEnviar>
+      {/* Barra de guardado: queda a la vista al pie de la pantalla mientras se recorre el formulario. */}
+      <div className="sticky bottom-0 z-10 -mx-4 border-t border-linea bg-white/90 px-4 py-3 backdrop-blur-md md:mx-0 md:rounded-lg md:border md:px-5 md:shadow-tarjeta">
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+          <p className="text-[0.9rem] text-gris">Los cambios se aplican al guardar y quedan registrados en la auditoría.</p>
+          <BotonEnviar className="w-full sm:w-auto">Guardar configuración</BotonEnviar>
+        </div>
+      </div>
     </form>
   );
 }

@@ -58,15 +58,14 @@ async function Contenido({
             {tituloObra(obra.titulo)} · {obra.artistaNombre}
           </>
         }
+        migas={[
+          { href: "/admin/obras", texto: "Obras" },
+          { href: `/admin/obras/${obra.id}`, texto: `Obra N° ${obra.numero}` },
+        ]}
         acciones={
-          <>
-            <Link href={`/admin/obras/${obra.id}`} className="boton-secundario">
-              Volver a la obra
-            </Link>
-            <Link href={`/admin/ofertas?obra=${obra.numero}`} className="boton-secundario">
-              Ver en todas las ofertas
-            </Link>
-          </>
+          <Link href={`/admin/ofertas?obra=${obra.numero}`} className="boton-secundario">
+            Ver en todas las ofertas
+          </Link>
         }
       />
 
@@ -196,7 +195,7 @@ function SeccionAnular({
     <section
       id="anular-oferta"
       aria-labelledby="titulo-anular"
-      className="scroll-mt-6 rounded-lg border-2 border-rojo bg-white p-5"
+      className="tarjeta-panel scroll-mt-6 p-5 ring-2 ring-rojo/70 md:p-6"
     >
       <h2 id="titulo-anular" className="text-xl">
         Anular la oferta de {pesos(oferta.monto)}
@@ -252,7 +251,7 @@ function SeccionAnular({
 
 function TablaOfertas({ ofertas, base, anulando }: { ofertas: OfertaAdmin[]; base: string; anulando?: number }) {
   return (
-    <TablaContenedor etiqueta="Ofertas de la obra, de mayor a menor monto">
+    <TablaContenedor etiqueta="Ofertas de la obra, de mayor a menor monto" apilable>
       <caption className="sr-only">Todas las ofertas de la obra, válidas y anuladas, de mayor a menor monto</caption>
       <thead>
         <tr>
@@ -278,49 +277,56 @@ function TablaOfertas({ ofertas, base, anulando }: { ofertas: OfertaAdmin[]; bas
             id={`oferta-${o.id}`}
             className={`scroll-mt-6 ${o.esLaMasAlta ? "bg-verde-suave" : ""} ${anulando === o.id ? "outline-2 -outline-offset-2 outline-rojo" : ""}`}
           >
-            <td>
+            <td data-etiqueta="Fecha y hora">
               <FechaHora fecha={o.creadaAt} />
             </td>
-            <td>
+            <td data-etiqueta="Oferente">
               <EnlaceOferente id={o.oferenteId} alias={o.alias} bloqueado={o.bloqueado} />
             </td>
-            <td className="min-w-40">
+            <td data-etiqueta="Nombre y apellido" className="lg:min-w-40">
               {o.nombre} {o.apellido}
             </td>
-            <td className="whitespace-nowrap">{o.dni}</td>
-            <td>
+            <td data-etiqueta="DNI" className="whitespace-nowrap">
+              {o.dni}
+            </td>
+            <td data-etiqueta="Teléfono">
               <EnlaceTelefono telefono={o.telefono} />
             </td>
-            <td className="min-w-48">
+            <td data-etiqueta="Correo" className="lg:min-w-48">
               <EnlaceCorreo email={o.email} />
             </td>
-            <td className={`text-right font-semibold whitespace-nowrap text-tinta ${o.estado === "anulada" ? "line-through" : ""}`}>
+            <td
+              data-etiqueta="Monto"
+              className={`text-right font-semibold whitespace-nowrap text-tinta ${o.estado === "anulada" ? "line-through" : ""}`}
+            >
               {pesos(o.monto)}
             </td>
-            <td className="min-w-56">
-              <EstadoDeOferta estado={o.estado} esLaMasAlta={o.esLaMasAlta} />
-              {o.estado === "anulada" && (
-                <div className="mt-2 text-base">
-                  <p>
-                    <span className="font-semibold text-tinta">Motivo:</span> {o.motivoAnulacion}
-                  </p>
-                  <p className="text-gris">
-                    Anulada por {o.anuladaPorNombre ?? "el equipo"}
-                    {o.anuladaAt && (
-                      <>
-                        {" el "}
-                        <FechaHora fecha={o.anuladaAt} />
-                      </>
-                    )}
-                  </p>
-                </div>
-              )}
+            <td data-etiqueta="Estado" className="lg:min-w-56">
+              <div>
+                <EstadoDeOferta estado={o.estado} esLaMasAlta={o.esLaMasAlta} />
+                {o.estado === "anulada" && (
+                  <div className="mt-2 text-[0.94rem]">
+                    <p>
+                      <span className="font-semibold text-tinta">Motivo:</span> {o.motivoAnulacion}
+                    </p>
+                    <p className="text-gris">
+                      Anulada por {o.anuladaPorNombre ?? "el equipo"}
+                      {o.anuladaAt && (
+                        <>
+                          {" el "}
+                          <FechaHora fecha={o.anuladaAt} />
+                        </>
+                      )}
+                    </p>
+                  </div>
+                )}
+              </div>
             </td>
-            <td>
+            <td className="lg:text-right">
               {o.estado === "valida" && (
                 <Link
                   href={`${base}?anular=${o.id}#anular-oferta`}
-                  className={`${claseBotonChico} border-rojo bg-rojo-suave text-tinta hover:bg-white`}
+                  className={`${claseBotonChico} bg-rojo-suave text-tinta ring-rojo/60 hover:bg-white hover:ring-rojo`}
                   aria-label={`Anular la oferta de ${pesos(o.monto)} de Oferente ${o.alias}`}
                 >
                   Anular

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { Recuadro } from "@/components/Avisos";
+import { IconoDescargar } from "@/components/Iconos";
 import { Esqueleto, TituloPanel } from "@/components/admin/Panel";
 import { requerirAdmin } from "@/lib/admin/sesion";
 import { obrasParaCarteles } from "@/lib/datos/admin/exportacion";
@@ -22,6 +23,7 @@ export default function PaginaQr() {
         acciones={
           // eslint-disable-next-line @next/next/no-html-link-for-pages -- es una descarga (Route Handler), no una página
           <a href="/admin/qr/pdf" className="boton-primario">
+            <IconoDescargar className="text-lg" />
             Descargar carteles (PDF)
           </a>
         }
@@ -83,8 +85,8 @@ async function Contenido() {
 function TarjetaQr({ obra, svg }: { obra: ObraCartel; svg: string }) {
   const titulo = tituloObra(obra.titulo);
   return (
-    <li className="flex flex-col rounded-lg border border-linea bg-white p-5">
-      <p className="font-semibold text-gris">Obra N° {obra.numero}</p>
+    <li className="tarjeta-panel flex flex-col p-5">
+      <p className="text-[0.9rem] font-semibold text-smt-intenso">Obra N° {obra.numero}</p>
       <h2 className={`mt-0.5 text-xl ${obra.titulo?.trim() ? "" : "italic"}`}>{titulo}</h2>
       <p>
         de <span className="font-semibold text-tinta">{obra.artista}</span>
@@ -92,17 +94,19 @@ function TarjetaQr({ obra, svg }: { obra: ObraCartel; svg: string }) {
       <div
         role="img"
         aria-label={`Código QR de la obra N° ${obra.numero}, lleva a ${urlCorta(obra.url)}`}
-        className="mx-auto my-4 w-full max-w-56 [&_svg]:block [&_svg]:h-auto [&_svg]:w-full"
+        className="mx-auto my-5 w-full max-w-56 rounded-md bg-white p-2 ring-1 ring-linea [&_svg]:block [&_svg]:h-auto [&_svg]:w-full"
         // SVG generado en el servidor por la librería qrcode a partir de la dirección de la obra.
         dangerouslySetInnerHTML={{ __html: svg }}
       />
-      <p className="text-center text-base break-all text-tinta">{urlCorta(obra.url)}</p>
+      <p className="text-center text-[0.9rem] break-all text-gris">{urlCorta(obra.url)}</p>
       <div className="mt-4 grid grid-cols-2 gap-3">
         {/* El nombre accesible empieza con el texto visible ("Bajar PNG"), así funciona el control por voz. */}
-        <a href={`/admin/qr/${obra.numero}?formato=png`} className="boton-secundario px-3">
+        <a href={`/admin/qr/${obra.numero}?formato=png`} className="boton-tabla">
+          <IconoDescargar className="text-[1.05rem]" />
           Bajar PNG<span className="sr-only"> del QR de la obra N° {obra.numero}</span>
         </a>
-        <a href={`/admin/qr/${obra.numero}?formato=svg`} className="boton-secundario px-3">
+        <a href={`/admin/qr/${obra.numero}?formato=svg`} className="boton-tabla">
+          <IconoDescargar className="text-[1.05rem]" />
           Bajar SVG<span className="sr-only"> del QR de la obra N° {obra.numero}</span>
         </a>
       </div>

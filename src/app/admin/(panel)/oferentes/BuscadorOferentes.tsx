@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState } from "react";
 import { BotonEnviar } from "@/components/admin/BotonEnviar";
-import { Etiqueta, MensajeAccion, TablaContenedor, Tarjeta } from "@/components/admin/Panel";
+import { IconoBuscar, IconoPersonas } from "@/components/Iconos";
+import { EstadoVacio, Etiqueta, MensajeAccion, TablaContenedor, Tarjeta } from "@/components/admin/Panel";
 import { numeroConPuntos } from "@/lib/formato";
 import { EnlaceCorreo, EnlaceTelefono, FechaHora } from "../ofertas/partes";
 import { buscarOferentesAccion } from "./acciones";
@@ -59,17 +60,23 @@ function Buscador({ todos }: { todos: ListadoOferentes }) {
                 Buscar
               </label>
               {/* Después de cada búsqueda, React vuelve el formulario a estos valores: queda el texto buscado. */}
-              <input
-                id="buscar"
-                name="q"
-                type="search"
-                defaultValue={busqueda}
-                maxLength={100}
-                autoComplete="off"
-                spellCheck={false}
-                className="campo"
-                aria-describedby="buscar-ayuda"
-              />
+              <div className="relative">
+                <IconoBuscar
+                  aria-hidden
+                  className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-[1.2rem] text-gris"
+                />
+                <input
+                  id="buscar"
+                  name="q"
+                  type="search"
+                  defaultValue={busqueda}
+                  maxLength={100}
+                  autoComplete="off"
+                  spellCheck={false}
+                  className="campo pl-11"
+                  aria-describedby="buscar-ayuda"
+                />
+              </div>
             </div>
             <div className="flex flex-wrap gap-3">
               <BotonEnviar enviando="Buscando…">Buscar</BotonEnviar>
@@ -80,7 +87,7 @@ function Buscador({ todos }: { todos: ListadoOferentes }) {
               )}
             </div>
           </div>
-          <p id="buscar-ayuda" className="mt-2 text-base text-gris">
+          <p id="buscar-ayuda" className="mt-2 text-[0.94rem] text-gris">
             Por nombre, apellido, DNI, correo o número de oferente (por ejemplo, «Oferente 12»).
           </p>
         </form>
@@ -89,11 +96,21 @@ function Buscador({ todos }: { todos: ListadoOferentes }) {
       {estado && "error" in estado && <MensajeAccion estado={{ error: estado.error }} />}
 
       {/* Un solo aviso que cambia de texto: los lectores de pantalla anuncian cada resultado. */}
-      <p role="status" className="text-gris">
+      <p role="status" className="text-[0.94rem] text-gris">
         {buscando ? "Buscando…" : resultado ? textoCantidad(resultado, busqueda) : ""}
       </p>
 
       {resultado && resultado.oferentes.length > 0 && <TablaOferentes oferentes={resultado.oferentes} />}
+      {resultado && resultado.total === 0 && (
+        <EstadoVacio
+          titulo={busqueda ? "Nadie coincide con la búsqueda." : "Todavía no hay personas registradas."}
+          icono={IconoPersonas}
+        >
+          {busqueda
+            ? "Revisá lo que escribiste o probá con menos palabras."
+            : "Aparecen acá cuando alguien se registra en el sitio para ofertar."}
+        </EstadoVacio>
+      )}
     </>
   );
 }
@@ -112,7 +129,7 @@ function textoCantidad({ total, limite }: ListadoOferentes, busqueda: string) {
 
 function TablaOferentes({ oferentes }: { oferentes: OferenteEnListado[] }) {
   return (
-    <TablaContenedor etiqueta="Oferentes">
+    <TablaContenedor etiqueta="Oferentes" apilable>
       <caption className="sr-only">Personas registradas para ofertar</caption>
       <thead>
         <tr>
@@ -139,25 +156,31 @@ function TablaOferentes({ oferentes }: { oferentes: OferenteEnListado[] }) {
                 Oferente {o.alias}
               </Link>
             </td>
-            <td className="min-w-40">
+            <td data-etiqueta="Nombre y apellido" className="lg:min-w-40">
               {o.nombre} {o.apellido}
             </td>
-            <td className="whitespace-nowrap">{o.dni}</td>
-            <td>
+            <td data-etiqueta="DNI" className="whitespace-nowrap">
+              {o.dni}
+            </td>
+            <td data-etiqueta="Teléfono">
               <EnlaceTelefono telefono={o.telefono} />
             </td>
-            <td className="min-w-48">
+            <td data-etiqueta="Correo" className="lg:min-w-48">
               <EnlaceCorreo email={o.email} />
             </td>
-            <td>
+            <td data-etiqueta="Registro">
               <FechaHora fecha={o.creadoAt} />
             </td>
-            <td className="text-right font-semibold text-tinta">{o.ofertasValidas}</td>
-            <td className="text-right font-semibold text-tinta">
-              {o.obrasMasAlta}
-              <span className="sr-only"> {o.obrasMasAlta === 1 ? "obra" : "obras"}</span>
+            <td data-etiqueta="Ofertas válidas" className="text-right font-semibold text-tinta">
+              {o.ofertasValidas}
             </td>
-            <td>
+            <td data-etiqueta="Obras con la oferta más alta" className="text-right font-semibold text-tinta">
+              <span>
+                {o.obrasMasAlta}
+                <span className="sr-only"> {o.obrasMasAlta === 1 ? "obra" : "obras"}</span>
+              </span>
+            </td>
+            <td data-etiqueta="Estado">
               <span className="flex flex-wrap gap-1.5">
                 {o.bloqueado ? <Etiqueta tono="rojo">Bloqueado</Etiqueta> : <Etiqueta tono="gris">Habilitado</Etiqueta>}
                 {o.esEjemplo && <Etiqueta tono="ambar">Ejemplo</Etiqueta>}

@@ -34,11 +34,7 @@ async function Contenido({ params }: { params: PageProps<"/admin/oferentes/[id]"
       <TituloPanel
         titulo={`Oferente ${oferente.alias}`}
         bajada={`${oferente.nombre} ${oferente.apellido}`}
-        acciones={
-          <Link href="/admin/oferentes" className="boton-secundario">
-            Volver a oferentes
-          </Link>
-        }
+        migas={[{ href: "/admin/oferentes", texto: "Oferentes" }]}
       />
 
       <div className="flex flex-wrap gap-2">
