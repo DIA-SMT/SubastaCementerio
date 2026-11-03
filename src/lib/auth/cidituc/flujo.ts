@@ -95,6 +95,20 @@ export function inicioCidituc(request: NextRequest): NextResponse {
   return res;
 }
 
+/**
+ * Descarta una sesión que ya no corresponde a nadie (la persona no está en la base: se reinició
+ * o se borró) y vuelve al ingreso. Sin esto, /ingresar ve una sesión y manda a /registro, y
+ * /registro no encuentra a la persona y manda a /ingresar, sin fin. Los Server Components no
+ * pueden borrar cookies: por eso es una ruta.
+ */
+export function descartarSesion(request: NextRequest): NextResponse {
+  const destino = destinoSeguro(request.nextUrl.searchParams.get("volver"));
+  const parametros = destino === "/obras" ? "" : `?${new URLSearchParams({ volver: destino })}`;
+  const res = NextResponse.redirect(interna(request, `/ingresar${parametros}`), 303);
+  res.cookies.set(COOKIE_SESION, "", { ...OPCIONES_COOKIE, maxAge: 0 });
+  return res;
+}
+
 /** Vuelta desde Cidituc: valida el token, guarda a la persona y abre la sesión de la subasta. */
 export async function callbackCidituc(request: NextRequest): Promise<NextResponse> {
   const parametros = request.nextUrl.searchParams;

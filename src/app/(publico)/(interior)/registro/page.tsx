@@ -47,8 +47,9 @@ async function Registro({ searchParams }: Pick<PageProps<"/registro">, "searchPa
   if (!usuario) redirect(`/ingresar?volver=${encodeURIComponent(volver)}`);
   if (await esOferente(usuario.id)) redirect(volver);
   const persona = await miPersona(usuario.id);
-  // Sin la fila de Cidituc (por ejemplo, la base se reinició): a ingresar de nuevo.
-  if (!persona) redirect(`/ingresar?volver=${encodeURIComponent(volver)}`);
+  // Una sesión de una persona que ya no está en la base (se reinició o se borró): se descarta
+  // la cookie, o /ingresar volvería a mandar acá.
+  if (!persona) redirect(`/auth/cidituc/descartar?volver=${encodeURIComponent(volver)}`);
   const [bases, privacidad] = await Promise.all([
     textoLegal("bases-y-condiciones", "Bases y condiciones"),
     textoLegal("privacidad", "Política de privacidad"),

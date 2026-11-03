@@ -226,6 +226,12 @@ describe("ida y vuelta por el derivador", () => {
     expect(r.headers.get("location")).toBe("https://subasta.test/obras/7/ofertar");
   });
 
+  it("una sesión de una persona que ya no existe se descarta y vuelve al ingreso", async () => {
+    const r = (await flujo()).descartarSesion(pedido("https://subasta.test/auth/cidituc/descartar?volver=/obras/7"));
+    expect(r.headers.get("location")).toBe("https://subasta.test/ingresar?volver=%2Fobras%2F7");
+    expect(r.cookies.get("subasta_oferente")).toMatchObject({ value: "", maxAge: 0 });
+  });
+
   it("si Cidituc rechaza el token, vuelve al ingreso conservando el destino y sin sesión", async () => {
     simulado.respuesta = { status: 401, body: "" };
     const r = await (await flujo()).callbackCidituc(
