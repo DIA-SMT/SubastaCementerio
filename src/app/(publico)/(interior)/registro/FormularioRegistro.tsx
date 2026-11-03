@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef, type ReactNode } from "react";
 import { TextoEnRecuadro } from "@/components/TextoEnRecuadro";
+import type { PersonaCidituc } from "@/lib/datos/tipos";
 import { registrarse, type EstadoRegistro } from "./acciones";
 
 /** Texto de las bases o de la privacidad, ya armado en el servidor, para leerlo en un recuadro. */
@@ -19,12 +20,12 @@ function MensajeError({ id, texto }: { id: string; texto?: string }) {
 
 export function FormularioRegistro({
   volver,
-  email,
+  persona,
   bases,
   privacidad,
 }: {
   volver: string;
-  email: string;
+  persona: PersonaCidituc;
   bases: TextoLegal;
   privacidad: TextoLegal;
 }) {
@@ -59,7 +60,7 @@ export function FormularioRegistro({
   });
 
   const campo = (
-    nombre: "nombre" | "apellido" | "dni" | "telefono",
+    nombre: "telefono" | "email",
     etiqueta: string,
     props: React.InputHTMLAttributes<HTMLInputElement>,
     ayuda?: string,
@@ -72,7 +73,7 @@ export function FormularioRegistro({
         id={nombre}
         name={nombre}
         required
-        defaultValue={v[nombre]}
+        defaultValue={v[nombre] ?? (nombre === "email" ? (persona.email ?? "") : undefined)}
         className="campo"
         aria-invalid={e[nombre] ? true : undefined}
         aria-describedby={[ayuda && `ayuda-${nombre}`, e[nombre] && `error-${nombre}`].filter(Boolean).join(" ") || undefined}
@@ -91,14 +92,26 @@ export function FormularioRegistro({
     <form ref={formulario} action={enviar} className="space-y-5" noValidate>
       <input type="hidden" name="volver" value={volver} />
       <div className="rounded-md bg-fondo px-4 py-3">
-        <p className="text-texto">Correo confirmado</p>
-        <p className="font-bold break-all text-tinta">{email}</p>
+        <p className="text-texto">Tus datos de Ciudadano Digital</p>
+        <dl className="mt-2 grid gap-x-6 gap-y-1 sm:grid-cols-[auto_1fr]">
+          <dt className="text-gris">Nombre</dt>
+          <dd className="font-bold text-tinta">
+            {persona.nombre} {persona.apellido}
+          </dd>
+          <dt className="text-gris">DNI</dt>
+          <dd className="font-bold text-tinta tabular-nums">{persona.dni}</dd>
+        </dl>
       </div>
 
-      {campo("nombre", "Nombre", { autoComplete: "given-name" })}
-      {campo("apellido", "Apellido", { autoComplete: "family-name" })}
-      {campo("dni", "DNI", { inputMode: "numeric", autoComplete: "off" }, "Solo números, sin puntos.")}
       {campo("telefono", "Teléfono", { type: "tel", inputMode: "tel", autoComplete: "tel" }, "Con código de área, por ejemplo 381 555 1234.")}
+      {campo(
+        "email",
+        "Correo",
+        { type: "email", autoComplete: "email" },
+        persona.email
+          ? "El de tu cuenta de Ciudadano Digital. Podés cambiarlo: es al que te mandamos los avisos."
+          : "Te avisamos por correo si alguien supera tu oferta.",
+      )}
 
       <fieldset className="space-y-3 rounded-md border border-linea p-4">
         <legend className="px-1 font-semibold text-tinta">Antes de participar</legend>

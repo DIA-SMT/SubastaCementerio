@@ -5,7 +5,7 @@ import { IconoObra } from "@/components/Iconos";
 import { PlazoCompacto } from "@/components/Plazo";
 import { RefrescoPeriodico } from "@/components/RefrescoPeriodico";
 import { TarjetaObra } from "@/components/TarjetaObra";
-import { usuarioActual } from "@/lib/auth";
+import { ciudadanoActual } from "@/lib/auth/ciudadano";
 import { estadoSubasta, listarObras } from "@/lib/datos/publico";
 import type { ObraResumen } from "@/lib/datos/tipos";
 
@@ -29,7 +29,7 @@ export default function Catalogo({ searchParams }: PageProps<"/obras">) {
 async function Listado({ searchParams }: Pick<PageProps<"/obras">, "searchParams">) {
   const { ver } = await searchParams;
   const filtro = FILTROS.find((f) => f.clave === ver) ?? FILTROS[0];
-  const usuario = await usuarioActual();
+  const usuario = await ciudadanoActual();
   const [estado, todas] = await Promise.all([estadoSubasta(), listarObras(usuario?.id)]);
   const obras = todas.filter(filtro.incluye);
   return (

@@ -6,8 +6,9 @@ import { cookies } from "next/headers";
 import { consultar } from "@/lib/db";
 import type { ResultadoAuth, Usuario } from "./tipos";
 
-// Autenticación del MODO LOCAL. Reemplaza a Supabase Auth solo para desarrollo:
-// el código de ingreso se muestra en pantalla y la sesión es una cookie firmada.
+// Ingreso al panel en el MODO LOCAL. Reemplaza a Supabase Auth solo para desarrollo: la
+// contraseña se compara contra auth.users de PGlite y la sesión es una cookie firmada. Los
+// oferentes ingresan con Cidituc también en local (src/lib/auth/ciudadano.ts).
 
 const COOKIE = "subasta_sesion_local";
 const DURACION_S = 60 * 60 * 24 * 30;
@@ -58,43 +59,6 @@ export async function usuarioActual(): Promise<Usuario | null> {
     [uid],
   );
   return filas[0] ?? null;
-}
-
-export async function enviarCodigo(email: string): Promise<ResultadoAuth> {
-  const codigo = String(crypto.randomInt(0, 1_000_000)).padStart(6, "0");
-  await consultar(
-    servicio,
-    `insert into local.codigos (email, codigo, vence_at, intentos)
-     values ($1, $2, now() + interval '10 minutes', 0)
-     on conflict (email) do update set codigo = excluded.codigo, vence_at = excluded.vence_at, intentos = 0`,
-    [email, codigo],
-  );
-  console.info(`[modo local] Código de ingreso para ${email}: ${codigo}`);
-  return { ok: true, codigoLocal: codigo };
-}
-
-export async function verificarCodigo(email: string, codigo: string): Promise<ResultadoAuth> {
-  const [fila] = await consultar<{ codigo: string; vencido: boolean; intentos: number }>(
-    servicio,
-    "select codigo, vence_at < now() as vencido, intentos from local.codigos where email = $1",
-    [email],
-  );
-  if (!fila || fila.vencido) return { ok: false, error: "codigo_vencido" };
-  if (fila.intentos >= 5) return { ok: false, error: "demasiados_intentos" };
-  if (fila.codigo !== codigo) {
-    await consultar(servicio, "update local.codigos set intentos = intentos + 1 where email = $1", [email]);
-    return { ok: false, error: "codigo_incorrecto" };
-  }
-  await consultar(servicio, "delete from local.codigos where email = $1", [email]);
-  const [usuario] = await consultar<{ id: string }>(
-    servicio,
-    `insert into auth.users (email, email_confirmed_at) values ($1, now())
-     on conflict (email) do update set email_confirmed_at = coalesce(auth.users.email_confirmed_at, now())
-     returning id`,
-    [email],
-  );
-  await abrirSesion(usuario.id);
-  return { ok: true, uid: usuario.id };
 }
 
 export async function ingresarConContrasena(email: string, contrasena: string): Promise<ResultadoAuth> {

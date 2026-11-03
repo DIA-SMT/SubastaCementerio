@@ -13,6 +13,27 @@
       "runtimeArgs": ["run", "dev"],
       "env": { "DATABASE_URL": "" },
       "port": 3000
+    },
+    {
+      "name": "subasta-local-cidituc",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "3010"],
+      "env": {
+        "DATABASE_URL": "",
+        "CIDITUC_HABILITADO": "1",
+        "CIDITUC_DERIVADOR_URL": "http://localhost:5174",
+        "CIDITUC_API_URL": "https://estadisticas.smt.gob.ar:5000",
+        "CIDITUC_CALLBACK_URL": "http://localhost:3010/auth/cidituc/callback"
+      },
+      "port": 3010,
+      "autoPort": false
+    },
+    {
+      "name": "derivador",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "C:/repo/derivador", "run", "dev", "--", "--port", "5174", "--strictPort"],
+      "port": 5174,
+      "autoPort": false
     }
   ]
 }

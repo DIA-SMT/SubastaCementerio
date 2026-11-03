@@ -6,7 +6,7 @@ import { Suspense } from "react";
 import { Recuadro } from "@/components/Avisos";
 import { FotoObra } from "@/components/FotoObra";
 import { IconoAnterior } from "@/components/Iconos";
-import { usuarioActual } from "@/lib/auth";
+import { ciudadanoActual } from "@/lib/auth/ciudadano";
 import { miPerfil } from "@/lib/datos/oferente";
 import { estadoSubasta, obtenerObra } from "@/lib/datos/publico";
 import { tituloObra } from "@/lib/formato";
@@ -32,7 +32,7 @@ async function Ofertar({ params }: Pick<PageProps<"/obras/[numero]/ofertar">, "p
   if (!numero) notFound();
 
   const destino = `/obras/${numero}/ofertar`;
-  const usuario = await usuarioActual();
+  const usuario = await ciudadanoActual();
   if (!usuario) redirect(`/ingresar?volver=${encodeURIComponent(destino)}`);
   const perfil = await miPerfil(usuario.id);
   if (!perfil) redirect(`/registro?volver=${encodeURIComponent(destino)}`);

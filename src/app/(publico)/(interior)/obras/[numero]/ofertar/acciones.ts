@@ -1,7 +1,7 @@
 "use server";
 
 import { after } from "next/server";
-import { usuarioActual } from "@/lib/auth";
+import { ciudadanoActual } from "@/lib/auth/ciudadano";
 import { procesarAvisos } from "@/lib/avisos";
 import { ofertar } from "@/lib/datos/oferente";
 import { MONTO_MAXIMO, montoDesdeTexto } from "@/lib/validacion";
@@ -15,7 +15,7 @@ export type ResultadoOferta =
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function confirmarOferta(_previo: ResultadoOferta, datos: FormData): Promise<ResultadoOferta> {
-  const usuario = await usuarioActual();
+  const usuario = await ciudadanoActual();
   if (!usuario) return { estado: "error", codigo: "sin_sesion" };
 
   const obraId = String(datos.get("obraId") ?? "");

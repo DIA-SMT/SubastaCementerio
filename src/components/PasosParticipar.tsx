@@ -13,7 +13,7 @@ const PASOS = [
   },
   {
     titulo: "Realizá tu oferta",
-    texto: "Ingresá con tu correo y el código que te enviamos. Revisá el monto y confirmalo antes de registrarlo.",
+    texto: "Ingresá con Ciudadano Digital. Revisá el monto y confirmalo antes de registrarlo.",
     Icono: IconoMartillo,
   },
   {
