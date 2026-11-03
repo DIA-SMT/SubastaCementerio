@@ -30,9 +30,8 @@ const MENSAJES: Record<string, string> = {
   monto_invalido: "Revisá el monto: escribí solo números.",
   monto_muy_alto: MONTO_MUY_ALTO,
   obra_inexistente: "No encontramos esta obra.",
-  sin_sesion: "Tu sesión terminó. Volvé a ingresar con tu correo.",
+  sin_sesion: "Tu sesión terminó. Volvé a ingresar con Ciudadano Digital.",
   sin_registro: "Antes de ofertar tenés que completar tus datos.",
-  correo_sin_verificar: "Antes de ofertar tenés que confirmar tu correo.",
 };
 
 /** Explica por qué el monto ya no alcanza, según lo que cambió desde que se mostró la obra. */

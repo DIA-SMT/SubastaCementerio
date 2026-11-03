@@ -3,8 +3,8 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { Cabecera, Columna } from "@/components/Cabecera";
 import { Markdown } from "@/components/Markdown";
-import { usuarioActual } from "@/lib/auth";
-import { miPerfil } from "@/lib/datos/oferente";
+import { ciudadanoActual } from "@/lib/auth/ciudadano";
+import { esOferente, miPersona } from "@/lib/datos/oferente";
 import { obtenerPagina } from "@/lib/datos/publico";
 import type { SlugPagina } from "@/lib/datos/tipos";
 import { rutaSegura } from "@/lib/validacion";
@@ -43,12 +43,15 @@ export default function PaginaRegistro({ searchParams }: PageProps<"/registro">)
 
 async function Registro({ searchParams }: Pick<PageProps<"/registro">, "searchParams">) {
   const volver = rutaSegura((await searchParams).volver);
-  const usuario = await usuarioActual();
+  const usuario = await ciudadanoActual();
   if (!usuario) redirect(`/ingresar?volver=${encodeURIComponent(volver)}`);
-  if (await miPerfil(usuario.id)) redirect(volver);
+  if (await esOferente(usuario.id)) redirect(volver);
+  const persona = await miPersona(usuario.id);
+  // Sin la fila de Cidituc (por ejemplo, la base se reinició): a ingresar de nuevo.
+  if (!persona) redirect(`/ingresar?volver=${encodeURIComponent(volver)}`);
   const [bases, privacidad] = await Promise.all([
     textoLegal("bases-y-condiciones", "Bases y condiciones"),
     textoLegal("privacidad", "Política de privacidad"),
   ]);
-  return <FormularioRegistro volver={volver} email={usuario.email} bases={bases} privacidad={privacidad} />;
+  return <FormularioRegistro volver={volver} persona={persona} bases={bases} privacidad={privacidad} />;
 }

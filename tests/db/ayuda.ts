@@ -19,19 +19,37 @@ export async function como<T>(db: PGlite, rol: Rol, fn: (tx: Transaction) => Pro
   });
 }
 
-export async function crearUsuario(db: PGlite, email: string, verificado = true) {
+/**
+ * Persona que ingresó con Cidituc, todavía sin registro de oferente (como lo hace el callback).
+ * Con `cidituc = false`, una persona de antes de Cidituc: no puede registrarse.
+ */
+export async function crearUsuario(db: PGlite, email: string, cidituc = true) {
   const { rows } = await db.query<{ id: string }>(
-    "insert into auth.users (email, email_confirmed_at) values ($1, case when $2 then now() end) returning id",
-    [email, verificado],
+    `insert into public.personas (cidituc_id, cuil, dni, nombre, apellido, email)
+     values (case when $2 then gen_random_uuid()::text end, case when $2 then '20100000003' end,
+             '10000000', 'Ana', 'Prueba', $1)
+     returning id`,
+    [email, cidituc],
   );
   return rows[0].id;
 }
 
+/** Cuenta del equipo (panel): esas siguen en auth.users. */
+export async function crearCuentaEquipo(db: PGlite, email: string) {
+  const { rows } = await db.query<{ id: string }>(
+    "insert into auth.users (email, email_confirmed_at) values ($1, now()) returning id",
+    [email],
+  );
+  return rows[0].id;
+}
+
+/** Registro de oferente. El DNI es el que trajo Cidituc: se fija en la persona antes de registrar. */
 export async function registrar(db: PGlite, uid: string, dni: string) {
+  await db.query("update public.personas set dni = regexp_replace($2, '[^0-9]', '', 'g') where id = $1", [uid, dni]);
   const { rows } = await como(db, { rol: "authenticated", uid }, (tx) =>
     tx.query<{ r: { ok: boolean; codigo?: string; alias_numero?: number } }>(
-      "select public.registrar_oferente('Ana', 'Prueba', $1, '381 555-1234', true, true) as r",
-      [dni],
+      "select public.registrar_oferente('381 555-1234', (select email from public.personas where id = $1), true, true) as r",
+      [uid],
     ),
   );
   return rows[0].r;

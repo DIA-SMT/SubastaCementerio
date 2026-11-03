@@ -2,12 +2,7 @@ import "server-only";
 import { connection } from "next/server";
 import { cache } from "react";
 import { modoLocal } from "@/lib/entorno";
-import {
-  contrasenaCorrecta,
-  permitirPedidoDeCodigo,
-  permitirPruebaDeCodigo,
-  permitirPruebaDeContrasena,
-} from "./limites";
+import { contrasenaCorrecta, permitirPruebaDeContrasena } from "./limites";
 import type { ResultadoAuth } from "./tipos";
 
 export type { ErrorAuth, ResultadoAuth, Usuario } from "./tipos";
@@ -22,23 +17,6 @@ export const usuarioActual = cache(async () => {
 });
 
 // Los límites propios de intentos se controlan antes de llamar a Supabase Auth (o al modo local).
-
-export async function enviarCodigo(email: string): Promise<ResultadoAuth> {
-  const permiso = await permitirPedidoDeCodigo(email);
-  if (permiso === "error") return { ok: false, error: "error_servicio" };
-  if (permiso === "limite_ip") return { ok: false, error: "limite_conexion" };
-  if (permiso !== "ok") return { ok: false, error: "limite_envios" };
-  return (await impl()).enviarCodigo(email);
-}
-
-export async function verificarCodigo(email: string, codigo: string): Promise<ResultadoAuth> {
-  const permiso = await permitirPruebaDeCodigo(email);
-  if (permiso === "error") return { ok: false, error: "error_servicio" };
-  // Sin un código pedido en la última hora, ninguno puede estar vigente.
-  if (permiso === "sin_codigo") return { ok: false, error: "codigo_vencido" };
-  if (permiso !== "ok") return { ok: false, error: "demasiados_intentos" };
-  return (await impl()).verificarCodigo(email, codigo);
-}
 
 export async function ingresarConContrasena(email: string, contrasena: string): Promise<ResultadoAuth> {
   const permiso = await permitirPruebaDeContrasena(email);

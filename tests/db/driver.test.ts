@@ -257,7 +257,7 @@ describe("auditoría con datos mínimos", () => {
 
   it("un cambio de teléfono deja solo el nombre de la columna, sin el valor", async () => {
     const { rows } = await como(db, { rol: "authenticated", uid }, (tx) =>
-      tx.query<{ r: { ok: boolean } }>("select public.actualizar_mis_datos($1, $2) as r", ["381 555-9999", true]),
+      tx.query<{ r: { ok: boolean } }>("select public.actualizar_mis_datos($1, (select email from public.oferentes where id = auth.uid()), $2) as r", ["381 555-9999", true]),
     );
     expect(rows[0].r.ok).toBe(true);
 

@@ -57,10 +57,15 @@ select
   1000
 from generate_series(1, 5) n;
 
--- Oferentes de ejemplo con el correo verificado.
-insert into auth.users (id, email, email_confirmed_at)
+-- Oferentes de ejemplo, como si hubieran ingresado con Cidituc (identificadores y CUIL ficticios).
+insert into public.personas (id, cidituc_id, cuil, dni, nombre, apellido, email, creada_at)
 select
   ('00000000-0000-4000-c000-' || lpad(n::text, 12, '0'))::uuid,
+  'ejemplo-' || n,
+  '20' || (30000000 + n)::text || '0',
+  (30000000 + n)::text,
+  'Persona',
+  'De Ejemplo ' || n,
   'oferente' || n || '@ejemplo.test',
   now() - interval '3 days'
 from generate_series(1, 14) n;

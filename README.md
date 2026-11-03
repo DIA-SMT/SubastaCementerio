@@ -5,7 +5,7 @@ Municipalidad de San Miguel de Tucumán · Dirección de Cementerios. Desarrolla
 Dirección de Inteligencia Artificial.
 
 - **Sitio público**: portada, catálogo, ficha de cada obra (con su URL y su QR), ingreso con
-  código por correo, registro de oferentes, ofertas con confirmación y "Mis ofertas".
+  Ciudadano Digital (Cidituc), registro de oferentes, ofertas con confirmación y "Mis ofertas".
 - **Panel del equipo** (`/admin`): obras, artistas y fotos, configuración de fechas e
   incremento, textos, ofertas con datos de contacto y anulación con motivo, oferentes,
   listado final para el martillero (Excel y PDF), carteles QR, indicadores y auditoría.
@@ -28,7 +28,10 @@ Abrí <http://localhost:3000>. Sin variables de entorno, la app arranca en **mod
 
 - Crea una base Postgres embebida (PGlite) en `.local/pgdata` con las mismas migraciones de
   `supabase/migrations/` y carga los **datos de ejemplo** (`supabase/seed.sql`).
-- El código de ingreso se muestra en pantalla; los avisos por correo se escriben en la consola.
+- Los avisos por correo se escriben en la consola.
+- Los oferentes ingresan con Cidituc también en local: hace falta el derivador corriendo en la
+  computadora (ver 3.3, "Probarlo en local"). Sin las variables `CIDITUC_*`, `/ingresar` avisa
+  que el ingreso no está habilitado.
 - Las fotos que se suben desde el panel se guardan en `.local/subidas/`.
 - El usuario de prueba del panel (`/admin`) está en `supabase/local/seed-local.sql`.
 
@@ -113,61 +116,65 @@ en Vercel (Pro), la región de las funciones en **São Paulo (gru1)**
    la app y comprobada la conexión, activá **Enforce SSL on incoming connections** en esa misma
    pantalla.
 
-### 3.3 Configurar Supabase Auth (códigos de ingreso)
+### 3.3 Ingreso de oferentes con Cidituc (Ciudadano Digital)
 
-Los códigos de 6 números que reciben las personas los envía **Supabase Auth**, no la app.
-Sin estos pasos, el ingreso del público no funciona.
+Los oferentes ingresan con su cuenta de **Ciudadano Digital (Cidituc)**: la app nunca ve su
+contraseña. Está resuelto igual que en El Sanmiguelino (repo `DiarioDigital`):
 
-1. **Authentication > Providers > Email**: activo, con **Confirm email** activado (sin eso,
-   cualquier correo contaría como verificado y la regla "una oferta solo cuenta si el oferente
-   verificó su correo" se rompe). **Email OTP Length: 6**. **Email OTP Expiration**: 600
-   segundos (10 minutos); nunca más de una hora, porque la app deja de aceptar códigos pedidos
-   hace más de una hora. Supabase espera unos 60 segundos entre dos correos a la misma persona:
-   un reenvío más rápido muestra "Se mandaron muchos códigos…".
-2. **Authentication > Email Templates**: en **Confirm signup** (primer ingreso) y en
-   **Magic Link** (ingresos siguientes) el correo tiene que mostrar el código `{{ .Token }}` y
-   **no** un enlace (la app no procesa enlaces). Por ejemplo:
+1. "Ingresar con Ciudadano Digital" lleva a `/auth/cidituc/inicio`, que guarda un `state` en una
+   cookie de 10 minutos y redirige al derivador municipal
+   (`https://cidituc.smt.gob.ar/#/login?next=subasta-cementerio&state=…`).
+2. La persona se autentica en Cidituc (o crea su cuenta ahí).
+3. El derivador vuelve a `/auth/cidituc/callback?auth=<token>&state=…`. La app valida el token
+   con `GET /usuarios/authStatus` contra el backend municipal (token crudo, sin `Bearer`,
+   aportando el certificado intermedio de Sectigo que ese servidor no manda: sin él, en Vercel el
+   ingreso falla con `UNABLE_TO_VERIFY_LEAF_SIGNATURE` aunque desde Windows ande).
+4. Guarda a la persona en `public.personas` (id de Cidituc, CUIL, DNI, nombre, apellido y
+   correo) y abre **su propia sesión**: una cookie firmada con `SESSION_SECRET`, de 7 días. El
+   token de Cidituc no se guarda.
+5. La primera vez, `/registro` muestra nombre y DNI (vienen de Cidituc, no se editan) y pide
+   teléfono, correo de contacto y aceptar bases y privacidad.
 
-   - Asunto: `Tu código para la subasta solidaria`
-   - Cuerpo:
+El código está en `src/lib/auth/cidituc/` y `src/app/auth/cidituc/`. El panel no cambia: el
+equipo sigue entrando con correo y contraseña (Supabase Auth, 3.4).
 
-     ```html
-     <p>Hola:</p>
-     <p>Tu código para ingresar a la subasta solidaria del Cementerio del Oeste es:</p>
-     <p style="font-size:28px;font-weight:bold;letter-spacing:6px">{{ .Token }}</p>
-     <p>Escribilo en la pantalla donde lo pediste. Vence en 10 minutos.</p>
-     <p>Si no lo pediste, ignorá este correo.</p>
-     <p>Municipalidad de San Miguel de Tucumán · Dirección de Cementerios</p>
-     ```
+**Variables** (en Vercel y, para probar, en `.env.local`):
 
-3. **Authentication > SMTP Settings**: configurá un SMTP propio, con remitente institucional:
-   la casilla institucional o Resend (host `smtp.resend.com`, usuario `resend`, la clave de API
-   como contraseña). El servicio de correo que trae Supabase solo entrega a las direcciones del
-   equipo del proyecto (`email_address_not_authorized`) y con un límite muy bajo: con él, los
-   códigos no le llegan al público.
-4. **Authentication > Rate Limits**: subí los cupos según el público esperado en la Noche de
-   los Museos: envío de correos (con SMTP propio, 30 por hora para todo el proyecto por
-   defecto), "Sign-ups and sign-ins", "Token verifications" y "Token refreshes". Los tres
-   últimos se cuentan por IP, y todas las personas llegan desde la IP de salida de Vercel: con
-   los valores por defecto, en un pico aparecen errores de "demasiados intentos".
-   Opcional, más fino: activar **Sb-Forwarded-For** para que Supabase limite por persona. Hoy la
-   app no manda ese encabezado; requiere una clave secreta de Supabase y un cambio en
-   `src/lib/auth/supabase.ts` y `src/proxy.ts`.
-5. **Authentication > URL Configuration**: Site URL con la dirección pública del sitio (la
-   misma de `NEXT_PUBLIC_URL_SITIO`).
-6. Recomendado: **CAPTCHA** (Authentication > Attack Protection, Cloudflare Turnstile).
-   **No lo actives todavía**: la app no manda el token del CAPTCHA y activarlo corta todos los
-   ingresos. Requiere un cambio en el código (`src/lib/auth/supabase.ts` y los formularios).
-7. Opcional (plan Pro): "Time-box user sessions" o "Inactivity timeout", como complemento de
-   las cookies de sesión, que duran 7 días.
-8. Antes de abrir, probá el ingreso con correos personales de fuera del equipo (Gmail, Outlook).
+| Variable | Valor |
+|---|---|
+| `CIDITUC_HABILITADO` | `1` para mostrar el botón. Prenderla recién cuando el derivador desplegado tenga la clave de la subasta. |
+| `CIDITUC_DERIVADOR_URL` | `https://cidituc.smt.gob.ar` (el origen solo: el `#/login` lo agrega la app). |
+| `CIDITUC_API_URL` | `https://estadisticas.smt.gob.ar:5000` |
+| `CIDITUC_CALLBACK_URL` | `https://<sitio>/auth/cidituc/callback`, la misma registrada en el derivador. |
+| `SESSION_SECRET` | Cadena aleatoria de 32 caracteres o más. Sin ella, en producción no se abren sesiones de oferentes. |
+| `CIDITUC_CLAVE_APP` | Opcional. Por defecto `subasta-cementerio`. |
+| `CIDITUC_CA_PEM` | Opcional. Reemplaza el certificado intermedio embebido sin redesplegar. |
 
-**Límites propios de la app** (además de los de Supabase): 3 códigos por correo cada
-15 minutos; 20 pedidos de código por conexión por hora; 5 pruebas por cada código pedido; en
-el panel, 5 intentos en 15 minutos por correo o por conexión. En el registro, desde el tercer
-intento con un DNI que ya está registrado, esa cuenta no puede seguir intentando. Los rechazos
-por DNI quedan en la auditoría con el DNI enmascarado ("Intento con un DNI ya registrado"):
-sirven para atender a quien avisa que su DNI ya figura.
+**Alta en el derivador.** El derivador solo devuelve a las aplicaciones que tiene anotadas en
+`src/components/Login/Login.jsx` del repo `derivador` (mapas `APPS_EXTERNAS` y
+`RESPALDO_CALLBACK`; el segundo es el que manda en producción). La subasta está anotada como
+`subasta-cementerio` → `https://subasta-cementerio.vercel.app/auth/cidituc/callback`. Si el sitio
+cambia de dominio, esa entrada se cambia **en el mismo despliegue**: con el dominio viejo, el
+primer intento de ingresar falla ("la solicitud venció") y el segundo entra en el sitio
+equivocado. Antes de prender `CIDITUC_HABILITADO`, comprobá el bundle desplegado (no el repo):
+
+```bash
+curl -s https://cidituc.smt.gob.ar/ | grep -oE '/assets/index-[^"]+\.js'
+```
+
+y buscá `subasta-cementerio` adentro de ese `.js`.
+
+**Probarlo en local.** El derivador desplegado no vuelve a `localhost`: hay que correr el repo
+`derivador` en la computadora (en otro puerto, por ejemplo `npm run dev -- --port 5174`) con
+`VITE_APP_SUBASTA_CEMENTERIO_CALLBACK_URL=http://localhost:3000/auth/cidituc/callback` en su
+`.env.local`, y en el `.env.local` de la subasta `CIDITUC_DERIVADOR_URL=http://localhost:5174`.
+El ingreso valida contra el backend real, así que hace falta una cuenta de Cidituc.
+
+**Límites propios de la app.** En el panel, 5 intentos de contraseña en 15 minutos por correo o
+por conexión. En el registro, desde el tercer intento con un DNI que ya está registrado, esa
+cuenta no puede seguir intentando. Los rechazos por DNI quedan en la auditoría con el DNI
+enmascarado ("Intento con un DNI ya registrado"): sirven para atender a quien avisa que su DNI
+ya figura.
 
 ### 3.4 Cuentas del equipo (panel)
 
@@ -196,6 +203,8 @@ sirven para atender a quien avisa que su DNI ya figura.
    | `RESEND_API_KEY` y `CORREO_REMITENTE` | Para los avisos | Avisos "te superaron". Sin ellas quedan pendientes. |
    | `CRON_SECRET` | Para los avisos | Protege `/api/avisos`, que reintenta los avisos que fallaron (una vez por día con el plan Hobby). |
    | `SUPABASE_CA_CERT` | Recomendada | Verifica el certificado de la base. |
+   | `SESSION_SECRET` | Sí | Firma las sesiones de los oferentes (32 caracteres o más). |
+   | `CIDITUC_HABILITADO`, `CIDITUC_DERIVADOR_URL`, `CIDITUC_API_URL`, `CIDITUC_CALLBACK_URL` | Sí | Ingreso de oferentes con Cidituc (ver 3.3). |
 
    Las variables que empiezan con `NEXT_PUBLIC_` quedan fijas al compilar: cargalas antes del
    primer despliegue y, si cambian, volvé a desplegar. `CRON_SECRET` se carga sin espacios ni
@@ -273,7 +282,7 @@ Después, en el panel, se completa cada obra y se publica.
 | `supabase/seed.sql` | Datos de ejemplo. **No cargar en producción.** |
 | `supabase/local/` | Reemplazo mínimo de Supabase para el modo local y las pruebas. |
 | `src/lib/db/` | Acceso a datos: cada consulta corre con el rol de Supabase que corresponde. |
-| `src/lib/auth/` | Ingreso con código por correo (Supabase Auth o modo local) y límites de intentos. |
+| `src/lib/auth/` | Ingreso de oferentes con Cidituc (`cidituc/`, sesión propia en `ciudadano.ts`) y del equipo con contraseña (Supabase Auth o modo local), con límites de intentos. |
 | `src/lib/datos/` | Consultas del sitio público, del oferente y del panel. |
 | `src/lib/exportacion/` | Planilla Excel, PDF del listado y carteles QR. |
 | `src/app/(publico)/` | Pantallas del sitio público. |

@@ -56,11 +56,14 @@ function esPrivacidadNueva(p: Pagina) {
   expect(p).toMatchObject({ version: 2, provisorio: true });
 }
 
+/** Como lo dejan 20261019140400_textos.sql y, después, 20261102120000_cidituc.sql (paso 2). */
 function esComoParticiparNuevo(p: Pagina) {
   expect(p.contenido).toContain(`${FRASE_OFERTA} [bases y condiciones](/bases-y-condiciones).`);
   expect(p.contenido).not.toMatch(/retirar|modificar/);
   expect(p.contenido).not.toContain("\r");
-  expect(p).toMatchObject({ version: 2, provisorio: true });
+  expect(p.contenido).toContain("## 2. Ingresá con Ciudadano Digital\nUsá tu cuenta de Ciudadano Digital (Cidituc)");
+  expect(p.contenido).not.toContain("código de 6 números");
+  expect(p).toMatchObject({ version: 3, provisorio: true });
 }
 
 describe("textos provisorios (20261019140400)", () => {

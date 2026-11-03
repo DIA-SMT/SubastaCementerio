@@ -5,7 +5,7 @@ import { Suspense, type ReactNode } from "react";
 import { Recuadro } from "@/components/Avisos";
 import { Cabecera, Columna } from "@/components/Cabecera";
 import { IconoFlecha, IconoMartillo } from "@/components/Iconos";
-import { usuarioActual } from "@/lib/auth";
+import { ciudadanoActual } from "@/lib/auth/ciudadano";
 import { miPerfil, misOfertas } from "@/lib/datos/oferente";
 import { estadoSubasta } from "@/lib/datos/publico";
 import type { MiOferta } from "@/lib/datos/tipos";
@@ -42,7 +42,7 @@ function Estado({ tono, children }: { tono: "verde" | "ambar" | "gris"; children
 type PorObra = { ultima: MiOferta; mejorPropia: number; cantidad: number };
 
 async function MisOfertas() {
-  const usuario = await usuarioActual();
+  const usuario = await ciudadanoActual();
   if (!usuario) redirect("/ingresar?volver=/mis-ofertas");
   const perfil = await miPerfil(usuario.id);
   if (!perfil) redirect("/registro?volver=/mis-ofertas");
@@ -148,12 +148,12 @@ async function MisOfertas() {
           <dd className="text-tinta">{perfil.nombre} {perfil.apellido}</dd>
           <dt className="text-gris">DNI</dt>
           <dd className="text-tinta tabular-nums">{perfil.dni}</dd>
-          <dt className="text-gris">Correo</dt>
-          <dd className="break-all text-tinta">{perfil.email}</dd>
         </dl>
-        <p className="mt-3 text-[0.9rem] text-gris">Para corregir el nombre o el DNI, comunicate con la Dirección de Cementerios.</p>
+        <p className="mt-3 text-[0.9rem] text-gris">
+          El nombre y el DNI vienen de Ciudadano Digital. Para corregirlos, comunicate con la Dirección de Cementerios.
+        </p>
         <div className="mt-7">
-          <FormularioDatos telefono={perfil.telefono} avisos={perfil.avisosPorCorreo} />
+          <FormularioDatos telefono={perfil.telefono} email={perfil.email} avisos={perfil.avisosPorCorreo} />
         </div>
       </section>
 

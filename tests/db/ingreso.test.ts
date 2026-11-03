@@ -26,8 +26,6 @@ vi.mock("@supabase/ssr", () => ({
     return {
       cookieOptions,
       auth: {
-        signInWithOtp: resultado,
-        verifyOtp: resultado,
         signInWithPassword: resultado,
         // Como @supabase/ssr al renovar la sesión: los encabezados anti-caché llegan solo en la
         // primera escritura de cookies.
@@ -50,9 +48,6 @@ async function llamar(db: PGlite, sql: string, params: unknown[]) {
   const { rows } = await db.query<{ r: string }>(`select ${sql} as r`, params);
   return rows[0].r;
 }
-const pedir = (db: PGlite, correo: string, ip: string | null = "200.1.1.1") =>
-  llamar(db, "public.ingreso_pedir_codigo($1, $2)", [correo, ip]);
-const probarCodigo = (db: PGlite, correo: string) => llamar(db, "public.ingreso_probar_codigo($1)", [correo]);
 const probarContrasena = (db: PGlite, correo: string, ip: string | null = "200.1.1.1") =>
   llamar(db, "public.ingreso_probar_contrasena($1, $2)", [correo, ip]);
 
@@ -70,53 +65,11 @@ describe("límites de ingreso", () => {
     await db.query("delete from public.intentos_ingreso");
   });
 
-  it("pedir código: 3 por correo cada 15 minutos, sin importar mayúsculas", async () => {
-    expect(await pedir(db, "ana@prueba.test")).toBe("ok");
-    expect(await pedir(db, "Ana@Prueba.test")).toBe("ok");
-    expect(await pedir(db, " ana@prueba.test ", "200.9.9.9")).toBe("ok");
-    expect(await pedir(db, "ana@prueba.test", "200.8.8.8")).toBe("limite_correo");
-    expect(await pedir(db, "beto@prueba.test")).toBe("ok");
-
-    await envejecer(db, "16 minutes");
-    expect(await pedir(db, "ana@prueba.test")).toBe("ok");
-  });
-
-  it("pedir código: 20 por IP por hora", async () => {
-    for (let i = 0; i < 20; i++) expect(await pedir(db, `persona${i}@prueba.test`)).toBe("ok");
-    expect(await pedir(db, "otra@prueba.test")).toBe("limite_ip");
-    expect(await pedir(db, "otra@prueba.test", "200.2.2.2")).toBe("ok");
-    // Sin IP conocida solo cuenta el correo.
-    expect(await pedir(db, "sin-ip@prueba.test", null)).toBe("ok");
-
-    await envejecer(db, "61 minutes");
-    expect(await pedir(db, "otra@prueba.test")).toBe("ok");
-  });
-
   it("no guarda correos ni IP en claro", async () => {
-    await pedir(db, "ana@prueba.test", "200.1.1.1");
+    await probarContrasena(db, "equipo@prueba.test", "200.1.1.1");
     const { rows } = await db.query<{ clave: string }>("select clave from public.intentos_ingreso");
     expect(rows).toHaveLength(2);
     for (const { clave } of rows) expect(clave).toMatch(/^[0-9a-f]{64}$/);
-  });
-
-  it("probar código: hace falta un pedido reciente y hay 5 pruebas por código", async () => {
-    expect(await probarCodigo(db, "ana@prueba.test")).toBe("sin_codigo");
-
-    await pedir(db, "ana@prueba.test");
-    for (let i = 0; i < 5; i++) expect(await probarCodigo(db, "ana@prueba.test")).toBe("ok");
-    expect(await probarCodigo(db, "ana@prueba.test")).toBe("limite_correo");
-    // Otro correo no se ve afectado.
-    await pedir(db, "beto@prueba.test");
-    expect(await probarCodigo(db, "beto@prueba.test")).toBe("ok");
-
-    // Un código nuevo habilita otras 5 pruebas.
-    await envejecer(db, "1 second");
-    await pedir(db, "ana@prueba.test");
-    expect(await probarCodigo(db, "ana@prueba.test")).toBe("ok");
-
-    // Pasada una hora del último pedido, el código ya no puede estar vigente.
-    await envejecer(db, "61 minutes");
-    expect(await probarCodigo(db, "ana@prueba.test")).toBe("sin_codigo");
   });
 
   it("contraseña del panel: 5 intentos por correo o por IP bloquean 15 minutos", async () => {
@@ -139,9 +92,9 @@ describe("límites de ingreso", () => {
   });
 
   it("borra los intentos de más de un día", async () => {
-    await pedir(db, "ana@prueba.test");
+    await probarContrasena(db, "ana@prueba.test");
     await envejecer(db, "25 hours");
-    await pedir(db, "beto@prueba.test");
+    await probarContrasena(db, "beto@prueba.test");
     const { rows } = await db.query<{ n: number }>("select count(*)::int as n from public.intentos_ingreso");
     expect(rows[0].n).toBe(2);
   });
@@ -153,8 +106,6 @@ describe("límites de ingreso", () => {
         /permission denied/,
       );
       for (const sql of [
-        "select public.ingreso_pedir_codigo('a@b.test', null)",
-        "select public.ingreso_probar_codigo('a@b.test')",
         "select public.ingreso_probar_contrasena('a@b.test', null)",
         "select public.ingreso_contrasena_correcta('a@b.test', null)",
       ]) {
@@ -286,14 +237,12 @@ describe("errores de Supabase Auth", () => {
     }
   }
 
-  it("pedir código: errores de configuración y de límites con texto propio, sin correos en los logs", async () => {
-    const { enviarCodigo } = await import("@/lib/auth/supabase");
+  it("contraseña del panel: un 429 o un 5xx no se informan como contraseña incorrecta, sin correos en los logs", async () => {
+    const { ingresarConContrasena } = await import("@/lib/auth/supabase");
     await probar(
-      () => enviarCodigo("persona@gmail.com"),
+      () => ingresarConContrasena("persona@gmail.com", "x"),
       [
-        ["AuthApiError", "email_address_not_authorized", 400, "correo_no_autorizado"],
-        ["AuthApiError", "over_email_send_rate_limit", 429, "limite_correos"],
-        ["AuthApiError", "email_address_invalid", 400, "correo_invalido"],
+        ["AuthApiError", "invalid_credentials", 400, "credenciales_invalidas"],
         ["AuthApiError", "over_request_rate_limit", 429, "servicio_ocupado"],
         ["AuthRetryableFetchError", undefined, 0, "error_servicio"],
         ["AuthApiError", "unexpected_failure", 500, "error_servicio"],
@@ -301,31 +250,5 @@ describe("errores de Supabase Auth", () => {
     );
     expect(logs.join("\n")).not.toContain("persona@gmail.com");
     expect(logs.join("\n")).toContain("<correo>");
-  });
-
-  it("verificar código: otp_expired es incorrecto o vencido; la red o un 5xx, una falla del servicio", async () => {
-    const { verificarCodigo } = await import("@/lib/auth/supabase");
-    await probar(
-      () => verificarCodigo("persona@gmail.com", "123456"),
-      [
-        ["AuthApiError", "otp_expired", 403, "codigo_invalido_o_vencido"],
-        ["AuthApiError", "validation_failed", 400, "codigo_incorrecto"],
-        ["AuthApiError", "over_request_rate_limit", 429, "servicio_ocupado"],
-        ["AuthRetryableFetchError", undefined, 0, "error_servicio"],
-        ["AuthApiError", "unexpected_failure", 502, "error_servicio"],
-      ],
-    );
-  });
-
-  it("contraseña del panel: un 429 o un 5xx no se informan como contraseña incorrecta", async () => {
-    const { ingresarConContrasena } = await import("@/lib/auth/supabase");
-    await probar(
-      () => ingresarConContrasena("persona@gmail.com", "x"),
-      [
-        ["AuthApiError", "invalid_credentials", 400, "credenciales_invalidas"],
-        ["AuthApiError", "over_request_rate_limit", 429, "servicio_ocupado"],
-        ["AuthApiError", "unexpected_failure", 500, "error_servicio"],
-      ],
-    );
   });
 });

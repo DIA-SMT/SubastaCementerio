@@ -3,14 +3,17 @@
 import { useActionState, useEffect, useRef } from "react";
 import { guardarDatos, type EstadoDatos } from "./acciones";
 
-export function FormularioDatos({ telefono, avisos }: { telefono: string; avisos: boolean }) {
+export function FormularioDatos({ telefono, email, avisos }: { telefono: string; email: string; avisos: boolean }) {
   const [estado, enviar, enviando] = useActionState<EstadoDatos, FormData>(guardarDatos, {});
   const telefonoRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
   const errorTelefono = estado.campo === "telefono";
+  const errorEmail = estado.campo === "email";
 
   // Con el foco en el campo, el lector de pantalla lee el error asociado.
   useEffect(() => {
     if (estado.campo === "telefono") telefonoRef.current?.focus();
+    if (estado.campo === "email") emailRef.current?.focus();
   }, [estado]);
 
   return (
@@ -32,10 +35,29 @@ export function FormularioDatos({ telefono, avisos }: { telefono: string; avisos
             defaultValue={estado.valores?.telefono ?? telefono}
             className="campo"
             aria-invalid={errorTelefono ? true : undefined}
-            aria-describedby={errorTelefono ? "telefono-ayuda telefono-error" : "telefono-ayuda"}
+            aria-describedby={errorTelefono ? "telefono-ayuda datos-error" : "telefono-ayuda"}
           />
           <p id="telefono-ayuda" className="mt-1.5 text-gris">
             Con código de área, por ejemplo 381 555 1234.
+          </p>
+        </div>
+        <div>
+          <label htmlFor="email" className="etiqueta">
+            Correo
+          </label>
+          <input
+            ref={emailRef}
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            defaultValue={estado.valores?.email ?? email}
+            className="campo"
+            aria-invalid={errorEmail ? true : undefined}
+            aria-describedby={errorEmail ? "email-ayuda datos-error" : "email-ayuda"}
+          />
+          <p id="email-ayuda" className="mt-1.5 text-gris">
+            Es al que te mandamos los avisos.
           </p>
         </div>
         <label className="flex items-start gap-3 text-lg">
@@ -51,7 +73,7 @@ export function FormularioDatos({ telefono, avisos }: { telefono: string; avisos
         {estado.error && (
           <p
             key={estado.vez}
-            id={errorTelefono ? "telefono-error" : undefined}
+            id={estado.campo ? "datos-error" : undefined}
             role="alert"
             className="rounded-md border-l-2 border-rojo bg-rojo-suave px-4 py-3 font-medium text-tinta"
           >

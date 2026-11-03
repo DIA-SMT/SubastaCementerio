@@ -2,35 +2,37 @@
 
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
-import { cerrarSesion, usuarioActual } from "@/lib/auth";
+import { cerrarSesionCiudadano, ciudadanoActual } from "@/lib/auth/ciudadano";
 import { actualizarMisDatos } from "@/lib/datos/oferente";
 
 export type EstadoDatos = {
   ok?: boolean;
   error?: string;
   /** Campo al que corresponde el error, para asociarlo con aria-describedby. */
-  campo?: "telefono";
+  campo?: "telefono" | "email";
   /** Lo que la persona mandó, para no perderlo cuando el guardado falla. */
-  valores?: { telefono: string; avisos: boolean };
+  valores?: { telefono: string; email: string; avisos: boolean };
   /** Distinto en cada respuesta, para que el aviso se vuelva a anunciar. */
   vez?: number;
 };
 
 export async function guardarDatos(_previo: EstadoDatos, datos: FormData): Promise<EstadoDatos> {
-  const usuario = await usuarioActual();
+  const usuario = await ciudadanoActual();
   if (!usuario) redirect("/ingresar?volver=/mis-ofertas");
   const telefono = String(datos.get("telefono") ?? "");
+  const email = String(datos.get("email") ?? "").trim();
   const avisos = datos.get("avisos") === "si";
+  const valores = { telefono, email, avisos };
   const vez = Date.now();
 
   let r: Awaited<ReturnType<typeof actualizarMisDatos>> | null = null;
   try {
-    r = await actualizarMisDatos(usuario.id, telefono, avisos);
+    r = await actualizarMisDatos(usuario.id, telefono, email, avisos);
   } catch (error) {
     console.error("No se pudieron guardar los datos del oferente:", error);
   }
   if (r?.ok) {
-    // La página vuelve a leer el perfil: el formulario muestra el teléfono tal como quedó guardado.
+    // La página vuelve a leer el perfil: el formulario muestra los datos tal como quedaron guardados.
     refresh();
     return { ok: true, vez };
   }
@@ -38,14 +40,17 @@ export async function guardarDatos(_previo: EstadoDatos, datos: FormData): Promi
     return {
       error: "Escribí el teléfono con código de área, por ejemplo 381 555 1234.",
       campo: "telefono",
-      valores: { telefono, avisos },
+      valores,
       vez,
     };
   }
-  return { error: "No pudimos guardar los cambios. Probá de nuevo.", valores: { telefono, avisos }, vez };
+  if (r?.codigo === "correo_invalido") {
+    return { error: "Revisá el correo: no parece una dirección válida.", campo: "email", valores, vez };
+  }
+  return { error: "No pudimos guardar los cambios. Probá de nuevo.", valores, vez };
 }
 
 export async function salir() {
-  await cerrarSesion();
+  await cerrarSesionCiudadano();
   redirect("/");
 }

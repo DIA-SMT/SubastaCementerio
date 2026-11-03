@@ -45,11 +45,5 @@ create table storage.objects (
 );
 alter table storage.objects enable row level security;
 
--- Códigos de ingreso del modo local (en Supabase los maneja Auth).
+-- Esquema propio del modo local (registro de migraciones aplicadas).
 create schema local;
-create table local.codigos (
-  email text primary key,
-  codigo text not null,
-  vence_at timestamptz not null,
-  intentos integer not null default 0
-);

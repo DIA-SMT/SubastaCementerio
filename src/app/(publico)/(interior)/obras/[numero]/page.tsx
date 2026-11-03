@@ -9,7 +9,7 @@ import { Galeria } from "@/components/Galeria";
 import { IconoAnterior, IconoFlecha } from "@/components/Iconos";
 import { PlazoCompacto, textoPresencial } from "@/components/Plazo";
 import { RefrescoPeriodico } from "@/components/RefrescoPeriodico";
-import { usuarioActual } from "@/lib/auth";
+import { ciudadanoActual } from "@/lib/auth/ciudadano";
 import { miPerfil } from "@/lib/datos/oferente";
 import { estadoSubasta, historialDeObra, obtenerObra } from "@/lib/datos/publico";
 import type { EstadoSubasta, ObraDetalle, OfertaPublica } from "@/lib/datos/tipos";
@@ -63,7 +63,7 @@ function Apartado({ id, titulo, extra, children }: { id: string; titulo: string;
 async function Ficha({ params }: Pick<PageProps<"/obras/[numero]">, "params">) {
   const numero = numeroDeObra((await params).numero);
   if (!numero) notFound();
-  const usuario = await usuarioActual();
+  const usuario = await ciudadanoActual();
   const [estado, obra] = await Promise.all([estadoSubasta(), obtenerObra(numero, usuario?.id)]);
   if (!obra) notFound();
   // El perfil solo hace falta para decir si le avisamos por correo a quien tiene la oferta más alta.

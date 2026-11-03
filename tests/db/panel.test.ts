@@ -2,7 +2,7 @@
 // qué queda auditado y que los cálculos del panel (indicadores, listado final) sean correctos.
 import type { PGlite } from "@electric-sql/pglite";
 import { beforeAll, describe, expect, it } from "vitest";
-import { ADMIN, OBRA, baseDePrueba, como, crearUsuario, ofertar, registrar } from "./ayuda";
+import { ADMIN, OBRA, baseDePrueba, como, crearCuentaEquipo, crearUsuario, ofertar, registrar } from "./ayuda";
 
 type Quien = Parameters<typeof como>[1];
 
@@ -80,41 +80,22 @@ async function indicadores(db: PGlite) {
   return fila.r;
 }
 
-/** Ofertas válidas de oferentes con el correo verificado, de mayor a menor (como superusuario). */
+/** Ofertas válidas, de mayor a menor (como superusuario). */
 async function ofertasVigentes(db: PGlite, obraId: string) {
   return directo<{ id: number; oferente_id: string; monto: number }>(
     db,
     `select o.id::int as id, o.oferente_id, o.monto
      from public.ofertas o
      where o.obra_id = $1 and o.estado = 'valida'
-       and exists (
-         select 1 from auth.users u where u.id = o.oferente_id and u.email_confirmed_at is not null
-       )
      order by o.monto desc, o.creada_at asc`,
     [obraId],
   );
 }
 
-/** Oferente registrado con el correo verificado pero sin rol de admin. */
+/** Oferente que ingresó con Cidituc y completó el registro, sin rol de admin. */
 async function nuevoOferente(db: PGlite, email: string, dni: string) {
   const uid = await crearUsuario(db, email);
   expect((await registrar(db, uid, dni)).ok).toBe(true);
-  return uid;
-}
-
-/** Oferente con el correo SIN verificar y una oferta cargada directo en la tabla. */
-async function ofertaSinVerificar(db: PGlite, obraId: string, monto: number) {
-  const uid = await crearUsuario(db, "sinverificar@prueba.test", false);
-  await db.query(
-    `insert into public.oferentes (id, nombre, apellido, dni, telefono, email, bases_version, bases_aceptadas_at, privacidad_aceptada_at)
-     values ($1, 'Sin', 'Verificar', '20999888', '3815550000', 'sinverificar@prueba.test', 1, now(), now())`,
-    [uid],
-  );
-  await db.query("insert into public.ofertas (obra_id, oferente_id, monto) values ($1, $2, $3)", [
-    obraId,
-    uid,
-    monto,
-  ]);
   return uid;
 }
 
@@ -260,7 +241,7 @@ describe("un oferente sin rol de admin", () => {
   });
 
   it("un integrante del equipo dado de baja (activo = false) pierde los permisos", async () => {
-    const exId = await crearUsuario(db, "ex@prueba.test");
+    const exId = await crearCuentaEquipo(db, "ex@prueba.test");
     await db.query("insert into public.admins (user_id, nombre, activo) values ($1, 'Ex integrante', false)", [exId]);
     const ex: Quien = { rol: "authenticated", uid: exId };
 
@@ -747,9 +728,6 @@ describe("indicadores del panel", () => {
          select o.*
          from public.ofertas o
          where o.estado = 'valida'
-           and exists (
-             select 1 from auth.users u where u.id = o.oferente_id and u.email_confirmed_at is not null
-           )
        ),
        maximos as (
          select v.obra_id, max(v.monto) as monto
@@ -764,10 +742,9 @@ describe("indicadores del panel", () => {
          (select count(distinct oferente_id)::int from vigentes) as oferentes_con_ofertas,
          (
            select count(*)::int
-           from auth.users u
-           left join public.oferentes o on o.id = u.id
-           left join public.admins a on a.user_id = u.id
-           where o.id is null and a.user_id is null
+           from public.personas p
+           left join public.oferentes o on o.id = p.id
+           where o.id is null
          ) as ingresos_sin_registro,
          (select coalesce(sum(monto), 0)::int from maximos) as monto_acumulado,
          (select count(*)::int from public.obras where publicada) as obras_publicadas,
@@ -820,13 +797,6 @@ describe("indicadores del panel", () => {
     });
   });
 
-  it("no cuentan ofertas de correos sin verificar", async () => {
-    const antes = await indicadores(db);
-    await ofertaSinVerificar(db, OBRA(2), 999000);
-    const r = await indicadores(db);
-    expect(r).toEqual(await esperado());
-    expect(r).toEqual({ ...antes, oferentes_registrados: antes.oferentes_registrados + 1 });
-  });
 
   it("al anular la oferta más alta, el monto acumulado baja a la siguiente", async () => {
     const antes = await indicadores(db);
@@ -919,12 +889,6 @@ describe("listado final y ofertas del panel", () => {
       expect(fila).toMatchObject(await datosDe(vigentes[0].oferente_id));
     }
     expect(filasListado.some((f) => f.precio_base === null)).toBe(true);
-  });
-
-  it("una oferta de un correo sin verificar no es precio base", async () => {
-    const antes = await filaDe(2);
-    await ofertaSinVerificar(db, OBRA(2), 999000);
-    expect(await filaDe(2)).toEqual(antes);
   });
 
   it("al anular la oferta más alta, el precio base pasa a la siguiente", async () => {
@@ -1029,7 +993,7 @@ describe("cola de avisos por correo (la usa el servidor)", () => {
     const [r] = await filas<{ r: { ok: boolean } }>(
       db,
       { rol: "authenticated", uid: ana },
-      "select public.actualizar_mis_datos('3815551234', false) as r",
+      "select public.actualizar_mis_datos('3815551234', (select email from public.oferentes where id = auth.uid()), false) as r",
     );
     expect(r.r.ok).toBe(true);
     try {

@@ -108,25 +108,18 @@ describe("ofertar", () => {
     expect(r).toMatchObject({ ok: false, codigo: "sin_registro" });
   });
 
-  it("no cuenta ofertas de correos sin verificar", async () => {
-    const sinVerificar = await crearUsuario(db, "sinverificar@prueba.test", false);
-    await db.query(
-      `insert into public.oferentes (id, nombre, apellido, dni, telefono, email, bases_version, bases_aceptadas_at, privacidad_aceptada_at)
-       values ($1, 'X', 'Y', '20999888', '3815550000', 'sinverificar@prueba.test', 1, now(), now())`,
-      [sinVerificar],
+  it("cada persona ve solo sus datos de Cidituc y no los puede cambiar", async () => {
+    const otra = await crearUsuario(db, "otra@prueba.test");
+    const { rows } = await como(db, { rol: "authenticated", uid: otra }, (tx) =>
+      tx.query<{ id: string }>("select id from public.personas"),
     );
-    const r = await ofertar(db, sinVerificar, OBRA(6), 90000);
-    expect(r).toMatchObject({ ok: false, codigo: "correo_sin_verificar" });
-
-    // Aunque la oferta exista en la tabla, no cuenta para la oferta actual.
-    await db.query("insert into public.ofertas (obra_id, oferente_id, monto) values ($1, $2, 999000)", [
-      OBRA(6),
-      sinVerificar,
-    ]);
-    const { rows } = await como(db, { rol: "anon" }, (tx) =>
-      tx.query<{ oferta_actual: number }>("select oferta_actual from public.v_obras_publicas where numero = 6"),
+    expect(rows.map((f) => f.id)).toEqual([otra]);
+    await expect(como(db, { rol: "anon" }, (tx) => tx.query("select * from public.personas"))).rejects.toThrow(
+      /permission denied/,
     );
-    expect(rows[0].oferta_actual).toBe(15000);
+    await expect(
+      como(db, { rol: "authenticated", uid: otra }, (tx) => tx.query("update public.personas set dni = '1234567'")),
+    ).rejects.toThrow(/permission denied/);
   });
 
   it("no acepta ofertas pasada la hora de cierre", async () => {
@@ -238,33 +231,50 @@ describe("registro de oferentes", () => {
     db = await baseDePrueba(false);
   });
 
-  it("valida DNI, teléfono, aceptación y duplicados", async () => {
+  it("toma nombre, apellido y DNI de Cidituc y valida teléfono, correo, aceptación y duplicados", async () => {
     const uno = await crearUsuario(db, "uno@prueba.test");
     const dos = await crearUsuario(db, "dos@prueba.test");
-    const sinVerificar = await crearUsuario(db, "tres@prueba.test", false);
+    const sinCidituc = await crearUsuario(db, "tres@prueba.test", false);
+    const sinNombre = await crearUsuario(db, "cuatro@prueba.test");
+    await db.query("update public.personas set dni = '20111222' where id in ($1, $2)", [uno, dos]);
+    await db.query("update public.personas set dni = '30111222', apellido = '' where id = $1", [sinNombre]);
 
-    const reg = (uid: string, dni: string, tel = "3815551234", bases = true) =>
+    const reg = (uid: string, tel = "3815551234", email = "Ana@Prueba.test ", bases = true) =>
       como(db, { rol: "authenticated", uid }, (tx) =>
         tx.query<{ r: { ok: boolean; codigo?: string; alias_numero?: number } }>(
-          "select public.registrar_oferente('Ana', 'Prueba', $1, $2, $3, true) as r",
-          [dni, tel, bases],
+          "select public.registrar_oferente($1, $2, $3, true) as r",
+          [tel, email, bases],
         ),
       ).then((x) => x.rows[0].r);
 
-    expect(await reg(uno, "123")).toMatchObject({ codigo: "dni_invalido" });
-    expect(await reg(uno, "20.111.222", "12")).toMatchObject({ codigo: "telefono_invalido" });
-    expect(await reg(uno, "20.111.222", "3815551234", false)).toMatchObject({ codigo: "falta_aceptacion" });
-    expect(await reg(sinVerificar, "20111222")).toMatchObject({ codigo: "correo_sin_verificar" });
-    expect(await reg(uno, "20.111.222")).toMatchObject({ ok: true, alias_numero: 1 });
-    expect(await reg(uno, "20111223")).toMatchObject({ codigo: "ya_registrado" });
-    expect(await reg(dos, "20111222")).toMatchObject({ codigo: "dni_registrado" });
+    expect(await reg(uno, "12")).toMatchObject({ codigo: "telefono_invalido" });
+    expect(await reg(uno, "3815551234", "no-es-un-correo")).toMatchObject({ codigo: "correo_invalido" });
+    expect(await reg(uno, "3815551234", "ana@prueba.test", false)).toMatchObject({ codigo: "falta_aceptacion" });
+    expect(await reg(sinCidituc)).toMatchObject({ codigo: "sin_identidad" });
+    expect(await reg(sinNombre)).toMatchObject({ codigo: "datos_incompletos" });
+    expect(await reg(uno)).toMatchObject({ ok: true, alias_numero: 1 });
+    expect(await reg(uno)).toMatchObject({ codigo: "ya_registrado" });
+    expect(await reg(dos)).toMatchObject({ codigo: "dni_registrado" });
 
-    const { rows } = await db.query<{ dni: string; bases_version: number }>(
-      "select dni, bases_version from public.oferentes where id = $1",
+    const { rows } = await db.query<{ nombre: string; apellido: string; dni: string; email: string; bases_version: number }>(
+      "select nombre, apellido, dni, email, bases_version from public.oferentes where id = $1",
       [uno],
     );
     // Acepta la versión vigente de las bases (las migraciones de textos la pueden haber subido).
     const [{ version }] = (await db.query<{ version: number }>("select version from public.paginas where slug = 'bases-y-condiciones'")).rows;
-    expect(rows[0]).toEqual({ dni: "20111222", bases_version: version });
+    expect(rows[0]).toEqual({
+      nombre: "Ana",
+      apellido: "Prueba",
+      dni: "20111222",
+      email: "ana@prueba.test",
+      bases_version: version,
+    });
+  });
+
+  it("el correo es de contacto: dos personas pueden compartirlo", async () => {
+    const a = await crearUsuario(db, "familia@prueba.test");
+    const b = await crearUsuario(db, "familia@prueba.test");
+    expect(await registrar(db, a, "40111222")).toMatchObject({ ok: true });
+    expect(await registrar(db, b, "40111223")).toMatchObject({ ok: true });
   });
 });

@@ -2,8 +2,8 @@ import "server-only";
 import { esDireccionLocal } from "@/lib/exportacion/comun";
 
 /**
- * Sin DATABASE_URL la app corre en modo local: base PGlite en .local/, códigos de ingreso
- * en pantalla y correos en la consola. Con DATABASE_URL usa Supabase.
+ * Sin DATABASE_URL la app corre en modo local: base PGlite en .local/ y correos en la consola.
+ * Con DATABASE_URL usa Supabase.
  */
 export const modoLocal = !process.env.DATABASE_URL;
 

@@ -93,6 +93,14 @@ export type Perfil = {
   bloqueado: boolean;
 };
 
+/** Lo que Cidituc dice de la persona con sesión (public.personas). */
+export type PersonaCidituc = {
+  nombre: string;
+  apellido: string;
+  dni: string;
+  email: string | null;
+};
+
 export type MiOferta = {
   id: number;
   numero: number;

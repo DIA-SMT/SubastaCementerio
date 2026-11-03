@@ -11,10 +11,7 @@ export type Indicadores = {
   ofertasAnuladas: number;
   oferentesRegistrados: number;
   oferentesConOfertas: number;
-  /**
-   * Usuarios de auth.users sin registro de oferente (ni del equipo). En Supabase la cuenta se
-   * crea al pedir el código, así que incluye a quienes no llegaron a verificar el correo.
-   */
+  /** Personas que ingresaron con Cidituc y no completaron el registro de oferente. */
   ingresosSinRegistro: number;
   /** Suma de la oferta más alta vigente de cada obra publicada. */
   montoAcumulado: number;

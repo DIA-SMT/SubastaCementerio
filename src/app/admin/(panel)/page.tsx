@@ -186,7 +186,7 @@ async function Indicadores() {
                   i.ingresosSinRegistro,
                   "ingreso sin completar el registro",
                   "ingresos sin completar el registro",
-                )} (empezaron con su correo, pero no cargaron sus datos).`}
+                )} (entraron con Ciudadano Digital, pero no completaron sus datos).`}
           </span>
         </Dato>
         <Dato etiqueta="Ofertas válidas" valor={numeroConPuntos(i.ofertasValidas)} icono={IconoMartillo} tono="amarillo">

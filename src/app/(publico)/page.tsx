@@ -39,7 +39,7 @@ export default function Inicio() {
               Cómo funciona la subasta
             </TituloSeccion>
             <p className="mt-5 text-texto">
-              No necesitás crear una contraseña. Te identificás con tu correo y un código de seis números.
+              No necesitás crear una cuenta nueva: ingresás con Ciudadano Digital, la de los trámites de la Municipalidad.
             </p>
             <Divisor className="mt-8 h-4 w-48 text-smt/45 lg:mx-auto" />
           </div>
