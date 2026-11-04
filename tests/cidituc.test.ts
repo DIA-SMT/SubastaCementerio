@@ -196,9 +196,9 @@ describe("ida y vuelta por el login de Ciudad Digital", () => {
     }
   });
 
-  it("el cierre de sesión pasa por el logout de Ciudad Digital", async () => {
+  it("el cierre de sesión pasa por el logout de Ciudad Digital y vuelve a la subasta", async () => {
     const { salidaCidituc } = await import("@/lib/auth/cidituc/config");
-    expect(salidaCidituc()).toBe("https://ciudaddigital.smt.gob.ar/?logout=1");
+    expect(salidaCidituc()).toBe("https://ciudaddigital.smt.gob.ar/?logout=1#/login?next=subasta-cementerio&salir=1");
     configurar(false);
     expect((await import("@/lib/auth/cidituc/config")).salidaCidituc()).toBe("/");
   });

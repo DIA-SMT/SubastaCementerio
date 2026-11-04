@@ -31,11 +31,14 @@ export const CIDITUC_CLAVE = limpio(process.env.CIDITUC_CLAVE_APP) || "subasta-c
 export const CIDITUC_CONFIGURADO =
   process.env.CIDITUC_HABILITADO === "1" && Boolean(CIDITUC_LOGIN && CIDITUC_API && CIDITUC_CALLBACK);
 
-/** A dónde mandar a quien cierra sesión: el cierre de Ciudad Digital, o la portada si no hay. */
+/**
+ * A dónde mandar a quien cierra sesión: al cierre de Ciudad Digital, que vuelve a la portada de
+ * la subasta, o directo a la portada si no hay integración.
+ */
 export function salidaCidituc(): string {
   if (!CIDITUC_CONFIGURADO) return "/";
   try {
-    return urlDeSalida(CIDITUC_LOGIN);
+    return urlDeSalida(CIDITUC_LOGIN, CIDITUC_CLAVE);
   } catch {
     // CIDITUC_LOGIN_URL mal escrita: el inicio ya lo avisa en el log.
     return "/";

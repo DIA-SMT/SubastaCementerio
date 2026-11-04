@@ -139,9 +139,10 @@ contraseña. Se usa el login de Ciudad Digital (repo `cidituc`), no el derivador
    teléfono, correo de contacto y aceptar bases y privacidad.
 
 Como el login guarda el token, "Cerrar sesión" en "Mis ofertas" cierra también la sesión de
-Ciudad Digital (`?logout=1`): si no, en una computadora compartida la próxima persona entraría
-como la anterior. Por lo mismo, si Cidituc rechaza un token vencido, el botón para reintentar lo
-borra antes.
+Ciudad Digital (`?logout=1`) y vuelve al inicio de la subasta (`salir=1`, que el login atiende
+para la clave `subasta-cementerio`): si no, en una computadora compartida la próxima persona
+entraría como la anterior. Por lo mismo, si Cidituc rechaza un token vencido, el botón para
+reintentar lo borra antes.
 
 El código está en `src/lib/auth/cidituc/` y `src/app/auth/cidituc/`. El panel no cambia: el
 equipo sigue entrando con correo y contraseña (Supabase Auth, 3.4).

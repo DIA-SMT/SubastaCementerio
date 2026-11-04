@@ -171,7 +171,8 @@ Panel: `/admin/ingresar`, `/admin`, `/admin/obras`, `/admin/obras/[id]`,
     subasta exige solo la cookie del flujo y compara el `state` cuando viene, para no depender
     de cómo esté desplegado. El login guarda el token: "Cerrar sesión" cierra también Ciudad
     Digital (`?logout=1`), para que en una computadora compartida nadie entre como el anterior,
-    y el reintento tras un token inválido lo borra antes. El alta va en
+    y vuelve al inicio de la subasta (`salir=1`; pedido del usuario: no quedarse en la portada
+    de Ciudad Digital). El reintento tras un token inválido lo borra antes. El alta va en
     `src/routes/PrivateRoute.jsx` del repo `cidituc`, por PR a `master`, y no figura en ningún
     listado del portal.
 
