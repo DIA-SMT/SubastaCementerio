@@ -161,6 +161,7 @@ async function MisOfertas() {
         <button type="submit" className="boton-secundario w-full sm:w-auto">
           Cerrar sesión
         </button>
+        <p className="mt-2 text-gris">También se cierra tu sesión de Ciudadano Digital en este dispositivo.</p>
       </form>
     </>
   );

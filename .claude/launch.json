@@ -21,7 +21,7 @@
       "env": {
         "DATABASE_URL": "",
         "CIDITUC_HABILITADO": "1",
-        "CIDITUC_DERIVADOR_URL": "http://localhost:5174",
+        "CIDITUC_LOGIN_URL": "http://localhost:5175",
         "CIDITUC_API_URL": "https://estadisticas.smt.gob.ar:5000",
         "CIDITUC_CALLBACK_URL": "http://localhost:3010/auth/cidituc/callback"
       },
@@ -29,10 +29,14 @@
       "autoPort": false
     },
     {
-      "name": "derivador",
+      "name": "cidituc-login",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "C:/repo/derivador", "run", "dev", "--", "--port", "5174", "--strictPort"],
-      "port": 5174,
+      "runtimeArgs": ["--prefix", "C:/repo/cidituc", "run", "dev", "--", "--port", "5175", "--strictPort"],
+      "env": {
+        "VITE_APP_RUTA_BACK": "https://estadisticas.smt.gob.ar:5000",
+        "VITE_APP_SUBASTA_CEMENTERIO_CALLBACK_URL": "http://localhost:3010/auth/cidituc/callback"
+      },
+      "port": 5175,
       "autoPort": false
     }
   ]

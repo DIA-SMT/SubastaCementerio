@@ -3,6 +3,7 @@
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { cerrarSesionCiudadano, ciudadanoActual } from "@/lib/auth/ciudadano";
+import { salidaCidituc } from "@/lib/auth/cidituc/config";
 import { actualizarMisDatos } from "@/lib/datos/oferente";
 
 export type EstadoDatos = {
@@ -50,7 +51,12 @@ export async function guardarDatos(_previo: EstadoDatos, datos: FormData): Promi
   return { error: "No pudimos guardar los cambios. Probá de nuevo.", valores, vez };
 }
 
+/**
+ * Cierra las dos sesiones: la de la subasta y la de Ciudad Digital, que queda guardada en el
+ * navegador. Sin la segunda, en una computadora compartida la próxima persona que toque
+ * "Ingresar" entraría como esta, sin que se le pida la contraseña.
+ */
 export async function salir() {
   await cerrarSesionCiudadano();
-  redirect("/");
+  redirect(salidaCidituc());
 }
