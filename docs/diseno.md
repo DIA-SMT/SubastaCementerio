@@ -165,6 +165,16 @@ Panel: `/admin/ingresar`, `/admin`, `/admin/obras`, `/admin/obras/[id]`,
     El alta de la subasta en el derivador va por PR a la rama `dev` del repo `derivador`, y la
     despliega el equipo de Cidituc.
 
+24. El ingreso pasa del derivador al login de Ciudad Digital (pedido del 04/11/2026: el equipo
+    de Cidituc da de baja el derivador). Mismo token, mismo backend y mismo callback; cambian
+    tres cosas. El login no devolvía el `state`: el alta le agrega que lo devuelva, pero la
+    subasta exige solo la cookie del flujo y compara el `state` cuando viene, para no depender
+    de cómo esté desplegado. El login guarda el token: "Cerrar sesión" cierra también Ciudad
+    Digital (`?logout=1`), para que en una computadora compartida nadie entre como el anterior,
+    y el reintento tras un token inválido lo borra antes. El alta va en
+    `src/routes/PrivateRoute.jsx` del repo `cidituc`, por PR a `master`, y no figura en ningún
+    listado del portal.
+
 ## Respuestas pendientes (se usan valores por defecto hasta tenerlas)
 
 - Incremento mínimo: monto fijo en pesos (por defecto).

@@ -29,8 +29,8 @@ Abrí <http://localhost:3000>. Sin variables de entorno, la app arranca en **mod
 - Crea una base Postgres embebida (PGlite) en `.local/pgdata` con las mismas migraciones de
   `supabase/migrations/` y carga los **datos de ejemplo** (`supabase/seed.sql`).
 - Los avisos por correo se escriben en la consola.
-- Los oferentes ingresan con Cidituc también en local: hace falta el derivador corriendo en la
-  computadora (ver 3.3, "Probarlo en local"). Sin las variables `CIDITUC_*`, `/ingresar` avisa
+- Los oferentes ingresan con Cidituc también en local: hace falta el login de Ciudad Digital
+  corriendo en la computadora (ver 3.3, "Probarlo en local"). Sin las variables `CIDITUC_*`, `/ingresar` avisa
   que el ingreso no está habilitado.
 - Las fotos que se suben desde el panel se guardan en `.local/subidas/`.
 - El usuario de prueba del panel (`/admin`) está en `supabase/local/seed-local.sql`.
@@ -119,13 +119,16 @@ en Vercel (Pro), la región de las funciones en **São Paulo (gru1)**
 ### 3.3 Ingreso de oferentes con Cidituc (Ciudadano Digital)
 
 Los oferentes ingresan con su cuenta de **Ciudadano Digital (Cidituc)**: la app nunca ve su
-contraseña. Está resuelto igual que en El Sanmiguelino (repo `DiarioDigital`):
+contraseña. Se usa el login de Ciudad Digital (repo `cidituc`), no el derivador
+(`cidituc.smt.gob.ar`), que el equipo de Cidituc da de baja:
 
-1. "Ingresar con Ciudadano Digital" lleva a `/auth/cidituc/inicio`, que guarda un `state` en una
-   cookie de 10 minutos y redirige al derivador municipal
-   (`https://cidituc.smt.gob.ar/#/login?next=subasta-cementerio&state=…`).
-2. La persona se autentica en Cidituc (o crea su cuenta ahí).
-3. El derivador vuelve a `/auth/cidituc/callback?auth=<token>&state=…`. La app valida el token
+1. "Ingresar con Ciudadano Digital" lleva a `/auth/cidituc/inicio`, que guarda un nonce en una
+   cookie de 10 minutos y redirige al login
+   (`https://ciudaddigital.smt.gob.ar/#/login?next=subasta-cementerio&state=…`).
+2. La persona se autentica en Cidituc (o crea su cuenta ahí). Si ya había entrado antes en ese
+   navegador, el login la devuelve sin pedirle la contraseña: guarda el token y no lo borra.
+3. El login vuelve a `/auth/cidituc/callback?auth=<token>&state=…`. Sin la cookie del paso 1 el
+   ingreso se rechaza (nadie puede empujar un token ajeno con un enlace). La app valida el token
    con `GET /usuarios/authStatus` contra el backend municipal (token crudo, sin `Bearer`,
    aportando el certificado intermedio de Sectigo que ese servidor no manda: sin él, en Vercel el
    ingreso falla con `UNABLE_TO_VERIFY_LEAF_SIGNATURE` aunque desde Windows ande).
@@ -135,6 +138,11 @@ contraseña. Está resuelto igual que en El Sanmiguelino (repo `DiarioDigital`):
 5. La primera vez, `/registro` muestra nombre y DNI (vienen de Cidituc, no se editan) y pide
    teléfono, correo de contacto y aceptar bases y privacidad.
 
+Como el login guarda el token, "Cerrar sesión" en "Mis ofertas" cierra también la sesión de
+Ciudad Digital (`?logout=1`): si no, en una computadora compartida la próxima persona entraría
+como la anterior. Por lo mismo, si Cidituc rechaza un token vencido, el botón para reintentar lo
+borra antes.
+
 El código está en `src/lib/auth/cidituc/` y `src/app/auth/cidituc/`. El panel no cambia: el
 equipo sigue entrando con correo y contraseña (Supabase Auth, 3.4).
 
@@ -142,32 +150,34 @@ equipo sigue entrando con correo y contraseña (Supabase Auth, 3.4).
 
 | Variable | Valor |
 |---|---|
-| `CIDITUC_HABILITADO` | `1` para mostrar el botón. Prenderla recién cuando el derivador desplegado tenga la clave de la subasta. |
-| `CIDITUC_DERIVADOR_URL` | `https://cidituc.smt.gob.ar` (el origen solo: el `#/login` lo agrega la app). |
+| `CIDITUC_HABILITADO` | `1` para mostrar el botón. Prenderla recién cuando el login desplegado tenga la clave de la subasta. |
+| `CIDITUC_LOGIN_URL` | `https://ciudaddigital.smt.gob.ar` (el origen solo: el `#/login` lo agrega la app). |
 | `CIDITUC_API_URL` | `https://estadisticas.smt.gob.ar:5000` |
-| `CIDITUC_CALLBACK_URL` | `https://<sitio>/auth/cidituc/callback`, la misma registrada en el derivador. |
+| `CIDITUC_CALLBACK_URL` | `https://<sitio>/auth/cidituc/callback`, la misma anotada en el login. |
 | `SESSION_SECRET` | Cadena aleatoria de 32 caracteres o más. Sin ella, en producción no se abren sesiones de oferentes. |
 | `CIDITUC_CLAVE_APP` | Opcional. Por defecto `subasta-cementerio`. |
 | `CIDITUC_CA_PEM` | Opcional. Reemplaza el certificado intermedio embebido sin redesplegar. |
 
-**Alta en el derivador.** El derivador solo devuelve a las aplicaciones que tiene anotadas en
-`src/components/Login/Login.jsx` del repo `derivador` (mapas `APPS_EXTERNAS` y
-`RESPALDO_CALLBACK`; el segundo es el que manda en producción). La subasta está anotada como
-`subasta-cementerio` → `https://subasta-cementerio.vercel.app/auth/cidituc/callback`. Si el sitio
-cambia de dominio, esa entrada se cambia **en el mismo despliegue**: con el dominio viejo, el
-primer intento de ingresar falla ("la solicitud venció") y el segundo entra en el sitio
-equivocado. Antes de prender `CIDITUC_HABILITADO`, comprobá el bundle desplegado (no el repo):
+**Alta en el login.** El login solo devuelve a las aplicaciones que tiene anotadas en
+`src/routes/PrivateRoute.jsx` del repo `cidituc` (una rama `else if` por clave). La subasta está
+anotada como `subasta-cementerio` → `https://subasta-cementerio.vercel.app/auth/cidituc/callback`.
+El cambio va por PR a `master` y lo despliega el equipo de Cidituc. Anotarla ahí no la muestra en
+ningún listado del portal. Si el sitio cambia de dominio, esa entrada se cambia **en el mismo
+despliegue**: con el dominio viejo, el primer intento de ingresar falla ("la solicitud venció") y
+el segundo entra en el sitio equivocado. Antes de prender `CIDITUC_HABILITADO`, comprobá el
+bundle desplegado (no el repo):
 
 ```bash
-curl -s https://cidituc.smt.gob.ar/ | grep -oE '/assets/index-[^"]+\.js'
+curl -s https://ciudaddigital.smt.gob.ar/ | grep -oE '/assets/index-[^"]+\.js'
 ```
 
 y buscá `subasta-cementerio` adentro de ese `.js`.
 
-**Probarlo en local.** El derivador desplegado no vuelve a `localhost`: hay que correr el repo
-`derivador` en la computadora (en otro puerto, por ejemplo `npm run dev -- --port 5174`) con
-`VITE_APP_SUBASTA_CEMENTERIO_CALLBACK_URL=http://localhost:3000/auth/cidituc/callback` en su
-`.env.local`, y en el `.env.local` de la subasta `CIDITUC_DERIVADOR_URL=http://localhost:5174`.
+**Probarlo en local.** El login desplegado no vuelve a `localhost`: hay que correr el repo
+`cidituc` en la computadora (en otro puerto, por ejemplo `npm run dev -- --port 5175`) con
+`VITE_APP_RUTA_BACK=https://estadisticas.smt.gob.ar:5000` y
+`VITE_APP_SUBASTA_CEMENTERIO_CALLBACK_URL=http://localhost:3000/auth/cidituc/callback`, y en el
+`.env.local` de la subasta `CIDITUC_LOGIN_URL=http://localhost:5175`.
 El ingreso valida contra el backend real, así que hace falta una cuenta de Cidituc.
 
 **Límites propios de la app.** En el panel, 5 intentos de contraseña en 15 minutos por correo o
@@ -204,7 +214,7 @@ ya figura.
    | `CRON_SECRET` | Para los avisos | Protege `/api/avisos`, que reintenta los avisos que fallaron (una vez por día con el plan Hobby). |
    | `SUPABASE_CA_CERT` | Recomendada | Verifica el certificado de la base. |
    | `SESSION_SECRET` | Sí | Firma las sesiones de los oferentes (32 caracteres o más). |
-   | `CIDITUC_HABILITADO`, `CIDITUC_DERIVADOR_URL`, `CIDITUC_API_URL`, `CIDITUC_CALLBACK_URL` | Sí | Ingreso de oferentes con Cidituc (ver 3.3). |
+   | `CIDITUC_HABILITADO`, `CIDITUC_LOGIN_URL`, `CIDITUC_API_URL`, `CIDITUC_CALLBACK_URL` | Sí | Ingreso de oferentes con Cidituc (ver 3.3). |
 
    Las variables que empiezan con `NEXT_PUBLIC_` quedan fijas al compilar: cargalas antes del
    primer despliegue y, si cambian, volvé a desplegar. `CRON_SECRET` se carga sin espacios ni

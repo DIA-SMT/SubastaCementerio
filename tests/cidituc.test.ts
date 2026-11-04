@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Ingreso de oferentes con Cidituc: validación del token, sesión propia y el viaje de ida y
-// vuelta al derivador. El backend municipal y la base se simulan.
+// vuelta al login de Ciudad Digital. El backend municipal y la base se simulan.
 
 const simulado = vi.hoisted(() => ({
   respuesta: { status: 200, body: "{}" } as { status: number; body: string } | Error,
@@ -43,7 +43,7 @@ const TOKEN = "eyJhbGciOiJIUzI1NiJ9.token-de-prueba.firma";
 function configurar(habilitado = true) {
   vi.resetModules();
   vi.stubEnv("CIDITUC_HABILITADO", habilitado ? "1" : "");
-  vi.stubEnv("CIDITUC_DERIVADOR_URL", "https://cidituc.smt.gob.ar");
+  vi.stubEnv("CIDITUC_LOGIN_URL", "https://ciudaddigital.smt.gob.ar");
   vi.stubEnv("CIDITUC_API_URL", "https://estadisticas.smt.gob.ar:5000/");
   vi.stubEnv("CIDITUC_CALLBACK_URL", "https://subasta.test/auth/cidituc/callback");
   vi.stubEnv("SESSION_SECRET", "s".repeat(40));
@@ -146,16 +146,18 @@ describe("sesión del oferente", () => {
   });
 });
 
-describe("ida y vuelta por el derivador", () => {
+describe("ida y vuelta por el login de Ciudad Digital", () => {
   const flujo = () => import("@/lib/auth/cidituc/flujo");
   const pedido = (url: string, cookie?: string) =>
     new NextRequest(url, cookie ? { headers: { cookie: `subasta_cidituc=${cookie}` } } : undefined);
 
-  it("el inicio guarda el nonce y el destino, y manda al derivador con la clave de la subasta", async () => {
+  it("el inicio guarda el nonce y el destino, y manda al login con la clave de la subasta", async () => {
     const r = (await flujo()).inicioCidituc(pedido("https://subasta.test/auth/cidituc/inicio?volver=/obras/7/ofertar"));
     expect(r.status).toBe(303);
     const destino = new URL(r.headers.get("location")!);
-    expect(destino.origin + destino.pathname).toBe("https://cidituc.smt.gob.ar/");
+    expect(destino.origin + destino.pathname).toBe("https://ciudaddigital.smt.gob.ar/");
+    // Sin ?logout: quien ya tiene la sesión de Ciudad Digital vuelve sin poner la contraseña.
+    expect(destino.search).toBe("");
     const hash = new URLSearchParams(destino.hash.replace(/^#\/login\?/, ""));
     expect(hash.get("next")).toBe("subasta-cementerio");
     const cookie = r.cookies.get("subasta_cidituc");
@@ -178,10 +180,43 @@ describe("ida y vuelta por el derivador", () => {
     expect(r.headers.get("location")).toBe("https://subasta.test/ingresar?error=sin-configurar");
   });
 
-  it("distingue las tres formas de fallar el state", async () => {
+  it("el reintento con limpiar=1 cierra antes la sesión guardada en Ciudad Digital", async () => {
+    const r = (await flujo()).inicioCidituc(pedido("https://subasta.test/auth/cidituc/inicio?volver=/obras&limpiar=1"));
+    const destino = new URL(r.headers.get("location")!);
+    // El logout va antes del #: el sitio lo lee de la query real, no del fragmento.
+    expect(destino.searchParams.get("logout")).toBe("1");
+    expect(destino.hash).toMatch(/^#\/login\?next=subasta-cementerio&state=/);
+  });
+
+  it("solo el token inválido pide limpiar al reintentar", async () => {
+    const { reintentoLimpia } = await import("@/lib/auth/cidituc/errores");
+    expect(reintentoLimpia("token-invalido")).toBe(true);
+    for (const otro of ["no-disponible", "state-vencido", "sesion-fallida", undefined]) {
+      expect(reintentoLimpia(otro), String(otro)).toBe(false);
+    }
+  });
+
+  it("el cierre de sesión pasa por el logout de Ciudad Digital", async () => {
+    const { salidaCidituc } = await import("@/lib/auth/cidituc/config");
+    expect(salidaCidituc()).toBe("https://ciudaddigital.smt.gob.ar/?logout=1");
+    configurar(false);
+    expect((await import("@/lib/auth/cidituc/config")).salidaCidituc()).toBe("/");
+  });
+
+  it("el login no devuelve el state: alcanza con la cookie del flujo", async () => {
+    simulado.oferente = true;
+    const r = await (await flujo()).callbackCidituc(
+      pedido(`https://subasta.test/auth/cidituc/callback?auth=${TOKEN}`, "abc|/obras/7"),
+    );
+    expect(r.headers.get("location")).toBe("https://subasta.test/obras/7");
+    expect(r.cookies.get("subasta_oferente")?.value).toBeTruthy();
+  });
+
+  it("rechaza la vuelta sin cookie del flujo y un state que no es el nuestro", async () => {
     const { callbackCidituc } = await flujo();
     const casos: [string, string | undefined, string][] = [
-      [`auth=${TOKEN}`, "abc|/obras", "state-ausente"],
+      // Un enlace al callback armado por otro: el ingreso no empezó en este navegador.
+      [`auth=${TOKEN}`, undefined, "state-vencido"],
       [`auth=${TOKEN}&state=abc`, undefined, "state-vencido"],
       [`auth=${TOKEN}&state=otro`, "abc|/obras/3", "state-distinto"],
     ];

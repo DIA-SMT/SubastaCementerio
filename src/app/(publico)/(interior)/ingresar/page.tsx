@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { IngresoDividido } from "@/components/IngresoDividido";
 import { ciudadanoActual } from "@/lib/auth/ciudadano";
 import { CIDITUC_CONFIGURADO } from "@/lib/auth/cidituc/config";
-import { textoDeError } from "@/lib/auth/cidituc/errores";
+import { reintentoLimpia, textoDeError } from "@/lib/auth/cidituc/errores";
 import { esOferente } from "@/lib/datos/oferente";
 import { rutaSegura } from "@/lib/validacion";
 
@@ -36,7 +36,9 @@ async function Ingreso({ searchParams }: Pick<PageProps<"/ingresar">, "searchPar
   const error = textoDeError(parametros.error);
   // Un <a> y no un <Link>: el prefetch de Link abriría el arranque del ingreso (y su cookie)
   // sin que la persona lo pida.
-  const inicio = `/auth/cidituc/inicio?${new URLSearchParams({ volver })}`;
+  const inicio = `/auth/cidituc/inicio?${new URLSearchParams(
+    reintentoLimpia(parametros.error) ? { volver, limpiar: "1" } : { volver },
+  )}`;
 
   return (
     <div className="space-y-5">
