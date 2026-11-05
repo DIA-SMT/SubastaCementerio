@@ -3,6 +3,7 @@ import type { Fase, ObraResumen } from "@/lib/datos/tipos";
 import { pesos, tituloObra } from "@/lib/formato";
 import { EstadoChip } from "./EstadoChip";
 import { FotoObra } from "./FotoObra";
+import { GiroObra } from "./GiroObra";
 import { IconoFlecha } from "./Iconos";
 
 /** Estado de la obra para quien mira: si la oferta más alta es suya, se lo decimos. */
@@ -53,14 +54,24 @@ export function TarjetaObra({
       <div className="relative aspect-[4/5] overflow-hidden bg-piedra">
         {/* Filete azul que aparece al pasar el mouse, entre la foto y los datos. */}
         <span aria-hidden className="absolute inset-x-0 bottom-0 z-10 h-0.5 origin-left scale-x-0 bg-smt transition-transform duration-300 ease-suave group-hover:scale-x-100" />
-        <FotoObra
-          foto={obra.portada}
-          // La obra entera, sin recortes: las fotos de las esculturas suelen ser verticales.
-          ajuste="contener"
-          tamanos={tamanos}
-          prioridad={prioridad}
-          className="transition-transform duration-300 ease-suave group-hover:scale-[1.03]"
-        />
+        {obra.giro.length > 1 ? (
+          // Varias fotos alrededor de la cabeza: gira 360° al pasar el mouse.
+          <GiroObra
+            cuadros={obra.giro}
+            tamanos={tamanos}
+            prioridad={prioridad}
+            className="transition-transform duration-300 ease-suave group-hover:scale-[1.03]"
+          />
+        ) : (
+          <FotoObra
+            foto={obra.portada}
+            // La obra entera, sin recortes: las fotos de las esculturas suelen ser verticales.
+            ajuste="contener"
+            tamanos={tamanos}
+            prioridad={prioridad}
+            className="transition-transform duration-300 ease-suave group-hover:scale-[1.03]"
+          />
+        )}
       </div>
 
       <div className="flex flex-1 flex-col p-3.5 @min-[15rem]:p-5">
