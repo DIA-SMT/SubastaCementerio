@@ -37,6 +37,12 @@ export type ObraResumen = {
   cantidadOfertas: number;
   minimoSiguiente: number;
   portada: Foto | null;
+  /**
+   * Cuadros del giro 360° que la tarjeta muestra al pasar el mouse: la portada y las fotos que
+   * le siguen con sus mismas medidas (una misma sesión de fotos alrededor de la cabeza).
+   * Con menos de dos cuadros, la tarjeta muestra solo la portada.
+   */
+  giro: Foto[];
   esEjemplo: boolean;
   /** Cierre de esta obra: el general, o más tarde si una oferta de último momento lo extendió. */
   cierre: Date;

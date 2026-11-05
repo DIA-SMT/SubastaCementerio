@@ -38,6 +38,7 @@ function aResumen(f: FilaObra): ObraResumen {
           alto: f.portada_alto == null ? null : Number(f.portada_alto),
         }
       : null,
+    giro: [],
     esEjemplo: Boolean(f.es_ejemplo),
     cierre: new Date(f.cierre as string),
     fase: f.fase as Fase,
@@ -70,21 +71,52 @@ export const estadoSubasta = cache(async (): Promise<EstadoSubasta> => {
   };
 });
 
+type FilaFoto = { ruta: string; texto_alternativo: string; ancho: number | null; alto: number | null };
+
+const aFoto = (x: FilaFoto): Foto => ({ ruta: x.ruta, alt: x.texto_alternativo, ancho: x.ancho, alto: x.alto });
+
+/**
+ * Cuadros del giro 360°: la portada y las fotos que le siguen mientras tengan sus mismas medidas.
+ * Una foto distinta (otra toma, otro encuadre) corta el giro: sigue en la galería de la ficha,
+ * pero no se mezcla en la animación de la tarjeta.
+ */
+export function cuadrosDelGiro(fotos: Foto[]): Foto[] {
+  const [portada] = fotos;
+  if (!portada?.ancho || !portada.alto) return [];
+  const i = fotos.findIndex((f) => f.ancho !== portada.ancho || f.alto !== portada.alto);
+  const cuadros = i === -1 ? fotos : fotos.slice(0, i);
+  return cuadros.length > 1 ? cuadros : [];
+}
+
 export async function listarObras(uid?: string | null): Promise<ObraResumen[]> {
-  const filas = await consultar(ctx(uid), "select * from public.v_obras_publicas order by numero");
-  return filas.map(aResumen);
+  return conBase(ctx(uid), async (q) => {
+    const filas = await q("select * from public.v_obras_publicas order by numero");
+    const fotos = await q<FilaFoto & { obra_id: string }>(
+      "select obra_id, ruta, texto_alternativo, ancho, alto from public.v_fotos_publicas order by obra_id, orden",
+    );
+    const porObra = new Map<string, Foto[]>();
+    for (const x of fotos) {
+      const lista = porObra.get(String(x.obra_id)) ?? [];
+      lista.push(aFoto(x));
+      porObra.set(String(x.obra_id), lista);
+    }
+    return filas.map((f) => ({ ...aResumen(f), giro: cuadrosDelGiro(porObra.get(String(f.id)) ?? []) }));
+  });
 }
 
 export async function obtenerObra(numero: number, uid?: string | null): Promise<ObraDetalle | null> {
   return conBase(ctx(uid), async (q) => {
     const [f] = await q("select * from public.v_obras_publicas where numero = $1", [numero]);
     if (!f) return null;
-    const fotos = await q<{ ruta: string; texto_alternativo: string; ancho: number | null; alto: number | null }>(
-      "select ruta, texto_alternativo, ancho, alto from public.v_fotos_publicas where obra_id = $1 order by orden",
-      [f.id],
-    );
+    const fotos = (
+      await q<FilaFoto>(
+        "select ruta, texto_alternativo, ancho, alto from public.v_fotos_publicas where obra_id = $1 order by orden",
+        [f.id],
+      )
+    ).map(aFoto);
     return {
       ...aResumen(f),
+      giro: cuadrosDelGiro(fotos),
       resena: String(f.resena ?? ""),
       tecnica: (f.tecnica as string | null) ?? null,
       artistaResena: String(f.artista_resena ?? ""),
@@ -97,9 +129,7 @@ export async function obtenerObra(numero: number, uid?: string | null): Promise<
         profundidad: f.profundidad_cm == null ? null : Number(f.profundidad_cm),
         aproximadas: Boolean(f.medidas_aproximadas),
       },
-      fotos: fotos.map(
-        (x): Foto => ({ ruta: x.ruta, alt: x.texto_alternativo, ancho: x.ancho, alto: x.alto }),
-      ),
+      fotos,
     };
   });
 }
