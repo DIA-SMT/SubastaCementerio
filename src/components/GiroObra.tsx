@@ -6,14 +6,16 @@ import type { Foto } from "@/lib/datos/tipos";
 import { FotoObra, urlFoto } from "./FotoObra";
 
 /**
- * Tiempo que dura cada cuadro. El fundido al siguiente ocupa todo ese tiempo, así el giro es
- * continuo y no a saltos: con 8 cuadros, una vuelta completa tarda unos 3 segundos.
+ * Tiempo que dura cada cuadro. El fundido al siguiente ocupa todo ese tiempo y avanza a ritmo
+ * parejo (lineal), así la imagen nunca se queda quieta entre un cuadro y otro y el giro se ve
+ * continuo: con 8 cuadros, una vuelta completa tarda unos 4,5 segundos.
  */
-const MS_POR_CUADRO = 380;
-/** Al sacar el mouse, vuelve al frente con un fundido algo más largo. */
-const MS_VUELTA_AL_FRENTE = 450;
+const MS_POR_CUADRO = 560;
+/** Al sacar el mouse, vuelve al frente con un fundido suave. */
+const MS_VUELTA_AL_FRENTE = 600;
 
-type Vista = { actual: number; anterior: number; fundido: number };
+/** Cuadro visible, el que queda debajo durante el fundido, y cómo es ese fundido. */
+type Vista = { actual: number; anterior: number; fundido: number; curva: "linear" | "ease-out" };
 
 /**
  * Foto de la tarjeta que gira 360° mientras el mouse está sobre la tarjeta. Los cuadros (fotos
@@ -38,7 +40,7 @@ export function GiroObra({
   const [pedidos, setPedidos] = useState(false);
   const [cargados, setCargados] = useState(0);
   const [girando, setGirando] = useState(false);
-  const [vista, setVista] = useState<Vista>({ actual: 0, anterior: 0, fundido: 0 });
+  const [vista, setVista] = useState<Vista>({ actual: 0, anterior: 0, fundido: 0, curva: "linear" });
   const total = cuadros.length;
   const listos = cargados >= total - 1;
 
@@ -54,7 +56,9 @@ export function GiroObra({
     };
     const salir = () => {
       setGirando(false);
-      setVista((v) => (v.actual === 0 ? v : { actual: 0, anterior: v.actual, fundido: MS_VUELTA_AL_FRENTE }));
+      setVista((v) =>
+        v.actual === 0 ? v : { actual: 0, anterior: v.actual, fundido: MS_VUELTA_AL_FRENTE, curva: "ease-out" },
+      );
     };
     tarjeta.addEventListener("pointerenter", entrar);
     tarjeta.addEventListener("pointerleave", salir);
@@ -68,7 +72,7 @@ export function GiroObra({
   useEffect(() => {
     if (!listos || !girando) return;
     const avanzar = () =>
-      setVista((v) => ({ actual: (v.actual + 1) % total, anterior: v.actual, fundido: MS_POR_CUADRO }));
+      setVista((v) => ({ actual: (v.actual + 1) % total, anterior: v.actual, fundido: MS_POR_CUADRO, curva: "linear" }));
     avanzar();
     const t = setInterval(avanzar, MS_POR_CUADRO);
     return () => clearInterval(t);
@@ -77,7 +81,7 @@ export function GiroObra({
   // El cuadro actual aparece encima con un fundido; el anterior queda visible debajo; el resto, oculto.
   const capa = (i: number): CSSProperties =>
     i === vista.actual
-      ? { opacity: 1, zIndex: 2, transition: `opacity ${vista.fundido}ms ease-in-out` }
+      ? { opacity: 1, zIndex: 2, transition: `opacity ${vista.fundido}ms ${vista.curva}` }
       : i === vista.anterior
         ? { opacity: 1, zIndex: 1 }
         : { opacity: 0, zIndex: 0 };
