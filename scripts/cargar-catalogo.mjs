@@ -27,7 +27,7 @@ const CATALOGO = [
       instagram: "alejandrogomeztolosa",
       titulo: "Inconsciente colectivo",
       tecnica:
-        "Yeso, vendas enyesadas, telgopor, elementos en PLA (impresión 3D), soldaditos de plástico, pintura roja y barniz brillante",
+        "Yeso, vendas enyesadas, telgopor, PLA (impresión 3D), soldaditos de plástico, pintura roja y barniz brillante",
       altoCm: 80,
       anchoCm: 30,
       profundidadCm: 40,
@@ -37,7 +37,7 @@ const CATALOGO = [
     },
   ],
   [7, "Elba Gramajo"],
-  [8, "Mane Guantay"],
+  [8, "Mané Guantay"],
   [9, "Eduardo Joaquín"],
   [10, "Rubén Kempa"],
   [11, "Néstor Mercado"],
@@ -53,7 +53,7 @@ const CATALOGO = [
   [21, "Ana Singh"],
   [22, "Mónica Vallejo"],
   [23, "María Silvina Vera"],
-  [24, "Ariel Xamena"],
+  [24, "Carlos Ariel Xamena"],
 ];
 
 const soloVer = process.argv.includes("--ver");
