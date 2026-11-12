@@ -7,17 +7,15 @@
 export const MAX_ROTATIONS = 3;
 /** Duración de una vuelta completa, sin importar cuántas fotos tenga la secuencia. */
 export const MS_POR_VUELTA = 4000;
-/** Con el dedo: tiempo que hay que mantener presionada la foto para que empiece a girar. */
+/** Tiempo que hay que mantener presionada la foto para que empiece a girar. */
 export const MS_PULSACION = 300;
-/** Si el dedo se mueve más que esto antes de activarse, es scroll: se cancela. */
+/** Si el dedo o el mouse se mueve más que esto antes de activarse, es scroll o arrastre: se cancela. */
 export const UMBRAL_MOVIMIENTO_PX = 10;
 /**
  * Fundido corto entre una foto y la siguiente: solo tapa el cambio, sin que se vean dos obras
  * superpuestas. Nunca dura más de un tercio del tiempo de cada foto.
  */
 export const MS_FUNDIDO = 90;
-/** Con mouse: al salir de la tarjeta, la obra vuelve al frente con este fundido. */
-export const MS_VUELTA_AL_FRENTE = 400;
 
 export type OpcionesGiro = { msPorVuelta?: number; maxVueltas?: number };
 

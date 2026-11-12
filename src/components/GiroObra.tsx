@@ -5,7 +5,6 @@ import { type CSSProperties, useCallback, useEffect, useRef, useState, useSyncEx
 import type { Foto } from "@/lib/datos/tipos";
 import {
   MS_PULSACION,
-  MS_VUELTA_AL_FRENTE,
   UMBRAL_MOVIMIENTO_PX,
   msFundido,
   posicionDelGiro,
@@ -17,12 +16,9 @@ import { FotoObra, urlFoto } from "./FotoObra";
 /** Estado de cada foto de la secuencia (la portada se muestra siempre). */
 type Carga = "pendiente" | "lista" | "fallida";
 /** Foto visible y la que queda debajo mientras aparece la nueva. */
-type Vista = { actual: number; anterior: number; ms?: number };
-/**
- * Quién hizo girar la obra: el mouse se detiene al salir de la tarjeta; el dedo, al soltar;
- * el botón, al volver a tocarlo.
- */
-type Origen = "mouse" | "gesto" | "boton";
+type Vista = { actual: number; anterior: number };
+/** Quién hizo girar la obra: el gesto se detiene al soltar; el botón, al volver a tocarlo. */
+type Origen = "gesto" | "boton";
 
 const CONSULTA_MENOS_MOVIMIENTO = "(prefers-reduced-motion: reduce)";
 const reducirMovimiento = () =>
@@ -36,10 +32,9 @@ const seguirPreferencia = (avisar: () => void) => {
 /**
  * Foto de la tarjeta que gira 360° con las fotos tomadas alrededor de la cabeza.
  *
- * - Con mouse: gira mientras el mouse está sobre la tarjeta y, al salir, vuelve al frente.
- * - Con el dedo: mantener presionada la foto unos 300 ms la hace girar; al soltar se detiene y
- *   queda en ese ángulo. Un toque corto abre la ficha; si el dedo se mueve antes, es scroll.
- * - Cada activación da como mucho MAX_ROTATIONS vueltas.
+ * - Mantener presionada la foto (dedo o clic izquierdo) unos 300 ms la hace girar; al soltar se
+ *   detiene y queda en ese ángulo. Gira como mucho MAX_ROTATIONS vueltas por pulsación.
+ * - Un toque corto sigue abriendo la ficha. Si el dedo se mueve antes de activarse, es scroll.
  * - El botón 360° hace lo mismo sin mantener presionado (teclado y lectores de pantalla).
  *   Con "reducir movimiento", ese botón pasa de una vista a la siguiente, sin animación.
  * - Gira una sola obra por vez (ver tomarGiro). Se detiene al cambiar de pestaña o de página.
@@ -171,8 +166,7 @@ export function GiroObra({
 
     const presionar = (e: PointerEvent) => {
       evitarClic = false;
-      // El mouse no necesita mantener presionado: gira al pasar por encima.
-      if (!e.isPrimary || e.pointerType === "mouse" || reducirMovimiento()) return;
+      if (!e.isPrimary || (e.pointerType === "mouse" && e.button !== 0) || reducirMovimiento()) return;
       if ((e.target as Element).closest("[data-giro-boton]")) return;
       const r = foto.getBoundingClientRect();
       if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return;
@@ -222,16 +216,8 @@ export function GiroObra({
     const bloquearScroll = (e: TouchEvent) => {
       if (activo && e.cancelable) e.preventDefault();
     };
-    // Mouse: gira al entrar a la tarjeta y, al salir, se detiene y vuelve al frente.
-    const entrar = (e: PointerEvent) => {
-      if (e.pointerType !== "mouse") return;
-      setPedidas(true);
-      if (!reducirMovimiento()) girar("mouse");
-    };
-    const salir = (e: PointerEvent) => {
-      if (e.pointerType !== "mouse" || reducirMovimiento()) return;
-      detenerGiro();
-      setVista((v) => (v.actual === 0 ? v : { actual: 0, anterior: v.actual, ms: MS_VUELTA_AL_FRENTE }));
+    const precargar = (e: PointerEvent) => {
+      if (e.pointerType === "mouse") setPedidas(true);
     };
     const alOcultar = () => {
       if (document.visibilityState === "hidden") {
@@ -244,8 +230,7 @@ export function GiroObra({
       detenerGiro();
     };
 
-    tarjeta.addEventListener("pointerenter", entrar);
-    tarjeta.addEventListener("pointerleave", salir);
+    tarjeta.addEventListener("pointerenter", precargar);
     tarjeta.addEventListener("pointerdown", presionar);
     tarjeta.addEventListener("pointermove", mover);
     tarjeta.addEventListener("pointerup", soltar);
@@ -259,8 +244,7 @@ export function GiroObra({
     document.addEventListener("visibilitychange", alOcultar);
     window.addEventListener("pagehide", alSalir);
     return () => {
-      tarjeta.removeEventListener("pointerenter", entrar);
-      tarjeta.removeEventListener("pointerleave", salir);
+      tarjeta.removeEventListener("pointerenter", precargar);
       tarjeta.removeEventListener("pointerdown", presionar);
       tarjeta.removeEventListener("pointermove", mover);
       tarjeta.removeEventListener("pointerup", soltar);
@@ -292,7 +276,7 @@ export function GiroObra({
   // termina (así nunca se ve el fondo); el resto, oculto.
   const capa = (i: number): CSSProperties =>
     i === vista.actual
-      ? { opacity: 1, zIndex: 2, transition: `opacity ${vista.ms ?? fundido}ms ${vista.ms ? "ease-out" : "linear"}` }
+      ? { opacity: 1, zIndex: 2, transition: `opacity ${fundido}ms linear` }
       : i === vista.anterior
         ? { opacity: 1, zIndex: 1 }
         : { opacity: 0, zIndex: 0 };
