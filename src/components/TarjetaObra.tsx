@@ -55,11 +55,12 @@ export function TarjetaObra({
         {/* Filete azul que aparece al pasar el mouse, entre la foto y los datos. */}
         <span aria-hidden className="absolute inset-x-0 bottom-0 z-10 h-0.5 origin-left scale-x-0 bg-smt transition-transform duration-300 ease-suave group-hover:scale-x-100" />
         {obra.giro.length > 1 ? (
-          // Varias fotos alrededor de la cabeza: gira 360° al pasar el mouse.
+          // Varias fotos alrededor de la cabeza: gira 360° al mantenerla presionada.
           <GiroObra
             cuadros={obra.giro}
             tamanos={tamanos}
             prioridad={prioridad}
+            etiqueta={`la obra N° ${obra.numero}`}
             className="transition-transform duration-300 ease-suave group-hover:scale-[1.03]"
           />
         ) : (
@@ -84,7 +85,11 @@ export function TarjetaObra({
           </span>
         </div>
         <h3 className="mt-1.5 font-display text-[1.02rem] leading-snug font-semibold tracking-[-0.015em] @min-[15rem]:text-[1.2rem] @min-[15rem]:leading-tight">
-          <Link href={`/obras/${obra.numero}`} className="enlace-tarjeta after:absolute after:inset-0 after:z-0">
+          <Link
+            href={`/obras/${obra.numero}`}
+            // Con giro: mantener presionado hace girar la obra, así que sin el menú del enlace (iOS).
+            className={`enlace-tarjeta after:absolute after:inset-0 after:z-0 ${obra.giro.length > 1 ? "[-webkit-touch-callout:none]" : ""}`}
+          >
             <span className={obra.titulo ? "" : "italic"}>{tituloObra(obra.titulo)}</span>
           </Link>
         </h3>
