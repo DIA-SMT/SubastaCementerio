@@ -11,7 +11,6 @@ import {
   posicionDelGiro,
   soltarGiro,
   tomarGiro,
-  vistaIntermedia,
 } from "@/lib/giro";
 import { FotoObra, urlFoto } from "./FotoObra";
 
@@ -41,7 +40,8 @@ const seguirPreferencia = (avisar: () => void) => {
  * - Con el dedo: mantener presionada la foto unos 300 ms la hace girar; al soltar se detiene y
  *   queda en ese ángulo. Un toque corto abre la ficha; si el dedo se mueve antes, es scroll.
  * - Cada activación da como mucho MAX_ROTATIONS vueltas, de MS_POR_VUELTA cada una.
- * - Entre foto y foto arma vistas intermedias (ver vistaIntermedia): el giro es continuo.
+ * - Cada foto aparece sobre la anterior con un fundido parejo que dura todo el paso: el giro
+ *   avanza sin pausas, a ritmo constante.
  * - El botón 360° hace girar la obra sin mouse ni gestos (teclado y lectores de pantalla).
  *   Con "reducir movimiento", ese botón pasa de una vista a la siguiente, sin animación.
  * - Gira una sola obra por vez (ver tomarGiro). Se detiene al cambiar de pestaña o de página.
@@ -118,8 +118,8 @@ export function GiroObra({
     setVista({ actual: siguiente, anterior: actual });
   }, [cuadros]);
 
-  // Mientras gira: cada cuadro de la pantalla (requestAnimationFrame) dibuja la vista
-  // intermedia entre dos fotos, a velocidad constante. Escribe directo en el DOM para no
+  // Mientras gira: cada cuadro de la pantalla (requestAnimationFrame) dibuja el fundido entre
+  // dos fotos, a velocidad constante. Escribe directo en el DOM para no
   // volver a renderizar 60 veces por segundo; React solo se entera de qué foto domina.
   // Antes de pintar (layout effect) ya ubica las capas, para que no se vean todas juntas.
   useLayoutEffect(() => {
@@ -131,10 +131,9 @@ export function GiroObra({
     let usadas: number[] = [];
     let id = 0;
 
-    const ubicar = (el: HTMLDivElement | null | undefined, x: number, grados: number, opacidad: number, z: number) => {
+    const ubicar = (el: HTMLDivElement | null | undefined, opacidad: number, z: number) => {
       if (!el) return;
       el.style.transition = "none";
-      el.style.transform = `translateX(${x.toFixed(2)}%) rotateY(${grados.toFixed(2)}deg)`;
       el.style.opacity = String(opacidad);
       el.style.zIndex = String(z);
     };
@@ -143,15 +142,15 @@ export function GiroObra({
       const p = posicionDelGiro(ahora - t0, inicio, sec.length);
       const sale = sec[p.desde];
       const entra = sec[p.hacia];
-      const v = vistaIntermedia(p.t);
+      const opacidad = p.terminado ? 0 : p.t;
       // Oculta las que se usaron en el cuadro anterior y ya no.
-      for (const i of usadas) if (i !== sale && i !== entra) ubicar(capas.current[i], 0, 0, 0, 0);
-      ubicar(capas.current[sale], v.sale.x, v.sale.grados, 1, 1);
-      ubicar(capas.current[entra], v.entra.x, v.entra.grados, p.terminado ? 0 : v.entra.opacidad, 2);
+      for (const i of usadas) if (i !== sale && i !== entra) ubicar(capas.current[i], 0, 0);
+      ubicar(capas.current[sale], 1, 1);
+      ubicar(capas.current[entra], opacidad, 2);
       usadas = [sale, entra];
       barra.current?.style.setProperty("transform", `scaleX(${p.progreso})`);
 
-      const ahoraDomina = v.entra.opacidad >= 0.5 && !p.terminado ? entra : sale;
+      const ahoraDomina = opacidad >= 0.5 ? entra : sale;
       if (ahoraDomina !== dominante) {
         const anterior = dominante;
         dominante = ahoraDomina;
@@ -165,12 +164,8 @@ export function GiroObra({
     const lista = capas.current;
     return () => {
       cancelAnimationFrame(id);
-      // Devuelve las fotos a su lugar con una transición corta; React vuelve a fijar el resto.
-      for (const el of lista) {
-        if (!el) continue;
-        el.style.transition = `transform ${MS_FUNDIDO * 2}ms ease-out, opacity ${MS_FUNDIDO}ms linear`;
-        el.style.transform = "";
-      }
+      // Al detenerse, la foto a medio aparecer termina con un fundido corto; React fija el resto.
+      for (const el of lista) if (el) el.style.transition = `opacity ${MS_FUNDIDO}ms linear`;
     };
   }, [animando, detenerGiro]);
 
@@ -319,7 +314,7 @@ export function GiroObra({
         ? {
             opacity: 1,
             zIndex: 2,
-            transition: `opacity ${vista.ms ?? MS_FUNDIDO}ms ${vista.ms ? "ease-out" : "linear"}, transform ${MS_FUNDIDO * 2}ms ease-out`,
+            transition: `opacity ${vista.ms ?? MS_FUNDIDO}ms ${vista.ms ? "ease-out" : "linear"}`,
           }
         : i === vista.anterior
           ? { opacity: 1, zIndex: 1 }
@@ -331,14 +326,13 @@ export function GiroObra({
   return (
     <div ref={raiz} className="absolute inset-0 select-none">
       {/* isolate: el orden de las fotos (z-index) queda adentro y el enlace de la tarjeta sigue
-          encima, así un toque en la foto abre la ficha aunque el mouse no haya pasado antes.
-          La perspectiva da profundidad al giro de las vistas intermedias. */}
-      <div className={`absolute inset-0 isolate [perspective:1100px] ${className}`}>
+          encima, así un toque en la foto abre la ficha aunque el mouse no haya pasado antes. */}
+      <div className={`absolute inset-0 isolate ${className}`}>
         <div
           ref={(el) => {
             capas.current[0] = el;
           }}
-          className="absolute inset-0 will-change-transform"
+          className="absolute inset-0 will-change-[opacity]"
           style={capa(0)}
         >
           <FotoObra foto={cuadros[0]} ajuste="contener" tamanos={tamanos} prioridad={prioridad} />
@@ -351,7 +345,7 @@ export function GiroObra({
                 capas.current[j + 1] = el;
               }}
               aria-hidden
-              className="absolute inset-0 will-change-transform"
+              className="absolute inset-0 will-change-[opacity]"
               style={capa(j + 1)}
             >
               <Image

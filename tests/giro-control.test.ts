@@ -2,13 +2,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   MAX_ROTATIONS,
   MS_POR_VUELTA,
-  VISTAS,
   giroActivo,
   msPorCuadro,
   posicionDelGiro,
   soltarGiro,
   tomarGiro,
-  vistaIntermedia,
 } from "@/lib/giro";
 
 describe("posición del giro 360°", () => {
@@ -45,32 +43,6 @@ describe("posición del giro 360°", () => {
   it("sin secuencia no gira", () => {
     expect(posicionDelGiro(1000, 0, 1).terminado).toBe(true);
     expect(posicionDelGiro(1000, 0, 0).terminado).toBe(true);
-  });
-});
-
-describe("vistas intermedias", () => {
-  it("al empezar y al terminar cada paso, las fotos quedan derechas y en su lugar", () => {
-    const inicio = vistaIntermedia(0);
-    expect(Math.abs(inicio.sale.x) + Math.abs(inicio.sale.grados)).toBe(0);
-    expect(inicio.entra.opacidad).toBe(0);
-    const fin = vistaIntermedia(1);
-    expect(Math.abs(fin.entra.x) + Math.abs(fin.entra.grados)).toBe(0);
-    expect(fin.entra.opacidad).toBe(1);
-  });
-
-  it("la que sale se corre hacia el lado del giro y la que entra llega del otro lado", () => {
-    const v = vistaIntermedia(0.5);
-    expect(Math.sign(v.sale.x)).toBe(VISTAS.sentido);
-    expect(Math.sign(v.entra.x)).toBe(-VISTAS.sentido);
-    expect(Math.abs(v.sale.x)).toBeLessThanOrEqual(VISTAS.desplazamiento);
-    expect(Math.abs(v.sale.grados)).toBeLessThanOrEqual(VISTAS.grados);
-  });
-
-  it("el fundido es corto y en el medio: sin imagen doble al principio ni al final del paso", () => {
-    const desde = 0.5 - VISTAS.fundido / 2;
-    expect(vistaIntermedia(desde - 0.01).entra.opacidad).toBe(0);
-    expect(vistaIntermedia(1 - desde + 0.01).entra.opacidad).toBe(1);
-    expect(vistaIntermedia(0.5).entra.opacidad).toBeCloseTo(0.5);
   });
 });
 
