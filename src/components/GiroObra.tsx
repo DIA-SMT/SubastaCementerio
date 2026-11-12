@@ -1,24 +1,29 @@
 "use client";
 
 import Image from "next/image";
-import { type CSSProperties, useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { type CSSProperties, useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { Foto } from "@/lib/datos/tipos";
 import {
+  MS_FUNDIDO,
   MS_PULSACION,
+  MS_VUELTA_AL_FRENTE,
   UMBRAL_MOVIMIENTO_PX,
-  msFundido,
   posicionDelGiro,
   soltarGiro,
   tomarGiro,
+  vistaIntermedia,
 } from "@/lib/giro";
 import { FotoObra, urlFoto } from "./FotoObra";
 
 /** Estado de cada foto de la secuencia (la portada se muestra siempre). */
 type Carga = "pendiente" | "lista" | "fallida";
-/** Foto visible y la que queda debajo mientras aparece la nueva. */
-type Vista = { actual: number; anterior: number };
-/** Quién hizo girar la obra: el gesto se detiene al soltar; el botón, al volver a tocarlo. */
-type Origen = "gesto" | "boton";
+/** Foto visible y la que queda debajo mientras aparece; `ms`: fundido distinto del habitual. */
+type Vista = { actual: number; anterior: number; ms?: number };
+/**
+ * Quién hizo girar la obra: el mouse se detiene al salir de la tarjeta; el dedo, al soltar;
+ * el botón, al volver a tocarlo.
+ */
+type Origen = "mouse" | "gesto" | "boton";
 
 const CONSULTA_MENOS_MOVIMIENTO = "(prefers-reduced-motion: reduce)";
 const reducirMovimiento = () =>
@@ -32,10 +37,12 @@ const seguirPreferencia = (avisar: () => void) => {
 /**
  * Foto de la tarjeta que gira 360° con las fotos tomadas alrededor de la cabeza.
  *
- * - Mantener presionada la foto (dedo o clic izquierdo) unos 300 ms la hace girar; al soltar se
- *   detiene y queda en ese ángulo. Gira como mucho MAX_ROTATIONS vueltas por pulsación.
- * - Un toque corto sigue abriendo la ficha. Si el dedo se mueve antes de activarse, es scroll.
- * - El botón 360° hace lo mismo sin mantener presionado (teclado y lectores de pantalla).
+ * - Con mouse: gira mientras el mouse está sobre la tarjeta y, al salir, vuelve al frente.
+ * - Con el dedo: mantener presionada la foto unos 300 ms la hace girar; al soltar se detiene y
+ *   queda en ese ángulo. Un toque corto abre la ficha; si el dedo se mueve antes, es scroll.
+ * - Cada activación da como mucho MAX_ROTATIONS vueltas, de MS_POR_VUELTA cada una.
+ * - Entre foto y foto arma vistas intermedias (ver vistaIntermedia): el giro es continuo.
+ * - El botón 360° hace girar la obra sin mouse ni gestos (teclado y lectores de pantalla).
  *   Con "reducir movimiento", ese botón pasa de una vista a la siguiente, sin animación.
  * - Gira una sola obra por vez (ver tomarGiro). Se detiene al cambiar de pestaña o de página.
  * - Las fotos se piden al pasar el mouse o al empezar a presionar, y el giro empieza recién
@@ -58,6 +65,7 @@ export function GiroObra({
 }) {
   const raiz = useRef<HTMLDivElement>(null);
   const barra = useRef<HTMLSpanElement>(null);
+  const capas = useRef<(HTMLDivElement | null)[]>([]);
   const [pedidas, setPedidas] = useState(false);
   const [cargas, setCargas] = useState<Carga[]>(() => cuadros.map((_, i) => (i === 0 ? "lista" : "pendiente")));
   const [vista, setVista] = useState<Vista>({ actual: 0, anterior: 0 });
@@ -67,9 +75,8 @@ export function GiroObra({
   // Una foto que no cargó se saltea: el giro sigue con las demás, sin huecos.
   const secuencia = cargas.flatMap((c, i) => (c === "lista" ? [i] : []));
   const girando = origen !== null;
-  const fundido = msFundido(secuencia.length);
+  const animando = girando && listas && secuencia.length > 1;
   const menosMovimiento = useSyncExternalStore(seguirPreferencia, reducirMovimiento, () => false);
-  const posicion = vista.actual + 1;
 
   // Lo que leen los manejadores de eventos sin volver a registrarse en cada render.
   const vistaRef = useRef(vista);
@@ -90,11 +97,14 @@ export function GiroObra({
     return detenerEsta;
   });
 
-  const girar = useCallback((desde: Origen) => {
-    tomarGiro(detenerGiro);
-    setPedidas(true);
-    setOrigen(desde);
-  }, [detenerGiro]);
+  const girar = useCallback(
+    (desde: Origen) => {
+      tomarGiro(detenerGiro);
+      setPedidas(true);
+      setOrigen(desde);
+    },
+    [detenerGiro],
+  );
 
   // Con "reducir movimiento": una vista más por cada toque del botón, sin animación.
   const siguienteVista = useCallback(() => {
@@ -108,38 +118,64 @@ export function GiroObra({
     setVista({ actual: siguiente, anterior: actual });
   }, [cuadros]);
 
-  // Mientras gira: avanza con requestAnimationFrame a ritmo constante (la vuelta dura lo mismo
-  // con 8 o con 36 fotos) y se detiene sola al completar las vueltas.
-  useEffect(() => {
-    if (!girando || !listas) return;
+  // Mientras gira: cada cuadro de la pantalla (requestAnimationFrame) dibuja la vista
+  // intermedia entre dos fotos, a velocidad constante. Escribe directo en el DOM para no
+  // volver a renderizar 60 veces por segundo; React solo se entera de qué foto domina.
+  // Antes de pintar (layout effect) ya ubica las capas, para que no se vean todas juntas.
+  useLayoutEffect(() => {
+    if (!animando) return;
     const sec = secuenciaRef.current;
-    if (sec.length < 2) {
-      detenerGiro();
-      return;
-    }
     const inicio = Math.max(sec.indexOf(vistaRef.current.actual), 0);
-    let ultimo = -1;
-    // El tiempo corre desde la activación (no desde el primer cuadro dibujado): si el navegador
-    // demora los cuadros, el giro no se estira.
     const t0 = performance.now();
+    let dominante = sec[inicio];
+    let usadas: number[] = [];
     let id = 0;
+
+    const ubicar = (el: HTMLDivElement | null | undefined, x: number, grados: number, opacidad: number, z: number) => {
+      if (!el) return;
+      el.style.transition = "none";
+      el.style.transform = `translateX(${x.toFixed(2)}%) rotateY(${grados.toFixed(2)}deg)`;
+      el.style.opacity = String(opacidad);
+      el.style.zIndex = String(z);
+    };
+
     const paso = (ahora: number) => {
       const p = posicionDelGiro(ahora - t0, inicio, sec.length);
-      if (p.pasos !== ultimo) {
-        ultimo = p.pasos;
-        const cuadro = sec[p.cuadro];
-        setVista((v) => (v.actual === cuadro ? v : { actual: cuadro, anterior: v.actual }));
-        barra.current?.style.setProperty("transform", `scaleX(${p.progreso})`);
+      const sale = sec[p.desde];
+      const entra = sec[p.hacia];
+      const v = vistaIntermedia(p.t);
+      // Oculta las que se usaron en el cuadro anterior y ya no.
+      for (const i of usadas) if (i !== sale && i !== entra) ubicar(capas.current[i], 0, 0, 0, 0);
+      ubicar(capas.current[sale], v.sale.x, v.sale.grados, 1, 1);
+      ubicar(capas.current[entra], v.entra.x, v.entra.grados, p.terminado ? 0 : v.entra.opacidad, 2);
+      usadas = [sale, entra];
+      barra.current?.style.setProperty("transform", `scaleX(${p.progreso})`);
+
+      const ahoraDomina = v.entra.opacidad >= 0.5 && !p.terminado ? entra : sale;
+      if (ahoraDomina !== dominante) {
+        const anterior = dominante;
+        dominante = ahoraDomina;
+        setVista({ actual: ahoraDomina, anterior });
       }
       if (p.terminado) detenerGiro();
       else id = requestAnimationFrame(paso);
     };
-    id = requestAnimationFrame(paso);
-    return () => cancelAnimationFrame(id);
-  }, [girando, listas, detenerGiro]);
+    paso(performance.now());
 
-  // Pulsación prolongada sobre la foto. Se escucha en la tarjeta entera porque el enlace de la
-  // ficha la cubre por encima; solo cuentan las pulsaciones que caen dentro de la foto.
+    const lista = capas.current;
+    return () => {
+      cancelAnimationFrame(id);
+      // Devuelve las fotos a su lugar con una transición corta; React vuelve a fijar el resto.
+      for (const el of lista) {
+        if (!el) continue;
+        el.style.transition = `transform ${MS_FUNDIDO * 2}ms ease-out, opacity ${MS_FUNDIDO}ms linear`;
+        el.style.transform = "";
+      }
+    };
+  }, [animando, detenerGiro]);
+
+  // Mouse y dedo. Se escucha en la tarjeta entera porque el enlace de la ficha la cubre por
+  // encima; las pulsaciones solo cuentan si caen dentro de la foto.
   useEffect(() => {
     const foto = raiz.current;
     const tarjeta = foto?.closest("article");
@@ -164,9 +200,22 @@ export function GiroObra({
       tarjeta.style.removeProperty("user-select");
     };
 
+    // Mouse: gira al entrar a la tarjeta y, al salir, se detiene y vuelve al frente.
+    const entrar = (e: PointerEvent) => {
+      if (e.pointerType !== "mouse") return;
+      setPedidas(true);
+      if (!reducirMovimiento()) girar("mouse");
+    };
+    const salir = (e: PointerEvent) => {
+      if (e.pointerType !== "mouse" || reducirMovimiento()) return;
+      detenerGiro();
+      setVista((v) => (v.actual === 0 ? v : { actual: 0, anterior: v.actual, ms: MS_VUELTA_AL_FRENTE }));
+    };
+
+    // Dedo: pulsación prolongada.
     const presionar = (e: PointerEvent) => {
       evitarClic = false;
-      if (!e.isPrimary || (e.pointerType === "mouse" && e.button !== 0) || reducirMovimiento()) return;
+      if (!e.isPrimary || e.pointerType === "mouse" || reducirMovimiento()) return;
       if ((e.target as Element).closest("[data-giro-boton]")) return;
       const r = foto.getBoundingClientRect();
       if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return;
@@ -181,7 +230,7 @@ export function GiroObra({
         activo = true;
         evitarClic = true;
         tarjeta.style.setProperty("user-select", "none");
-        // Captura el puntero: si se arrastra fuera de la tarjeta, el soltar igual llega acá.
+        // Captura el puntero: si el dedo sale de la tarjeta, el soltar igual llega acá.
         try {
           tarjeta.setPointerCapture(puntero.id);
         } catch {
@@ -216,9 +265,6 @@ export function GiroObra({
     const bloquearScroll = (e: TouchEvent) => {
       if (activo && e.cancelable) e.preventDefault();
     };
-    const precargar = (e: PointerEvent) => {
-      if (e.pointerType === "mouse") setPedidas(true);
-    };
     const alOcultar = () => {
       if (document.visibilityState === "hidden") {
         terminarGesto();
@@ -230,33 +276,25 @@ export function GiroObra({
       detenerGiro();
     };
 
-    tarjeta.addEventListener("pointerenter", precargar);
-    tarjeta.addEventListener("pointerdown", presionar);
-    tarjeta.addEventListener("pointermove", mover);
-    tarjeta.addEventListener("pointerup", soltar);
-    tarjeta.addEventListener("pointercancel", soltar);
-    tarjeta.addEventListener("lostpointercapture", perderCaptura);
-    tarjeta.addEventListener("click", clic, true);
-    tarjeta.addEventListener("contextmenu", bloquear);
-    tarjeta.addEventListener("dragstart", bloquear);
-    tarjeta.addEventListener("selectstart", bloquear);
-    tarjeta.addEventListener("touchmove", bloquearScroll, { passive: false });
-    document.addEventListener("visibilitychange", alOcultar);
-    window.addEventListener("pagehide", alSalir);
+    const escuchas: [EventTarget, string, EventListener, AddEventListenerOptions?][] = [
+      [tarjeta, "pointerenter", entrar as EventListener],
+      [tarjeta, "pointerleave", salir as EventListener],
+      [tarjeta, "pointerdown", presionar as EventListener],
+      [tarjeta, "pointermove", mover as EventListener],
+      [tarjeta, "pointerup", soltar as EventListener],
+      [tarjeta, "pointercancel", soltar as EventListener],
+      [tarjeta, "lostpointercapture", perderCaptura as EventListener],
+      [tarjeta, "click", clic as EventListener, { capture: true }],
+      [tarjeta, "contextmenu", bloquear],
+      [tarjeta, "dragstart", bloquear],
+      [tarjeta, "selectstart", bloquear],
+      [tarjeta, "touchmove", bloquearScroll as EventListener, { passive: false }],
+      [document, "visibilitychange", alOcultar],
+      [window, "pagehide", alSalir],
+    ];
+    for (const [donde, tipo, fn, op] of escuchas) donde.addEventListener(tipo, fn, op);
     return () => {
-      tarjeta.removeEventListener("pointerenter", precargar);
-      tarjeta.removeEventListener("pointerdown", presionar);
-      tarjeta.removeEventListener("pointermove", mover);
-      tarjeta.removeEventListener("pointerup", soltar);
-      tarjeta.removeEventListener("pointercancel", soltar);
-      tarjeta.removeEventListener("lostpointercapture", perderCaptura);
-      tarjeta.removeEventListener("click", clic, true);
-      tarjeta.removeEventListener("contextmenu", bloquear);
-      tarjeta.removeEventListener("dragstart", bloquear);
-      tarjeta.removeEventListener("selectstart", bloquear);
-      tarjeta.removeEventListener("touchmove", bloquearScroll);
-      document.removeEventListener("visibilitychange", alOcultar);
-      window.removeEventListener("pagehide", alSalir);
+      for (const [donde, tipo, fn, op] of escuchas) donde.removeEventListener(tipo, fn, op);
       // Al desmontar (o al ocultarse la página con la navegación) no queda nada girando.
       terminarGesto();
       detenerGiro();
@@ -272,28 +310,50 @@ export function GiroObra({
   const marcarCarga = (i: number, estado: Carga) =>
     setCargas((c) => (c[i] === estado ? c : c.map((x, j) => (j === i ? estado : x))));
 
-  // La foto visible aparece encima con un fundido corto; la anterior queda debajo hasta que
-  // termina (así nunca se ve el fondo); el resto, oculto.
+  // Quieta: la foto visible encima (con fundido), la anterior debajo hasta que termina, el resto
+  // oculto. Mientras gira, el efecto de arriba maneja las capas y React no las toca.
   const capa = (i: number): CSSProperties =>
-    i === vista.actual
-      ? { opacity: 1, zIndex: 2, transition: `opacity ${fundido}ms linear` }
-      : i === vista.anterior
-        ? { opacity: 1, zIndex: 1 }
-        : { opacity: 0, zIndex: 0 };
+    animando
+      ? {}
+      : i === vista.actual
+        ? {
+            opacity: 1,
+            zIndex: 2,
+            transition: `opacity ${vista.ms ?? MS_FUNDIDO}ms ${vista.ms ? "ease-out" : "linear"}, transform ${MS_FUNDIDO * 2}ms ease-out`,
+          }
+        : i === vista.anterior
+          ? { opacity: 1, zIndex: 1 }
+          : { opacity: 0, zIndex: 0 };
 
   const cargando = girando && !listas;
+  const posicion = vista.actual + 1;
 
   return (
     <div ref={raiz} className="absolute inset-0 select-none">
       {/* isolate: el orden de las fotos (z-index) queda adentro y el enlace de la tarjeta sigue
-          encima, así un toque en la foto abre la ficha aunque el mouse no haya pasado antes. */}
-      <div className={`absolute inset-0 isolate ${className}`}>
-        <div className="absolute inset-0" style={capa(0)}>
+          encima, así un toque en la foto abre la ficha aunque el mouse no haya pasado antes.
+          La perspectiva da profundidad al giro de las vistas intermedias. */}
+      <div className={`absolute inset-0 isolate [perspective:1100px] ${className}`}>
+        <div
+          ref={(el) => {
+            capas.current[0] = el;
+          }}
+          className="absolute inset-0 will-change-transform"
+          style={capa(0)}
+        >
           <FotoObra foto={cuadros[0]} ajuste="contener" tamanos={tamanos} prioridad={prioridad} />
         </div>
         {pedidas &&
           cuadros.slice(1).map((foto, j) => (
-            <div key={foto.ruta} aria-hidden className="absolute inset-0" style={capa(j + 1)}>
+            <div
+              key={foto.ruta}
+              ref={(el) => {
+                capas.current[j + 1] = el;
+              }}
+              aria-hidden
+              className="absolute inset-0 will-change-transform"
+              style={capa(j + 1)}
+            >
               <Image
                 src={urlFoto(foto.ruta)}
                 alt=""
@@ -313,7 +373,7 @@ export function GiroObra({
       {/* Progreso de las vueltas, arriba de la foto, solo mientras gira. */}
       <span
         aria-hidden
-        className={`pointer-events-none absolute inset-x-0 top-0 z-10 h-0.5 bg-smt/15 transition-opacity duration-200 ${girando && listas ? "opacity-100" : "opacity-0"}`}
+        className={`pointer-events-none absolute inset-x-0 top-0 z-10 h-0.5 bg-smt/15 transition-opacity duration-200 ${animando ? "opacity-100" : "opacity-0"}`}
       >
         <span ref={barra} className="block h-full origin-left scale-x-0 bg-smt" />
       </span>
@@ -322,7 +382,6 @@ export function GiroObra({
         type="button"
         data-giro-boton
         onClick={alBoton}
-        onPointerEnter={pedirFotos}
         onFocus={pedirFotos}
         aria-pressed={girando}
         aria-label={
@@ -338,7 +397,7 @@ export function GiroObra({
         <svg
           aria-hidden
           viewBox="0 0 16 16"
-          className={`h-3 w-3 ${girando && listas ? "animate-spin [animation-duration:1.6s]" : ""}`}
+          className={`h-3 w-3 ${animando ? "animate-spin [animation-duration:1.6s]" : ""}`}
           fill="none"
           stroke="currentColor"
           strokeWidth="1.8"
@@ -350,10 +409,10 @@ export function GiroObra({
         360°
       </button>
 
-      {/* Cómo hacerla girar: siempre en pantallas táctiles; con mouse, al pasar por la tarjeta. */}
+      {/* Solo en pantallas táctiles, mientras está quieta: cómo hacerla girar. */}
       <span
         aria-hidden
-        className={`pointer-events-none absolute bottom-2 left-1/2 z-10 hidden max-w-[calc(100%-1rem)] -translate-x-1/2 truncate rounded-full bg-white/85 px-2 py-0.5 text-[0.65rem] font-medium whitespace-nowrap text-tinta shadow-suave backdrop-blur-sm transition-opacity duration-200 motion-reduce:!hidden group-hover:block [@media(hover:none)]:block ${girando ? "opacity-0" : "opacity-100"}`}
+        className={`pointer-events-none absolute bottom-2 left-1/2 z-10 hidden max-w-[calc(100%-1rem)] -translate-x-1/2 truncate rounded-full bg-white/85 px-2 py-0.5 text-[0.65rem] font-medium whitespace-nowrap text-tinta shadow-suave backdrop-blur-sm transition-opacity duration-200 motion-reduce:!hidden [@media(hover:none)]:block ${girando ? "opacity-0" : "opacity-100"}`}
       >
         {/* En la tarjeta angosta (grilla de dos columnas del celular), la versión corta. */}
         <span className="@min-[15rem]:hidden">Mantené para girar</span>
