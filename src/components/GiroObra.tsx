@@ -350,10 +350,10 @@ export function GiroObra({
         360°
       </button>
 
-      {/* Solo en pantallas táctiles, mientras está quieta: cómo hacerla girar. */}
+      {/* Cómo hacerla girar: siempre en pantallas táctiles; con mouse, al pasar por la tarjeta. */}
       <span
         aria-hidden
-        className={`pointer-events-none absolute bottom-2 left-1/2 z-10 hidden max-w-[calc(100%-1rem)] -translate-x-1/2 truncate rounded-full bg-white/85 px-2 py-0.5 text-[0.65rem] font-medium whitespace-nowrap text-tinta shadow-suave backdrop-blur-sm transition-opacity duration-200 motion-reduce:!hidden [@media(hover:none)]:block ${girando ? "opacity-0" : "opacity-100"}`}
+        className={`pointer-events-none absolute bottom-2 left-1/2 z-10 hidden max-w-[calc(100%-1rem)] -translate-x-1/2 truncate rounded-full bg-white/85 px-2 py-0.5 text-[0.65rem] font-medium whitespace-nowrap text-tinta shadow-suave backdrop-blur-sm transition-opacity duration-200 motion-reduce:!hidden group-hover:block [@media(hover:none)]:block ${girando ? "opacity-0" : "opacity-100"}`}
       >
         {/* En la tarjeta angosta (grilla de dos columnas del celular), la versión corta. */}
         <span className="@min-[15rem]:hidden">Mantené para girar</span>
