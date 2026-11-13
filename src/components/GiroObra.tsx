@@ -45,8 +45,8 @@ const seguirPreferencia = (avisar: () => void) => {
  * - El botón 360° hace girar la obra sin mouse ni gestos (teclado y lectores de pantalla).
  *   Con "reducir movimiento", ese botón pasa de una vista a la siguiente, sin animación.
  * - Gira una sola obra por vez (ver tomarGiro). Se detiene al cambiar de pestaña o de página.
- * - Las fotos se piden al pasar el mouse o al empezar a presionar, y el giro empieza recién
- *   cuando están todas: nunca muestra una foto a medio cargar.
+ * - Con mouse, las fotos se piden cuando la tarjeta aparece en pantalla; con el dedo, al empezar
+ *   a presionar. El giro empieza recién cuando están todas: nunca muestra una foto a medio cargar.
  */
 export function GiroObra({
   cuadros,
@@ -87,6 +87,27 @@ export function GiroObra({
   });
 
   const pedirFotos = useCallback(() => setPedidas(true), []);
+
+  // Con mouse, pide las fotos del giro apenas la tarjeta aparece en pantalla: cuando el mouse
+  // llega, ya están y gira enseguida (si se pidieran recién al pasar el mouse, la primera vez
+  // tardaría uno o dos segundos en arrancar). En el celular, o con "ahorro de datos", se
+  // siguen pidiendo recién al presionar.
+  useEffect(() => {
+    const foto = raiz.current;
+    const conexion = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+    if (!foto || !window.matchMedia("(hover: hover) and (pointer: fine)").matches || conexion?.saveData) return;
+    const observador = new IntersectionObserver(
+      (entradas) => {
+        if (entradas.some((e) => e.isIntersecting)) {
+          setPedidas(true);
+          observador.disconnect();
+        }
+      },
+      { rootMargin: "200px 0px" },
+    );
+    observador.observe(foto);
+    return () => observador.disconnect();
+  }, []);
 
   // Detener: misma función durante toda la vida del componente (la usa el control de giro).
   const [detenerGiro] = useState(() => {
