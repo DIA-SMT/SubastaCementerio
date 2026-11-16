@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { IconoCheck } from "@/components/Iconos";
 import { horaConSegundos, pesos, numeroConPuntos } from "@/lib/formato";
 import { MONTO_MAXIMO, montoDesdeTexto } from "@/lib/validacion";
@@ -45,7 +45,20 @@ function motivoMontoInsuficiente(mostrada: number | null, actual: number | null,
   return `Alguien ofertó antes que vos. La oferta actual es de ${pesos(actual)}; para superarla, ofertá al menos ${pesos(minimo)}.`;
 }
 
+/**
+ * Con cacheComponents, Next no desmonta la página al salir: la oculta y conserva su estado. Sin
+ * esto, al volver a "Realizar oferta" (por ejemplo, después de que te superaron) reaparecía el
+ * "Listo, registramos tu oferta" de la vez anterior, o un mínimo viejo, y no se podía volver a
+ * ofertar. Al ocultarse, el formulario se descarta y la próxima visita arranca de cero con los
+ * datos que trae la página.
+ */
 export function FormularioOferta(props: Props) {
+  const [visita, setVisita] = useState(0);
+  useLayoutEffect(() => () => setVisita((v) => v + 1), []);
+  return <Formulario key={visita} {...props} />;
+}
+
+function Formulario(props: Props) {
   const [paso, setPaso] = useState<"monto" | "confirmar">("monto");
   const [minimo, setMinimo] = useState(props.minimo);
   const [ofertaActual, setOfertaActual] = useState(props.ofertaActual);
