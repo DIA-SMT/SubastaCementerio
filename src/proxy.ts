@@ -3,9 +3,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { opcionesCookie, vidaAcotada } from "@/lib/auth/cookies";
 
 // Con Supabase, renueva la sesión del usuario antes de cada pedido (los Server Components
-// no pueden escribir cookies). En modo local no hace nada.
+// no pueden escribir cookies). Sin Supabase (modo local o servidor propio) no hace nada.
 export async function proxy(request: NextRequest) {
-  if (!process.env.DATABASE_URL) return NextResponse.next();
+  if (!process.env.DATABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_URL) return NextResponse.next();
 
   let respuesta = NextResponse.next({ request });
   // Si @supabase/ssr escribe cookies más de una vez, la respuesta se vuelve a crear: se

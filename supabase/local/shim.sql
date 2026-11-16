@@ -1,10 +1,15 @@
 -- Reemplazo mínimo de lo que Supabase ya trae de fábrica.
--- SOLO se usa en el modo local (PGlite) y en las pruebas. En Supabase no se ejecuta:
--- los roles, el esquema auth, auth.uid() y storage ya existen.
+-- Se usa en el modo local (PGlite), en las pruebas y en el servidor propio (scripts/servidor/).
+-- En Supabase no se ejecuta: los roles, el esquema auth, auth.uid() y storage ya existen.
 
-create role anon nologin;
-create role authenticated nologin;
-create role service_role nologin bypassrls;
+-- Los roles son de todo el servidor de PostgreSQL, no de una base: en el servidor propio los
+-- crea el administrador (pueden existir ya, de otro proyecto) y acá solo se crean si faltan.
+do $$
+begin
+  if not exists (select 1 from pg_roles where rolname = 'anon') then create role anon nologin; end if;
+  if not exists (select 1 from pg_roles where rolname = 'authenticated') then create role authenticated nologin; end if;
+  if not exists (select 1 from pg_roles where rolname = 'service_role') then create role service_role nologin bypassrls; end if;
+end $$;
 
 create schema extensions;
 create extension if not exists pgcrypto with schema extensions;

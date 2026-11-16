@@ -2,10 +2,23 @@ import "server-only";
 import { esDireccionLocal } from "@/lib/exportacion/comun";
 
 /**
- * Sin DATABASE_URL la app corre en modo local: base PGlite en .local/ y correos en la consola.
- * Con DATABASE_URL usa Supabase.
+ * Dónde corre la app:
+ *  - local: sin DATABASE_URL. Base PGlite en .local/ y correos en la consola (desarrollo).
+ *  - supabase: con DATABASE_URL y NEXT_PUBLIC_SUPABASE_URL. Base, ingreso del panel y fotos
+ *    en Supabase (Vercel).
+ *  - propio: con DATABASE_URL y sin NEXT_PUBLIC_SUPABASE_URL. PostgreSQL propio (el VPS): el
+ *    ingreso del panel y las fotos los resuelve la app, igual que en el modo local.
  */
-export const modoLocal = !process.env.DATABASE_URL;
+export const plataforma: "local" | "supabase" | "propio" = !process.env.DATABASE_URL
+  ? "local"
+  : process.env.NEXT_PUBLIC_SUPABASE_URL
+    ? "supabase"
+    : "propio";
+
+export const modoLocal = plataforma === "local";
+
+/** Sin Supabase (modo local o servidor propio): sesión del panel y fotos propias de la app. */
+export const sinSupabase = plataforma !== "supabase";
 
 export const supabase = {
   url: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
@@ -15,10 +28,8 @@ export const supabase = {
 /** URL pública del sitio, para correos y códigos QR. */
 export const urlSitio = (process.env.NEXT_PUBLIC_URL_SITIO ?? "http://localhost:3000").replace(/\/$/, "");
 
-if (!modoLocal && (!supabase.url || !supabase.claveAnonima)) {
-  throw new Error(
-    "Con DATABASE_URL también hay que definir NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY.",
-  );
+if (plataforma === "supabase" && !supabase.claveAnonima) {
+  throw new Error("Con NEXT_PUBLIC_SUPABASE_URL también hay que definir NEXT_PUBLIC_SUPABASE_ANON_KEY.");
 }
 
 /** Datos del proveedor de correo (Resend), o null si falta RESEND_API_KEY o CORREO_REMITENTE. */
