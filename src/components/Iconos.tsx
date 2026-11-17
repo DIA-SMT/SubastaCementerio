@@ -233,3 +233,24 @@ export const IconoAyuda = (p: Props) => (
     <path d="M12 16.9v.1" />
   </Icono>
 );
+
+// Migue (el chat del sitio).
+export const IconoEnviar = (p: Props) => (
+  <Icono {...p}>
+    <path d="M4.5 12 19.5 5l-4.2 14-3.6-5.6L4.5 12Z" />
+    <path d="m11.7 13.4 7.8-8.4" />
+  </Icono>
+);
+
+export const IconoIrA = (p: Props) => (
+  <Icono {...p}>
+    <path d="M8 16 16.5 7.5M9.5 7.5h7v7" />
+  </Icono>
+);
+
+export const IconoReintentar = (p: Props) => (
+  <Icono {...p}>
+    <path d="M19 12a7 7 0 1 1-2.1-5" />
+    <path d="M19 4.5V8h-3.5" />
+  </Icono>
+);

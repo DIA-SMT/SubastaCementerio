@@ -3,6 +3,7 @@ import { FranjaEjemplo } from "@/components/Avisos";
 import { Encabezado } from "@/components/Encabezado";
 import { FondoSala } from "@/components/FondoSala";
 import { Pie } from "@/components/Pie";
+import { MiguePublico } from "@/components/migue/migue-publico";
 
 export default function LayoutPublico({ children }: LayoutProps<"/">) {
   return (
@@ -17,6 +18,8 @@ export default function LayoutPublico({ children }: LayoutProps<"/">) {
         {children}
       </main>
       <Pie />
+      {/* Migue, el asistente: abierto, sin ingresar; la conversación sobrevive al cambio de página. */}
+      <MiguePublico />
     </div>
   );
 }

@@ -39,6 +39,30 @@ export function proveedorDeCorreo() {
   return clave && remitente ? { clave, remitente } : null;
 }
 
+/**
+ * Migue, el asistente con IA (src/lib/migue/). Todo opcional: sin OPENROUTER_API_KEY, Migue
+ * contesta con los atajos y el buscador, sin modelo. El tablero de Migues de la Dirección de IA
+ * (organizacionDIA) necesita MIGUE_API_KEY y MIGUE_DASHBOARD_URL juntas.
+ */
+export function proveedorDeModelo() {
+  const entero = (valor: string | undefined, porDefecto: number) => {
+    const n = Number.parseInt(valor ?? "", 10);
+    return Number.isFinite(n) && n > 0 ? n : porDefecto;
+  };
+  let url = process.env.OPENROUTER_URL?.trim() || "https://openrouter.ai/api/v1/chat/completions";
+  // Fuera del modo local, la clave solo viaja cifrada.
+  if (!modoLocal && !url.startsWith("https://")) url = "https://openrouter.ai/api/v1/chat/completions";
+  const claveTablero = process.env.MIGUE_API_KEY?.trim();
+  const urlTablero = process.env.MIGUE_DASHBOARD_URL?.trim().replace(/\/$/, "");
+  return {
+    clave: process.env.OPENROUTER_API_KEY?.trim() || null,
+    modelo: process.env.OPENROUTER_MODEL?.trim() || "openai/gpt-4o-mini",
+    url,
+    topes: { persona: entero(process.env.MIGUE_TOPE_PERSONA, 20), global: entero(process.env.MIGUE_TOPE_GLOBAL, 300) },
+    tablero: claveTablero && urlTablero ? { clave: claveTablero, url: urlTablero } : null,
+  };
+}
+
 export type FaltaDeConfiguracion = "correo" | "url_sitio" | "cron";
 
 /**
