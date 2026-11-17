@@ -2,12 +2,14 @@ import "server-only";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { modoLocal } from "@/lib/entorno";
+import { sinSupabase } from "@/lib/entorno";
 
 // Fotos de las obras. En Supabase van al bucket público "obras" (las políticas de Storage
-// exigen es_admin()); en modo local, a .local/subidas/ y se sirven desde /subidas/.
+// exigen es_admin()). Sin Supabase (modo local o servidor propio) van a una carpeta del disco
+// y se sirven desde /subidas/: en el servidor, CARPETA_SUBIDAS apunta a una carpeta fuera de
+// las versiones, así las fotos sobreviven a cada despliegue.
 
-export const CARPETA_LOCAL = path.join(process.cwd(), ".local", "subidas");
+export const CARPETA_LOCAL = process.env.CARPETA_SUBIDAS?.trim() || path.join(process.cwd(), ".local", "subidas");
 const BUCKET = "obras";
 const TIPOS = new Set(["image/jpeg", "image/png", "image/webp"]);
 export const TAMANO_MAXIMO = 4 * 1024 * 1024;
@@ -31,7 +33,7 @@ export async function guardarFoto(archivo: File, carpeta: string): Promise<FotoG
     .toBuffer({ resolveWithObject: true });
 
   const ruta = `${carpeta}/${crypto.randomUUID()}.jpg`;
-  if (modoLocal) {
+  if (sinSupabase) {
     const destino = path.join(CARPETA_LOCAL, ruta);
     await fs.mkdir(path.dirname(destino), { recursive: true });
     await fs.writeFile(destino, data);
@@ -48,7 +50,7 @@ export async function guardarFoto(archivo: File, carpeta: string): Promise<FotoG
 /** Borra una foto subida. Las rutas que empiezan con "/" son ejemplos de /public: no se tocan. */
 export async function borrarFoto(ruta: string) {
   if (ruta.startsWith("/") || ruta.includes("..")) return;
-  if (modoLocal) {
+  if (sinSupabase) {
     await fs.rm(path.join(CARPETA_LOCAL, ruta), { force: true });
   } else {
     const { clienteSupabase } = await import("@/lib/auth/supabase");

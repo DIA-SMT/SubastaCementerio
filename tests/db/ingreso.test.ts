@@ -204,6 +204,7 @@ describe("cookies de sesión de Supabase", () => {
     const { NextRequest } = await import("next/server");
     const { proxy } = await import("@/proxy");
     process.env.DATABASE_URL = "postgres://prueba";
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://prueba.supabase.co";
     try {
       const r = await proxy(new NextRequest("https://sitio.test/mis-ofertas"));
       expect(r.headers.get("cache-control")).toBe("private, no-cache, no-store, must-revalidate, max-age=0");
@@ -212,6 +213,20 @@ describe("cookies de sesión de Supabase", () => {
       const enviadas = r.headers.getSetCookie();
       expect(enviadas.find((c) => c.startsWith("sb-token=v1;"))).toMatch(/Max-Age=604800/);
       expect(enviadas.find((c) => c.startsWith("sb-token.1=;"))).toMatch(/Max-Age=0/);
+    } finally {
+      delete process.env.DATABASE_URL;
+      delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    }
+  });
+
+  it("sin Supabase (servidor propio) el proxy no toca la sesión", async () => {
+    const { NextRequest } = await import("next/server");
+    const { proxy } = await import("@/proxy");
+    process.env.DATABASE_URL = "postgres://subasta@127.0.0.1/subasta";
+    try {
+      const r = await proxy(new NextRequest("https://sitio.test/mis-ofertas"));
+      expect(r.headers.getSetCookie()).toEqual([]);
+      expect(r.headers.get("cache-control")).toBeNull();
     } finally {
       delete process.env.DATABASE_URL;
     }

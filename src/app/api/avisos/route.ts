@@ -1,9 +1,12 @@
 import crypto from "node:crypto";
 import { connection } from "next/server";
 import { procesarAvisos } from "@/lib/avisos";
+import { purgarMigue } from "@/lib/migue/servidor";
 
 // Reintento de avisos por correo pendientes o fallidos. Lo llama el cron de Vercel
-// (vercel.json) con el encabezado Authorization: Bearer <CRON_SECRET>.
+// (vercel.json) o el del servidor propio (scripts/servidor/avisos.sh) con el encabezado
+// Authorization: Bearer <CRON_SECRET>. De paso, la limpieza de Migue (consultas de más de 90
+// días y horas viejas del tope), así no hace falta otro cron.
 export async function GET(pedido: Request) {
   await connection();
   const secreto = process.env.CRON_SECRET;
@@ -17,5 +20,6 @@ export async function GET(pedido: Request) {
     return new Response("No autorizado", { status: 401 });
   }
   const enviados = await procesarAvisos(50);
+  await purgarMigue();
   return Response.json({ enviados });
 }

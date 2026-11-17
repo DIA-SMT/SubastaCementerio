@@ -52,10 +52,24 @@ export function opcionesTls(certificado = process.env.SUPABASE_CA_CERT): Options
   return ca ? { ca, rejectUnauthorized: true } : "require";
 }
 
-async function crearMotorSupabase(): Promise<Motor> {
+/** La base está en la misma máquina (servidor propio): la conexión no sale del equipo. */
+export function esBaseEnEsteEquipo(url: string) {
+  try {
+    return ["localhost", "127.0.0.1", "[::1]", "::1"].includes(new URL(url).hostname);
+  } catch {
+    return false;
+  }
+}
+
+async function crearMotorPostgres(): Promise<Motor> {
   const { default: postgres } = await import("postgres");
-  // Conexión por el pooler de Supabase en modo transacción (puerto 6543): sin prepared statements.
-  const sql = postgres(process.env.DATABASE_URL!, { prepare: false, max: 5, idle_timeout: 20, ssl: opcionesTls() });
+  const url = process.env.DATABASE_URL!;
+  // Supabase: pooler en modo transacción (puerto 6543), sin prepared statements y siempre TLS.
+  // Servidor propio: PostgreSQL en el mismo equipo, sin TLS (la conexión no sale de la máquina)
+  // y con más conexiones, porque el proceso es uno solo y vive todo el tiempo.
+  const sql = esBaseEnEsteEquipo(url)
+    ? postgres(url, { max: 15, idle_timeout: 60, ssl: false })
+    : postgres(url, { prepare: false, max: 5, idle_timeout: 20, ssl: opcionesTls() });
   return motorPostgres(sql);
 }
 
@@ -72,7 +86,7 @@ export function motorPostgres(sql: Sql): Motor {
 export async function conBase<R>(ctx: Contexto, fn: (q: Consulta) => Promise<R>): Promise<R> {
   // Los datos de la subasta se leen siempre en el momento del pedido, nunca al prerenderizar.
   await connection();
-  motor ??= modoLocal ? crearMotorLocal() : crearMotorSupabase();
+  motor ??= modoLocal ? crearMotorLocal() : crearMotorPostgres();
   return (await motor)(ctx, fn);
 }
 

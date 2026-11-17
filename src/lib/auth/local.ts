@@ -4,18 +4,27 @@ import fs from "node:fs";
 import path from "node:path";
 import { cookies } from "next/headers";
 import { consultar } from "@/lib/db";
+import { plataforma } from "@/lib/entorno";
 import type { ResultadoAuth, Usuario } from "./tipos";
 
-// Ingreso al panel en el MODO LOCAL. Reemplaza a Supabase Auth solo para desarrollo: la
-// contraseña se compara contra auth.users de PGlite y la sesión es una cookie firmada. Los
-// oferentes ingresan con Cidituc también en local (src/lib/auth/ciudadano.ts).
+// Ingreso al panel sin Supabase Auth: en el modo local (desarrollo) y en el servidor propio
+// (VPS). La contraseña se compara contra auth.users (bcrypt, el mismo formato que usa Supabase:
+// las cuentas del equipo se copian tal cual) y la sesión es una cookie firmada. Los oferentes
+// ingresan con Cidituc y tienen su propia sesión (src/lib/auth/ciudadano.ts).
 
-const COOKIE = "subasta_sesion_local";
-const DURACION_S = 60 * 60 * 24 * 30;
+const enServidor = plataforma === "propio";
+const COOKIE = enServidor ? "subasta_sesion_panel" : "subasta_sesion_local";
+// En el servidor, como con Supabase: una semana. En local, un mes para no reingresar tanto.
+const DURACION_S = 60 * 60 * 24 * (enServidor ? 7 : 30);
 const servicio = { rol: "servicio" } as const;
 
 function secreto() {
-  if (process.env.SESION_LOCAL_SECRETO) return process.env.SESION_LOCAL_SECRETO;
+  const propio = process.env.SESION_PANEL_SECRETO?.trim() || process.env.SESION_LOCAL_SECRETO?.trim();
+  if (propio) return propio;
+  // En el servidor no se inventa uno: cambiaría en cada despliegue y cerraría todas las sesiones.
+  if (enServidor) {
+    throw new Error("Falta SESION_PANEL_SECRETO (32 caracteres o más) para las sesiones del panel.");
+  }
   const archivo = path.join(process.cwd(), ".local", "secreto");
   if (!fs.existsSync(archivo)) {
     fs.mkdirSync(path.dirname(archivo), { recursive: true });
@@ -33,6 +42,7 @@ async function abrirSesion(uid: string) {
   const valor = `${uid}.${vence}`;
   (await cookies()).set(COOKIE, `${valor}.${firmar(valor)}`, {
     httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
     maxAge: DURACION_S,

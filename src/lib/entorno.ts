@@ -2,10 +2,23 @@ import "server-only";
 import { esDireccionLocal } from "@/lib/exportacion/comun";
 
 /**
- * Sin DATABASE_URL la app corre en modo local: base PGlite en .local/ y correos en la consola.
- * Con DATABASE_URL usa Supabase.
+ * Dónde corre la app:
+ *  - local: sin DATABASE_URL. Base PGlite en .local/ y correos en la consola (desarrollo).
+ *  - supabase: con DATABASE_URL y NEXT_PUBLIC_SUPABASE_URL. Base, ingreso del panel y fotos
+ *    en Supabase (Vercel).
+ *  - propio: con DATABASE_URL y sin NEXT_PUBLIC_SUPABASE_URL. PostgreSQL propio (el VPS): el
+ *    ingreso del panel y las fotos los resuelve la app, igual que en el modo local.
  */
-export const modoLocal = !process.env.DATABASE_URL;
+export const plataforma: "local" | "supabase" | "propio" = !process.env.DATABASE_URL
+  ? "local"
+  : process.env.NEXT_PUBLIC_SUPABASE_URL
+    ? "supabase"
+    : "propio";
+
+export const modoLocal = plataforma === "local";
+
+/** Sin Supabase (modo local o servidor propio): sesión del panel y fotos propias de la app. */
+export const sinSupabase = plataforma !== "supabase";
 
 export const supabase = {
   url: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
@@ -15,10 +28,8 @@ export const supabase = {
 /** URL pública del sitio, para correos y códigos QR. */
 export const urlSitio = (process.env.NEXT_PUBLIC_URL_SITIO ?? "http://localhost:3000").replace(/\/$/, "");
 
-if (!modoLocal && (!supabase.url || !supabase.claveAnonima)) {
-  throw new Error(
-    "Con DATABASE_URL también hay que definir NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY.",
-  );
+if (plataforma === "supabase" && !supabase.claveAnonima) {
+  throw new Error("Con NEXT_PUBLIC_SUPABASE_URL también hay que definir NEXT_PUBLIC_SUPABASE_ANON_KEY.");
 }
 
 /** Datos del proveedor de correo (Resend), o null si falta RESEND_API_KEY o CORREO_REMITENTE. */
@@ -26,6 +37,30 @@ export function proveedorDeCorreo() {
   const clave = process.env.RESEND_API_KEY?.trim();
   const remitente = process.env.CORREO_REMITENTE?.trim();
   return clave && remitente ? { clave, remitente } : null;
+}
+
+/**
+ * Migue, el asistente con IA (src/lib/migue/). Todo opcional: sin OPENROUTER_API_KEY, Migue
+ * contesta con los atajos y el buscador, sin modelo. El tablero de Migues de la Dirección de IA
+ * (organizacionDIA) necesita MIGUE_API_KEY y MIGUE_DASHBOARD_URL juntas.
+ */
+export function proveedorDeModelo() {
+  const entero = (valor: string | undefined, porDefecto: number) => {
+    const n = Number.parseInt(valor ?? "", 10);
+    return Number.isFinite(n) && n > 0 ? n : porDefecto;
+  };
+  let url = process.env.OPENROUTER_URL?.trim() || "https://openrouter.ai/api/v1/chat/completions";
+  // Fuera del modo local, la clave solo viaja cifrada.
+  if (!modoLocal && !url.startsWith("https://")) url = "https://openrouter.ai/api/v1/chat/completions";
+  const claveTablero = process.env.MIGUE_API_KEY?.trim();
+  const urlTablero = process.env.MIGUE_DASHBOARD_URL?.trim().replace(/\/$/, "");
+  return {
+    clave: process.env.OPENROUTER_API_KEY?.trim() || null,
+    modelo: process.env.OPENROUTER_MODEL?.trim() || "openai/gpt-4o-mini",
+    url,
+    topes: { persona: entero(process.env.MIGUE_TOPE_PERSONA, 20), global: entero(process.env.MIGUE_TOPE_GLOBAL, 300) },
+    tablero: claveTablero && urlTablero ? { clave: claveTablero, url: urlTablero } : null,
+  };
 }
 
 export type FaltaDeConfiguracion = "correo" | "url_sitio" | "cron";

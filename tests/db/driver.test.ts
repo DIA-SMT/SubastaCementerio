@@ -83,7 +83,7 @@ function socketPglite(db: PGlite) {
   return Object.assign(socket, { readyState: "open" });
 }
 
-/** Mismas opciones que crearMotorSupabase (sin TLS: no hay red de por medio). */
+/** Mismas opciones que crearMotorPostgres con Supabase (sin TLS: no hay red de por medio). */
 function conectar(db: PGlite): Sql {
   return postgres({ socket: () => socketPglite(db), prepare: false, max: 1, idle_timeout: 20 } as never);
 }
