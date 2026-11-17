@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Copia los datos de Supabase a la base del servidor propio. Correr como root en el servidor,
-# con la base ya preparada (scripts/servidor/preparar-base.mjs) y VACÍA de datos: el día del
-# cambio se vuelve a preparar desde cero y se corre de nuevo.
+# con la base ya preparada (scripts/servidor/preparar-base.mjs). Vacía las tablas y copia todo de
+# nuevo: se puede correr otra vez el día del cambio para traer los datos más recientes.
 #
 # Lee DIRECT_URL (la conexión directa de Supabase, puerto 5432) de /root/.subasta-origen, un
 # archivo que solo lee root. La cadena nunca va en la línea de comandos.
@@ -45,8 +45,16 @@ trap 'rm -rf "$TMP"' EXIT
 install -o postgres -m 600 "$USUARIOS" "$TMP/usuarios.csv"
 install -o postgres -m 600 "${DATOS%.sql}-apto16.sql" "$TMP/datos.sql"
 chown postgres "$TMP" && chmod 700 "$TMP"
+# Las migraciones dejan filas iniciales (configuración, textos y su auditoría): se vacían todas
+# las tablas antes de copiar, así quedan exactamente los datos de Supabase.
 sudo -u postgres psql -v ON_ERROR_STOP=1 -q -d "$BASE" <<SQL
 begin;
+set session_replication_role = replica;
+truncate public.configuracion, public.paginas, public.auditoria, public.artistas, public.obras,
+  public.obra_fotos, public.admins, public.oferentes, public.personas, public.ofertas,
+  public.avisos_correo, public.intentos_ingreso, public.consultas_migue, public.consumo_migue,
+  auth.users restart identity cascade;
+set session_replication_role = origin;
 \copy auth.users (id, email, email_confirmed_at, encrypted_password, created_at) from '$TMP/usuarios.csv' with csv
 \i $TMP/datos.sql
 commit;
