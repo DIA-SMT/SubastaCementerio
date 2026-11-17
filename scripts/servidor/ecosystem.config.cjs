@@ -1,12 +1,13 @@
 // pm2 en el servidor propio. Se copia a /srv/subasta/ecosystem.config.cjs (fuera de las
-// versiones). El puerto es el que quedó libre en el servidor (confirmarlo con ss -ltnp).
+// versiones). Puerto 3008: el que estaba libre en el servidor (ss -ltnp); si se cambia, también
+// PUERTO en compartido/.env (lo usa avisos.sh) y proxy_pass en nginx.
 module.exports = {
   apps: [
     {
       name: "subasta",
       cwd: "/srv/subasta/actual",
       script: "node_modules/next/dist/bin/next",
-      args: "start -p 3005 -H 127.0.0.1",
+      args: "start -p 3008 -H 127.0.0.1",
       // Un solo proceso: las sesiones, el límite de intentos y las ofertas viven en la base,
       // pero un proceso único evita sorpresas con la caché de Next entre procesos.
       instances: 1,
