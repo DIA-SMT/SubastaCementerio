@@ -8,6 +8,7 @@ import { urlDelLogin } from "@/lib/auth/cidituc/login";
 import { nombreDePersona } from "@/lib/auth/cidituc/nombre";
 import { validarToken } from "@/lib/auth/cidituc/persona";
 import { esOferente, registrarIngresoCidituc } from "@/lib/datos/oferente";
+import { urlDelSitio } from "@/lib/origen";
 import { rutaSegura } from "@/lib/validacion";
 
 /**
@@ -48,14 +49,14 @@ function destinoSeguro(valor: unknown) {
   return /^\/(?:auth|ingresar)(?:[/?]|$)/.test(ruta) ? "/obras" : ruta;
 }
 
-/** Una dirección de este sitio: la ruta ya viene saneada, y se le pone NUESTRO origen. */
+/**
+ * Una dirección de este sitio: la ruta ya viene saneada, y se le pone NUESTRO origen público
+ * (no el de request.url, que detrás de nginx es la dirección interna: ver src/lib/origen.ts).
+ */
 function interna(request: NextRequest, ruta: string) {
-  const url = request.nextUrl.clone();
-  const destino = new URL(ruta, url.origin);
-  url.pathname = destino.pathname;
-  url.search = destino.search;
-  url.hash = "";
-  return url;
+  const destino = urlDelSitio(ruta, request.nextUrl);
+  destino.hash = "";
+  return destino;
 }
 
 function leerFlujo(request: NextRequest): { nonce: string; destino: string } {
