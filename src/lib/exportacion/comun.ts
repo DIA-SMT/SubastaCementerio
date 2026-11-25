@@ -238,13 +238,6 @@ export function descargaRechazada() {
   );
 }
 
-/**
- * GET a una ruta de descarga del listado (un enlace o un marcador): lleva a la pantalla del
- * listado sin generar el archivo. La descarga se pide con el formulario de esa pantalla.
- */
-export function volverAlListado(pedido: Request) {
-  return Response.redirect(new URL("/admin/exportar", pedido.url), 303);
-}
 
 /** Encabezado Content-Disposition con el nombre del archivo (solo caracteres ASCII). */
 export function adjunto(nombre: string) {

@@ -3,13 +3,14 @@ import { obrasParaCarteles } from "@/lib/datos/admin/exportacion";
 import { urlSitio } from "@/lib/entorno";
 import { adjunto } from "@/lib/exportacion/comun";
 import { qrPng, qrSvg } from "@/lib/exportacion/qr";
+import { urlDelSitio } from "@/lib/origen";
 import { numeroDeObra } from "@/lib/validacion";
 
 // QR suelto de una obra publicada, en PNG de alta resolución (por defecto) o SVG.
 // Se valida la sesión del equipo acá: el layout del panel no protege las rutas.
 export async function GET(pedido: Request, { params }: RouteContext<"/admin/qr/[numero]">) {
   const admin = await adminActual();
-  if (!admin) return Response.redirect(new URL("/admin/ingresar", pedido.url), 303);
+  if (!admin) return Response.redirect(urlDelSitio("/admin/ingresar", pedido.url), 303);
 
   const numero = numeroDeObra((await params).numero);
   const { obras } = await obrasParaCarteles(admin, urlSitio);

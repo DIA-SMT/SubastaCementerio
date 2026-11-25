@@ -24,8 +24,8 @@ import {
   totalesListado,
   urlCorta,
   urlDeObra,
-  volverAlListado,
 } from "@/lib/exportacion/comun";
+import { volverAlListado } from "@/lib/origen";
 import { generarPdfCarteles } from "@/lib/exportacion/carteles-pdf";
 import { generarPdfListado } from "@/lib/exportacion/listado-pdf";
 import { cargarLogos, proporcionPng } from "@/lib/exportacion/marca";

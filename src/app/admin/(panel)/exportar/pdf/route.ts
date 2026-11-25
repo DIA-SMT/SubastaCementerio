@@ -5,9 +5,9 @@ import {
   descargaRechazada,
   nombreArchivoListado,
   pedidoDelMismoSitio,
-  volverAlListado,
 } from "@/lib/exportacion/comun";
 import { generarPdfListado } from "@/lib/exportacion/listado-pdf";
+import { urlDelSitio, volverAlListado } from "@/lib/origen";
 
 // Descarga del PDF del listado final (tiene datos personales y queda en la auditoría).
 // Es un POST desde el formulario de /admin/exportar: un enlace o una página de otro sitio no
@@ -15,7 +15,7 @@ import { generarPdfListado } from "@/lib/exportacion/listado-pdf";
 export async function POST(pedido: Request) {
   if (!pedidoDelMismoSitio(pedido.headers)) return descargaRechazada();
   const admin = await adminActual();
-  if (!admin) return Response.redirect(new URL("/admin/ingresar", pedido.url), 303);
+  if (!admin) return Response.redirect(urlDelSitio("/admin/ingresar", pedido.url), 303);
 
   const { filas, meta } = await obtenerListadoFinal(admin);
   const archivo = await generarPdfListado(filas, meta);
