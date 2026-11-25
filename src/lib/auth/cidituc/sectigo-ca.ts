@@ -4,7 +4,7 @@
  * `estadisticas.smt.gob.ar:5000` sirve una cadena incompleta: manda sólo la hoja
  * `*.smt.gob.ar` y omite el intermedio que la firma. Windows lo tiene en su store
  * y completa la cadena solo —por eso en desarrollo todo da verde—; el runtime
- * Linux de Vercel no, y el handshake muere con `UNABLE_TO_VERIFY_LEAF_SIGNATURE`.
+ * Node en el servidor Linux no, y el handshake muere con `UNABLE_TO_VERIFY_LEAF_SIGNATURE`.
  *
  * Lo emitió "Sectigo Public Server Authentication Root R46", que sí está en el
  * bundle de Mozilla. SHA-1 `DD55B4520291E276588F0DD02FAFD83A7368E0FA`, vence el

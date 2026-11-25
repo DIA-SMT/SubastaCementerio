@@ -5,7 +5,7 @@ import { esDireccionLocal } from "@/lib/exportacion/comun";
  * Dónde corre la app:
  *  - local: sin DATABASE_URL. Base PGlite en .local/ y correos en la consola (desarrollo).
  *  - supabase: con DATABASE_URL y NEXT_PUBLIC_SUPABASE_URL. Base, ingreso del panel y fotos
- *    en Supabase (Vercel).
+ *    en Supabase (el despliegue anterior; ya no se usa).
  *  - propio: con DATABASE_URL y sin NEXT_PUBLIC_SUPABASE_URL. PostgreSQL propio (el VPS): el
  *    ingreso del panel y las fotos los resuelve la app, igual que en el modo local.
  */

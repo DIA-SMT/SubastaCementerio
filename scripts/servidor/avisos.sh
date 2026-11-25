@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Reintenta los avisos por correo pendientes (lo que en Vercel hacía el cron de vercel.json) y,
+# Reintenta los avisos por correo pendientes y,
 # de paso, limpia el registro viejo de Migue. Lo corre cron cada 10 minutos como el usuario de la
 # app:
 #   */10 * * * * subasta /srv/subasta/actual/scripts/servidor/avisos.sh

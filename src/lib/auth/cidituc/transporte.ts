@@ -15,8 +15,8 @@ import { SECTIGO_CA_DV_R36 } from "@/lib/auth/cidituc/sectigo-ca";
  * el intermedio que la firma ("Sectigo Public Server Authentication CA DV R36").
  *
  * En Windows no se nota, porque el store del sistema ya tiene ese intermedio y
- * completa la cadena solo; por eso en desarrollo el login anda. El runtime Linux
- * de Vercel usa el bundle de Mozilla, que trae la raíz (R46) pero ningún
+ * completa la cadena solo; por eso en desarrollo el login anda. Node en el
+ * servidor Linux usa el bundle de Mozilla, que trae la raíz (R46) pero ningún
  * intermedio: el handshake muere con `UNABLE_TO_VERIFY_LEAF_SIGNATURE`, `fetch`
  * tira una excepción, y la persona —que ya se autenticó bien en Cidituc— ve un
  * "no disponible" que no explica nada. **Probar desde la laptop no prueba nada**,

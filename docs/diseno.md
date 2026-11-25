@@ -6,7 +6,7 @@ queda como texto provisorio o como dato configurable desde el panel.
 
 ## Stack
 
-- **Next.js 16** (App Router, Cache Components) desplegado en **Vercel**.
+- **Next.js 16** (App Router, Cache Components) en el **servidor propio** de la Dirección (VPS con nginx, pm2 y PostgreSQL; ver README, sección 3).
 - **Supabase**: Postgres (reglas de negocio en la base), Auth (contraseña para el equipo) y
   Storage (fotos). Los oferentes ingresan con **Cidituc** (Ciudadano Digital, decisión 23).
 - **Acceso a datos por SQL directo** desde el servidor (`postgres` en producción, PGlite en
@@ -181,7 +181,7 @@ Panel: `/admin/ingresar`, `/admin`, `/admin/obras`, `/admin/obras/[id]`,
 - Incremento mínimo: monto fijo en pesos (por defecto).
 - Precio de salida: uno general con posibilidad de fijarlo por obra (por defecto).
 - Cierre único para todas las obras (por defecto), con extensión por obra opcional (decisión 20).
-- Casilla y dominio de correo, dominio del sitio, cuentas y planes de Vercel y Supabase.
+- Casilla y dominio de correo, dominio del sitio y el servidor propio.
 - Logos institucionales: se usan los de la skill institucional `pdf-institucional-smt`, sin
   modificar, en `public/marca/`. Si los adjuntos son otros, se reemplazan ahí.
 
