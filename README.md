@@ -70,53 +70,83 @@ npm run build
 
 ---
 
-## 3. Puesta en producción (Supabase + Vercel)
+## 3. Puesta en producción (servidor propio)
 
-### 3.1 Cuentas y planes
+La subasta corre en el servidor de la Dirección (VPS en San Pablo, Ubuntu 24.04, nginx 1.24,
+Node 22, pm2 y PostgreSQL 16 local), en **https://subastas.smt.gob.ar**. No depende de Vercel
+ni de Supabase: la base, el ingreso del panel y las fotos están en el mismo servidor. Todo lo de
+la subasta vive en `/srv/subasta`, con su usuario `subasta`, su base `subasta`, su sitio de
+nginx y su puerto (3008): **no se toca nada de los otros proyectos del servidor**.
 
-| Servicio | Plan recomendado | Por qué |
+Los scripts están en [`scripts/servidor/`](scripts/servidor/) y se corren como root por SSH.
+
+### 3.1 Cómo está armado
+
+| | Dónde |
+|---|---|
+| Versiones | `/srv/subasta/versiones/<fecha>-<commit>`; `actual` apunta a la que está viva. Quedan las 3 últimas. |
+| Variables | `/srv/subasta/compartido/.env` (permisos 600; se enlaza en cada versión). |
+| Fotos | `/srv/subasta/compartido/subidas` (`CARPETA_SUBIDAS`), servidas en `/subidas/`. |
+| Base | PostgreSQL local, base `subasta`. El usuario `subasta` solo puede entrar a su base (`pg_hba.conf`). |
+| Proceso | pm2 (`/srv/subasta/ecosystem.config.cjs`) bajo systemd (`pm2-subasta`): vuelve solo si se reinicia el servidor. |
+| nginx | `/etc/nginx/sites-available/subasta-dominio` (con certificado de Let's Encrypt, se renueva solo). Plantilla en `scripts/servidor/nginx-subasta.conf`. |
+| Avisos por correo | `/etc/cron.d/subasta` corre `scripts/servidor/avisos.sh` cada 10 minutos (reintenta los avisos y limpia el registro viejo de Migue). |
+| Registros | `/srv/subasta/registros/` (salida de pm2 y de cada despliegue). |
+
+La app elige sola cómo correr (`src/lib/entorno.ts`): con `DATABASE_URL` y sin
+`NEXT_PUBLIC_SUPABASE_URL` usa la base, la sesión del panel y las fotos propias. El código
+conserva el modo Supabase, pero ya no se usa.
+
+### 3.2 Desplegar una versión nueva
+
+Con los cambios mergeados en `main`:
+
+```bash
+bash /srv/subasta/actual/scripts/servidor/desplegar.sh
+```
+
+Compila en una carpeta nueva mientras la versión actual sigue atendiendo, aplica las
+migraciones nuevas (`scripts/servidor/preparar-base.mjs`, solo las que faltan) y recién al final
+mueve `actual` y recarga pm2. Tarda unos dos minutos. **Orden**: si una migración nueva hace
+falta para el código nuevo, el script ya las aplica antes de cambiar de versión.
+
+Volver a la versión anterior:
+
+```bash
+cd /srv/subasta && ls -t versiones | head -3
+```
+
+```bash
+ln -sfn /srv/subasta/versiones/<la-que-andaba> /srv/subasta/actual && sudo -u subasta pm2 reload subasta
+```
+
+**No** cargues `supabase/seed.sql` ni `supabase/local/seed-local.sql` en la base del servidor:
+son datos de ejemplo para el modo local.
+
+### 3.3 Variables
+
+En `/srv/subasta/compartido/.env` (explicadas en [.env.example](.env.example)). Después de
+cambiar alguna, volvé a desplegar: las que empiezan con `NEXT_PUBLIC_` quedan fijas al compilar.
+
+| Variable | Obligatoria | Para qué |
 |---|---|---|
-| Supabase | Pro | El plan gratuito pausa el proyecto si no se usa y no hace copias de seguridad automáticas. |
-| Vercel | Pro (recomendado) | El plan Hobby es solo para uso personal y admite crons diarios: con Hobby, el reintento de avisos corre una vez por día (ver el paso 5 del despliegue). |
+| `DATABASE_URL` | Sí | La base local: `postgresql://subasta:<clave>@127.0.0.1:5432/subasta`. |
+| `PUERTO` | Sí | 3008. Lo usa `avisos.sh`; pm2 y nginx tienen el mismo. |
+| `CARPETA_SUBIDAS` | Sí | `/srv/subasta/compartido/subidas`. |
+| `NEXT_PUBLIC_URL_SITIO` | Sí | `https://subastas.smt.gob.ar`: correos, QR y las redirecciones. |
+| `SESION_PANEL_SECRETO` | Sí | Firma las sesiones del panel (32 caracteres o más). |
+| `SESSION_SECRET` | Sí | Firma las sesiones de los oferentes y el tope de Migue (32 caracteres o más). |
+| `CRON_SECRET` | Sí | Protege `/api/avisos` (lo usa `avisos.sh`). |
+| `RESEND_API_KEY` y `CORREO_REMITENTE` | Para los avisos | Avisos "te superaron". Sin ellas quedan pendientes y salen cuando se cargan. |
+| `CIDITUC_HABILITADO`, `CIDITUC_LOGIN_URL`, `CIDITUC_API_URL`, `CIDITUC_CALLBACK_URL` | Sí | Ingreso de oferentes con Cidituc (ver 3.4). |
+| `OPENROUTER_API_KEY` | No | Migue con IA. Sin ella contesta con los atajos y el buscador. |
 
-Conviene crear ambos proyectos cerca del público: Supabase en **South America (São Paulo)** y,
-en Vercel (Pro), la región de las funciones en **São Paulo (gru1)**
-(Project Settings > Functions > Function Region).
+Los secretos se generan en el servidor (`openssl rand -base64 48`), nunca se copian de otro
+lado. Para el remitente de los correos, el área que administra el DNS tiene que cargar los
+registros SPF y DKIM que indique Resend; sin ellos, los correos caen en spam.
 
-### 3.2 Base de datos
+### 3.4 Ingreso de oferentes con Cidituc (Ciudadano Digital)
 
-1. Creá el proyecto en Supabase.
-2. Aplicá **todas** las migraciones de `supabase/migrations/`, **en orden de nombre**, desde el
-   SQL Editor (pegando cada archivo) o con la CLI de Supabase:
-
-   ```bash
-   npx supabase link --project-ref <ref>
-   ```
-
-   ```bash
-   npx supabase db push
-   ```
-
-   Sin la CLI, con `DATABASE_URL` en `.env.local`, este comando aplica las que falten y las
-   registra en la misma tabla que usa la CLI (`--ver` solo las lista):
-
-   ```bash
-   npm run db:migrar
-   ```
-
-3. **No** cargues `supabase/seed.sql` ni `supabase/local/*`: son datos de ejemplo y el
-   reemplazo de Supabase para el modo local.
-4. **Orden en cada actualización**: primero las migraciones nuevas, después el código. Sin las
-   funciones nuevas (por ejemplo, las de límites de ingreso), el ingreso falla.
-5. Verificá en Storage que exista el bucket público `obras` (lo crea la migración de contenidos).
-6. Cifrado: la app siempre conecta con TLS. Bajá el certificado raíz (Project Settings >
-   Database > SSL Configuration > Download certificate) y cargalo en `SUPABASE_CA_CERT` para que
-   además verifique el servidor. Probá que el sitio conecta con esa variable antes de seguir: si
-   falla, quitala (la conexión queda cifrada, sin verificar el certificado). Una vez desplegada
-   la app y comprobada la conexión, activá **Enforce SSL on incoming connections** en esa misma
-   pantalla.
-
-### 3.3 Ingreso de oferentes con Cidituc (Ciudadano Digital)
 
 Los oferentes ingresan con su cuenta de **Ciudadano Digital (Cidituc)**: la app nunca ve su
 contraseña. Se usa el login de Ciudad Digital (repo `cidituc`), no el derivador
@@ -130,7 +160,7 @@ contraseña. Se usa el login de Ciudad Digital (repo `cidituc`), no el derivador
 3. El login vuelve a `/auth/cidituc/callback?auth=<token>&state=…`. Sin la cookie del paso 1 el
    ingreso se rechaza (nadie puede empujar un token ajeno con un enlace). La app valida el token
    con `GET /usuarios/authStatus` contra el backend municipal (token crudo, sin `Bearer`,
-   aportando el certificado intermedio de Sectigo que ese servidor no manda: sin él, en Vercel el
+   aportando el certificado intermedio de Sectigo que ese servidor no manda: sin él, en Linux el
    ingreso falla con `UNABLE_TO_VERIFY_LEAF_SIGNATURE` aunque desde Windows ande).
 4. Guarda a la persona en `public.personas` (id de Cidituc, CUIL, DNI, nombre, apellido y
    correo) y abre **su propia sesión**: una cookie firmada con `SESSION_SECRET`, de 7 días. El
@@ -145,9 +175,9 @@ entraría como la anterior. Por lo mismo, si Cidituc rechaza un token vencido, e
 reintentar lo borra antes.
 
 El código está en `src/lib/auth/cidituc/` y `src/app/auth/cidituc/`. El panel no cambia: el
-equipo sigue entrando con correo y contraseña (Supabase Auth, 3.4).
+equipo sigue entrando con correo y contraseña (3.5).
 
-**Variables** (en Vercel y, para probar, en `.env.local`):
+**Variables** (en el `.env` del servidor y, para probar, en `.env.local`):
 
 | Variable | Valor |
 |---|---|
@@ -161,7 +191,7 @@ equipo sigue entrando con correo y contraseña (Supabase Auth, 3.4).
 
 **Alta en el login.** El login solo devuelve a las aplicaciones que tiene anotadas en
 `src/routes/PrivateRoute.jsx` del repo `cidituc` (una rama `else if` por clave). La subasta está
-anotada como `subasta-cementerio` → `https://subasta-cementerio.vercel.app/auth/cidituc/callback`.
+anotada como `subasta-cementerio` → `https://subastas.smt.gob.ar/auth/cidituc/callback`.
 El cambio va por PR a `master` y lo despliega el equipo de Cidituc. Anotarla ahí no la muestra en
 ningún listado del portal. Si el sitio cambia de dominio, esa entrada se cambia **en el mismo
 despliegue**: con el dominio viejo, el primer intento de ingresar falla ("la solicitud venció") y
@@ -187,53 +217,36 @@ cuenta no puede seguir intentando. Los rechazos por DNI quedan en la auditoría 
 enmascarado ("Intento con un DNI ya registrado"): sirven para atender a quien avisa que su DNI
 ya figura.
 
-### 3.4 Cuentas del equipo (panel)
+### 3.5 Cuentas del equipo (panel)
 
-1. Supabase > Authentication > Users > **Add user** > con correo y contraseña, marcando
-   **Auto Confirm User**.
-2. Copiá el UUID del usuario y, en el SQL Editor:
+Las cuentas están en `auth.users` de la base local (contraseñas bcrypt) y se habilitan en
+`public.admins`. Como root en el servidor, con el correo y el nombre de la persona (la clave la
+escribe quien da el alta, no se pasa por chat ni por correo):
 
-   ```sql
-   insert into public.admins (user_id, nombre) values ('<uuid>', 'Nombre y apellido');
-   ```
+```bash
+read -s -p "Clave nueva: " C && echo && CLAVE="$C" sudo --preserve-env=CLAVE -u postgres psql -d subasta -v correo="nombre@smt.gob.ar" -v nombre="Nombre y apellido" -f /srv/subasta/actual/scripts/servidor/alta-admin.sql; unset C
+```
 
-   Para quitar el acceso: `update public.admins set activo = false where user_id = '<uuid>';`
+Para quitar el acceso: `update public.admins set activo = false where user_id = (select id from auth.users where email = '<correo>');`
 
-### 3.5 Vercel
+### 3.6 Instalación desde cero y respaldos
 
-1. Importá el repositorio en Vercel (framework: Next.js; no hace falta cambiar los comandos).
-2. Cargá las variables de entorno (Settings > Environment Variables, Production). Están
-   explicadas en [.env.example](.env.example):
+Los pasos para montar la subasta en un servidor nuevo (usuario y carpetas, base y roles,
+`.env`, primer despliegue, nginx y certificado, cron) siguen la guía «Migrar proyectos a la
+VPS» de la Dirección, con los scripts de `scripts/servidor/`: `preparar-base.mjs` (esquema y
+migraciones), `copiar-datos.sh` y `copiar-fotos.mjs` (traer datos y fotos de otra base),
+`ecosystem.config.cjs`, `nginx-subasta.conf`, `avisos.sh` y `desplegar.sh`.
 
-   | Variable | Obligatoria | Para qué |
-   |---|---|---|
-   | `DATABASE_URL` | Sí | Conexión al pooler de Supabase en modo transacción (puerto 6543). |
-   | `NEXT_PUBLIC_SUPABASE_URL` | Sí | URL del proyecto de Supabase. |
-   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Sí | Clave pública (anon) del proyecto. |
-   | `NEXT_PUBLIC_URL_SITIO` | Sí | Dirección pública del sitio (correos y QR). |
-   | `RESEND_API_KEY` y `CORREO_REMITENTE` | Para los avisos | Avisos "te superaron". Sin ellas quedan pendientes. |
-   | `CRON_SECRET` | Para los avisos | Protege `/api/avisos`, que reintenta los avisos que fallaron (una vez por día con el plan Hobby). |
-   | `SUPABASE_CA_CERT` | Recomendada | Verifica el certificado de la base. |
-   | `SESSION_SECRET` | Sí | Firma las sesiones de los oferentes (32 caracteres o más). |
-   | `CIDITUC_HABILITADO`, `CIDITUC_LOGIN_URL`, `CIDITUC_API_URL`, `CIDITUC_CALLBACK_URL` | Sí | Ingreso de oferentes con Cidituc (ver 3.3). |
+Respaldo de la base y de las fotos (conviene programarlo y guardar una copia fuera del servidor,
+sobre todo durante la subasta):
 
-   Las variables que empiezan con `NEXT_PUBLIC_` quedan fijas al compilar: cargalas antes del
-   primer despliegue y, si cambian, volvé a desplegar. `CRON_SECRET` se carga sin espacios ni
-   saltos de línea (se compara el valor exacto).
-3. Dominio: configurá el dominio del sitio en Vercel. Para el remitente de los correos, el área
-   que administra el DNS tiene que cargar los registros SPF y DKIM que indique el proveedor
-   (Resend o el SMTP institucional); sin ellos, los correos caen en spam. En Resend, el dominio
-   remitente tiene que figurar como verificado.
-4. Desplegá. Si falta configuración del correo, del cron o de la URL del sitio, la app lo
-   advierte en los registros y en el tablero del panel. Los avisos que hayan quedado pendientes
-   salen solos cuando se completa la configuración (con la próxima oferta o la próxima corrida
-   del cron).
-5. **Cron y plan de Vercel.** `vercel.json` trae el reintento una vez por día (`"0 11 * * *"`,
-   las 8 de Tucumán), lo único que admite el plan Hobby: un cron más frecuente hace fallar el
-   despliegue. Cada oferta aceptada ya dispara el envío de la cola; el cron solo reintenta los
-   que fallaron. Con el plan Pro se puede volver a `"*/10 * * * *"`, o programar el llamado
-   desde Supabase con `pg_cron` + `pg_net` a `https://<sitio>/api/avisos` con el encabezado
-   `Authorization: Bearer <CRON_SECRET>` (guardado en Vault).
+```bash
+sudo -u postgres pg_dump -Fc subasta > /root/respaldos/subasta-$(date +%Y%m%d-%H%M).dump
+```
+
+```bash
+tar czf /root/respaldos/subasta-fotos-$(date +%Y%m%d).tgz -C /srv/subasta/compartido subidas
+```
 
 ---
 
@@ -241,7 +254,7 @@ ya figura.
 
 Todo se hace desde el panel (`/admin`), con una cuenta del equipo.
 
-Para no cargar a mano la base de las 24 obras, `npm run db:catalogo` deja en Supabase los 24
+Para no cargar a mano la base de las 24 obras, `npm run db:catalogo` deja en la base los 24
 artistas y sus obras con el número del catálogo (01 a 24, por apellido), **sin publicar**. Con
 `npm run db:catalogo -- --ver` muestra qué haría sin tocar nada. No pisa obras que ya existan.
 Después, en el panel, se completa cada obra y se publica.

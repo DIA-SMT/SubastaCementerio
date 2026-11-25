@@ -14,7 +14,7 @@ function leer(ruta: string): Buffer | null {
 }
 
 export function cargarLogos(): Logos {
-  // Rutas literales: así el empaquetado del servidor (Vercel) detecta los archivos y los incluye.
+  // Rutas literales: así el empaquetado del servidor detecta los archivos y los incluye.
   return {
     smtBlanco: leer(path.join(process.cwd(), "public/marca/logo-smt-blanco.png")),
     muniIso: leer(path.join(process.cwd(), "public/marca/logo-muni-iso.png")),

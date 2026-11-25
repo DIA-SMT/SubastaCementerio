@@ -17,7 +17,7 @@ import { dependenciasPublico, registrar, reportarAlTablero } from "@/lib/migue/s
 
 const CABECERAS = { "Cache-Control": "no-store" };
 
-/** IP de quien pregunta: en Vercel la ponen x-real-ip y x-forwarded-for; en el servidor propio, nginx. */
+/** IP de quien pregunta: la ponen x-real-ip y x-forwarded-for, que completa nginx. */
 function ipDelPedido(encabezados: Headers): string | null {
   const ip = encabezados.get("x-real-ip") || encabezados.get("x-forwarded-for")?.split(",")[0];
   return ip?.trim() || null;

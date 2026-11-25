@@ -10,7 +10,7 @@ const servicio = { rol: "servicio" } as const;
 
 export type Permiso = "ok" | "limite_correo" | "limite_ip" | "error";
 
-/** IP de quien hace el pedido. En Vercel, x-real-ip y x-forwarded-for los pone la plataforma. */
+/** IP de quien hace el pedido: x-real-ip y x-forwarded-for los completa nginx. */
 async function ipDelPedido() {
   const h = await headers();
   const ip = h.get("x-real-ip") || h.get("x-forwarded-for")?.split(",")[0];

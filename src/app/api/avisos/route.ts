@@ -3,8 +3,8 @@ import { connection } from "next/server";
 import { procesarAvisos } from "@/lib/avisos";
 import { purgarMigue } from "@/lib/migue/servidor";
 
-// Reintento de avisos por correo pendientes o fallidos. Lo llama el cron de Vercel
-// (vercel.json) o el del servidor propio (scripts/servidor/avisos.sh) con el encabezado
+// Reintento de avisos por correo pendientes o fallidos. Lo llama el cron del servidor
+// (scripts/servidor/avisos.sh, cada 10 minutos) con el encabezado
 // Authorization: Bearer <CRON_SECRET>. De paso, la limpieza de Migue (consultas de más de 90
 // días y horas viejas del tope), así no hace falta otro cron.
 export async function GET(pedido: Request) {

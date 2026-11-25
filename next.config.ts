@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
     "/admin/qr/pdf": ["./public/marca/*.png"],
   },
   experimental: {
-    // Fotos de las obras: el navegador las achica antes de subirlas. Vercel corta en 4,5 MB.
+    // Fotos de las obras: el navegador las achica antes de subirlas (nginx acepta hasta 12 MB).
     serverActions: { bodySizeLimit: "4mb" },
   },
   images: {
